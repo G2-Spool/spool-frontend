@@ -1,5 +1,5 @@
 // API Configuration
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://alj6xppcj6.execute-api.us-east-1.amazonaws.com/prod';
 
 export const API_ENDPOINTS = {
   // Auth
@@ -61,9 +61,9 @@ export const API_ENDPOINTS = {
     pineconeStats: '/api/admin/pinecone/stats',
   },
   
-  // Textbooks
+  // Textbooks (maps to content service's books endpoint)
   textbooks: {
-    all: '/api/textbooks',
-    byId: '/api/textbooks/:id',
+    all: '/api/content/books',
+    byId: '/api/content/books/:id',
   },
 };
