@@ -1,4 +1,15 @@
 version: 1
+# This is a frontend-only Amplify app
+# Backend services are deployed separately:
+# - ECS for microservices (content-service, exercise-service, progress-service, interview-service)
+# - API Gateway for REST API routing
+# - Cognito for authentication (configured via SSM parameters)
+backend:
+  phases:
+    build:
+      commands:
+        # Skip backend build - using external ECS/API Gateway backend
+        - echo "Skipping backend build - using ECS backend with API Gateway"
 frontend:
   phases:
     preBuild:
