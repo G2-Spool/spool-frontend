@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { CoursesService } from '../services/courses.service';
 import type { LearningPath, PaginatedResponse } from '../types';
 import type { FilterMetadata } from '../services/pinecone/types';

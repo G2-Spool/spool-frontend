@@ -13,7 +13,7 @@ export const useCourses = (
     queryKey: ['courses', page, pageSize, filters],
     queryFn: () => CoursesService.getCourses(page, pageSize, filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 };
 
@@ -26,7 +26,7 @@ export const useSearchCourses = (
     queryFn: () => CoursesService.searchCourses(query, filters),
     enabled: query.length > 2,
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -35,7 +35,7 @@ export const useCourse = (courseId: string) => {
     queryKey: ['course', courseId],
     queryFn: () => CoursesService.getCourseById(courseId),
     staleTime: 10 * 60 * 1000,
-    cacheTime: 30 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 };
 
@@ -44,7 +44,7 @@ export const useRelatedCourses = (courseId: string, limit?: number) => {
     queryKey: ['related-courses', courseId, limit],
     queryFn: () => CoursesService.getRelatedCourses(courseId, limit),
     staleTime: 30 * 60 * 1000,
-    cacheTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
   });
 };
 
@@ -58,7 +58,7 @@ export const useLearningPaths = (
     queryKey: ['learning-paths', page, pageSize, filters],
     queryFn: () => CoursesService.getLearningPaths(page, pageSize, filters),
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -71,7 +71,7 @@ export const useSearchLearningPaths = (
     queryFn: () => CoursesService.searchLearningPaths(query, filters),
     enabled: query.length > 2,
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -80,7 +80,7 @@ export const useLearningPath = (pathId: string) => {
     queryKey: ['learning-path', pathId],
     queryFn: () => CoursesService.getLearningPathById(pathId),
     staleTime: 10 * 60 * 1000,
-    cacheTime: 30 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 };
 
@@ -92,7 +92,7 @@ export const useLearningPathProgress = (pathId: string) => {
     queryFn: () => CoursesService.getLearningPathProgress(pathId),
     enabled: !!user,
     staleTime: 2 * 60 * 1000, // 2 minutes
-    cacheTime: 5 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 };
 
@@ -106,7 +106,7 @@ export const useSearchConcepts = (
     queryFn: () => CoursesService.searchConcepts(query, filters),
     enabled: query.length > 2,
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -115,7 +115,7 @@ export const useConcept = (conceptId: string) => {
     queryKey: ['concept', conceptId],
     queryFn: () => CoursesService.getConceptById(conceptId),
     staleTime: 10 * 60 * 1000,
-    cacheTime: 30 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 };
 
@@ -124,7 +124,7 @@ export const useConceptComponents = (conceptId: string) => {
     queryKey: ['concept-components', conceptId],
     queryFn: () => CoursesService.getConceptComponents(conceptId),
     staleTime: 30 * 60 * 1000,
-    cacheTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
   });
 };
 
@@ -137,7 +137,7 @@ export const usePersonalizedCourses = () => {
     queryFn: () => CoursesService.getPersonalizedCourses(),
     enabled: !!user,
     staleTime: 30 * 60 * 1000,
-    cacheTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
   });
 };
 
@@ -149,7 +149,7 @@ export const usePersonalizedPaths = () => {
     queryFn: () => CoursesService.getPersonalizedPaths(),
     enabled: !!user,
     staleTime: 30 * 60 * 1000,
-    cacheTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
   });
 };
 
@@ -161,7 +161,7 @@ export const useNextConcept = (pathId: string) => {
     queryFn: () => CoursesService.getNextConcept(pathId),
     enabled: !!user && !!pathId,
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -171,7 +171,7 @@ export const useEnrollCourse = () => {
   
   return useMutation({
     mutationFn: (courseId: string) => CoursesService.enrollInCourse(courseId),
-    onSuccess: (data, courseId) => {
+    onSuccess: (_, courseId) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ['courses'] });
       queryClient.invalidateQueries({ queryKey: ['course', courseId] });
@@ -187,7 +187,7 @@ export const useRefreshCache = () => {
   return useMutation({
     mutationFn: (entityType: 'courses' | 'paths' | 'concepts') => 
       CoursesService.refreshCache(entityType),
-    onSuccess: (data, entityType) => {
+    onSuccess: (_, entityType) => {
       // Invalidate all queries for the entity type
       queryClient.invalidateQueries({ queryKey: [entityType] });
     },

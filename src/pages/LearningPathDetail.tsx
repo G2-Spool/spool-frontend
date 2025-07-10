@@ -16,10 +16,8 @@ import {
   RefreshCw,
   AlertCircle,
 } from 'lucide-react';
-import type { LifeCategory } from '../types';
 import { useLearningPath, useLearningPathProgress } from '../hooks/useLearningPath';
 import { useQuery } from '@tanstack/react-query';
-import { CoursesService } from '../services/courses.service';
 
 // Loading skeleton for learning path
 const LearningPathSkeleton = () => (

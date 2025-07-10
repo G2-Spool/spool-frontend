@@ -9,7 +9,7 @@ const queryClient = new QueryClient({
       // Cache data for 5 minutes by default
       staleTime: 5 * 60 * 1000,
       // Keep cache for 10 minutes
-      cacheTime: 10 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
       // Retry failed requests up to 3 times
       retry: (failureCount, error: any) => {
         // Don't retry on 4xx errors
@@ -22,8 +22,6 @@ const queryClient = new QueryClient({
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       // Refetch on window focus
       refetchOnWindowFocus: false,
-      // Keep previous data while fetching
-      keepPreviousData: true,
     },
     mutations: {
       // Retry mutations on network errors

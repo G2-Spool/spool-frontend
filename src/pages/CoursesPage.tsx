@@ -10,11 +10,10 @@ import {
   ArrowRight,
   Users,
   Search,
-  Filter,
   RefreshCw,
   AlertCircle,
 } from 'lucide-react';
-import type { LifeCategory, Course } from '../types';
+import type { LifeCategory } from '../types';
 import { useCourses, useCourseSearch, useEnrollCourse } from '../hooks/useCourses';
 import type { FilterMetadata } from '../services/pinecone/types';
 
@@ -159,7 +158,7 @@ export const CoursesPage: React.FC = () => {
             {/* Filter Options */}
             <div className="flex gap-2 mt-2">
               <Badge
-                variant={filters.category?.includes('personal') ? 'primary' : 'secondary'}
+                variant={filters.category?.includes('personal') ? 'primary' : 'default'}
                 className="cursor-pointer"
                 onClick={() => {
                   setFilters(prev => ({
@@ -173,7 +172,7 @@ export const CoursesPage: React.FC = () => {
                 Personal
               </Badge>
               <Badge
-                variant={filters.category?.includes('social') ? 'primary' : 'secondary'}
+                variant={filters.category?.includes('social') ? 'primary' : 'default'}
                 className="cursor-pointer"
                 onClick={() => {
                   setFilters(prev => ({
@@ -187,7 +186,7 @@ export const CoursesPage: React.FC = () => {
                 Social
               </Badge>
               <Badge
-                variant={filters.category?.includes('career') ? 'primary' : 'secondary'}
+                variant={filters.category?.includes('career') ? 'primary' : 'default'}
                 className="cursor-pointer"
                 onClick={() => {
                   setFilters(prev => ({
@@ -201,7 +200,7 @@ export const CoursesPage: React.FC = () => {
                 Career
               </Badge>
               <Badge
-                variant={filters.category?.includes('philanthropic') ? 'primary' : 'secondary'}
+                variant={filters.category?.includes('philanthropic') ? 'primary' : 'default'}
                 className="cursor-pointer"
                 onClick={() => {
                   setFilters(prev => ({

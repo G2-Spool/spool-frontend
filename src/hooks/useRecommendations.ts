@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CoursesService } from '../services/courses.service';
-import { useCourses, courseKeys } from './useCourses';
-import { useLearningPaths, learningPathKeys } from './useLearningPath';
+import { courseKeys } from './useCourses';
+import { learningPathKeys } from './useLearningPath';
 import type { Course, LearningPath, Concept } from '../types';
 
 // Combined recommendations hook
