@@ -17,8 +17,8 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
 }) => {
   const bubbleClasses = {
     student: 'bg-student-bubble text-white self-end rounded-br-sm',
-    ai: 'bg-gray-100 text-gray-800 self-start rounded-bl-sm',
-    system: 'bg-gray-50 text-gray-600 self-center text-center italic',
+    ai: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 self-start rounded-bl-sm',
+    system: 'bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400 self-center text-center italic',
   };
 
   const containerClasses = {
@@ -47,7 +47,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
         )}
       </div>
       {!isTyping && sender !== 'system' && (
-        <span className="text-xs text-gray-500 mt-1 px-4">
+        <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-4">
           {format(timestamp, 'h:mm a')}
         </span>
       )}

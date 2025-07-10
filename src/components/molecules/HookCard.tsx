@@ -66,10 +66,10 @@ export const HookCard: React.FC<HookCardProps> = ({
           <Icon className={cn('h-6 w-6', config.color)} />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
             {title || config.title}
           </p>
-          <p className="text-base text-gray-800 leading-relaxed">
+          <p className="text-base text-gray-800 dark:text-gray-200 leading-relaxed">
             {text}
           </p>
         </div>

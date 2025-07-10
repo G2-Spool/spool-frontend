@@ -1,22 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Amplify } from 'aws-amplify';
 import { signIn, signOut, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import type { SignInOutput } from 'aws-amplify/auth';
 import type { User, StudentProfile } from '../types';
-
-// Configure Amplify with Cognito
-Amplify.configure({
-  Auth: {
-    Cognito: {
-      userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID,
-      userPoolClientId: import.meta.env.VITE_COGNITO_CLIENT_ID,
-      signUpVerificationMethod: 'code',
-      loginWith: {
-        email: true,
-      },
-    }
-  }
-});
 
 interface AuthContextType {
   user: User | null;

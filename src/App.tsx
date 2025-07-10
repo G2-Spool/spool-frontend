@@ -24,6 +24,9 @@ import { AuthLayout } from './components/layouts/AuthLayout';
 import { DashboardLayout } from './components/layouts/DashboardLayout';
 import { ProtectedRoute } from './components/layouts/ProtectedRoute';
 
+// Onboarding
+import { OnboardingWizard } from './components/onboarding';
+
 function App() {
   return (
     <ErrorBoundary>
@@ -41,6 +44,15 @@ function App() {
               </Route>
 
               {/* Protected Routes - Student */}
+              <Route
+                path="/onboarding"
+                element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <OnboardingWizard />
+                  </ProtectedRoute>
+                }
+              />
+              
               <Route
                 element={
                   <ProtectedRoute allowedRoles={['student']}>
