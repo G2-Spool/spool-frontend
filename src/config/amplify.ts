@@ -5,7 +5,9 @@ const amplifyConfig = {
     Cognito: {
       userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID || '',
       userPoolClientId: import.meta.env.VITE_COGNITO_CLIENT_ID || '',
-      identityPoolId: import.meta.env.VITE_COGNITO_IDENTITY_POOL_ID || '',
+      ...(import.meta.env.VITE_COGNITO_IDENTITY_POOL_ID && {
+        identityPoolId: import.meta.env.VITE_COGNITO_IDENTITY_POOL_ID,
+      }),
       signUpVerificationMethod: 'code' as const,
       loginWith: {
         email: true,
@@ -37,7 +39,10 @@ export const configureAmplify = () => {
   if (missingVars.length > 0) {
     console.error('Missing required environment variables:', missingVars.join(', '));
     console.error('Please ensure these are set in your .env file or Amplify environment');
+    console.error('Current env:', import.meta.env);
   }
 
+  // Always configure Amplify, even with missing vars, to avoid runtime errors
+  // Amplify will provide more specific error messages when operations are attempted
   Amplify.configure(amplifyConfig);
 };
