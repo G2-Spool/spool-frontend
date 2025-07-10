@@ -31,7 +31,7 @@ export const configureAmplify = () => {
   };
 
   const missingVars = Object.entries(requiredVars)
-    .filter(([key, value]) => !value)
+    .filter(([, value]) => !value)
     .map(([key]) => key);
 
   if (missingVars.length > 0) {

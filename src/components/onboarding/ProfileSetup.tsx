@@ -100,7 +100,7 @@ export function ProfileSetup({ onNext, onUpdate, data }: ProfileSetupProps) {
               onChange={(e) => handleChange('firstName', e.target.value)}
               placeholder="Enter your first name"
               error={errors.firstName}
-              icon={<User className="w-5 h-5" />}
+              leftIcon={<User className="w-5 h-5" />}
             />
             {errors.firstName && (
               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">

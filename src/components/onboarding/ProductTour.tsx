@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BookOpen, Mic, Brain, Trophy, Users, ChevronLeft, 
-  ChevronRight, CheckCircle, Play, Pause, Volume2 
+  ChevronRight, CheckCircle, Play 
 } from 'lucide-react';
 import { Button } from '../atoms/Button';
 import { Card } from '../atoms/Card';

@@ -30,7 +30,7 @@ const steps: OnboardingStep[] = [
 
 export function OnboardingWizard() {
   const navigate = useNavigate();
-  const { user, refetchUser } = useAuth();
+  const { refreshUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [onboardingData, setOnboardingData] = useState({
     profileData: {},
@@ -50,7 +50,7 @@ export function OnboardingWizard() {
 
   const checkOnboardingStatus = async () => {
     try {
-      const { data } = await api.get('/api/student-profile');
+      const data = await api.get<{profile: any}>('/api/student-profile');
       if (data.profile && data.profile.interests && data.profile.interests.length > 0) {
         // User has completed onboarding
         navigate('/dashboard');
@@ -102,7 +102,7 @@ export function OnboardingWizard() {
       });
 
       toast.success('Welcome to Spool! Your personalized learning journey begins now.');
-      await refetchUser();
+      await refreshUser();
       navigate('/dashboard');
     } catch (error) {
       console.error('Error completing onboarding:', error);

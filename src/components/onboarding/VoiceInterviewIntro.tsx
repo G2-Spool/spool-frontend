@@ -13,14 +13,12 @@ interface VoiceInterviewIntroProps {
 export function VoiceInterviewIntro({ onNext, onUpdate, data }: VoiceInterviewIntroProps) {
   const navigate = useNavigate();
   const [preferVoice, setPreferVoice] = useState(true);
-  const [micPermissionGranted, setMicPermissionGranted] = useState(false);
 
   const handleStartVoiceInterview = async () => {
     // Check for microphone permission
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(track => track.stop());
-      setMicPermissionGranted(true);
       
       // Navigate to voice interview page
       navigate('/voice-interview', { 
@@ -31,7 +29,6 @@ export function VoiceInterviewIntro({ onNext, onUpdate, data }: VoiceInterviewIn
       });
     } catch (error) {
       console.error('Microphone permission denied:', error);
-      setMicPermissionGranted(false);
       setPreferVoice(false);
     }
   };

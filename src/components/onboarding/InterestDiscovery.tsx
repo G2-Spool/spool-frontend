@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Plus, X, Hash, Sparkles, Heart, Briefcase, Globe } from 'lucide-react';
 import { Button } from '../atoms/Button';
 import { Input } from '../atoms/Input';
-import { Badge } from '../atoms/Badge';
 import toast from 'react-hot-toast';
 
 interface InterestDiscoveryProps {
