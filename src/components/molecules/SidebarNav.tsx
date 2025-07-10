@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../utils/cn';
 import { 
   Home, 
-  BookOpen, 
+  AudioWaveform, 
   TrendingUp, 
   Flame,
   Trophy,
@@ -18,7 +18,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Courses', href: '/courses', icon: BookOpen },
+  { name: 'Threads', href: '/courses', icon: AudioWaveform },
   { name: 'Progress', href: '/progress', icon: TrendingUp },
 ];
 

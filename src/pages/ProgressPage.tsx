@@ -11,6 +11,7 @@ import {
   BookOpen,
   Award,
   CheckCircle,
+  Spool,
 } from 'lucide-react';
 import type { LifeCategory } from '../types';
 
@@ -95,9 +96,9 @@ export const ProgressPage: React.FC = () => {
           variant="warning"
         />
         <StatsCard
-          title="Concepts Mastered"
+          title="Threads Pulled"
           value={mockProgress.completedConcepts}
-          icon={BookOpen}
+          icon={Spool}
           subtitle={`of ${mockProgress.totalConcepts} total`}
           variant="primary"
         />
@@ -186,7 +187,7 @@ export const ProgressPage: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <p className="text-xs text-gray-600 mb-1">Concepts Mastered</p>
+                      <p className="text-xs text-gray-600 mb-1">Threads Pulled</p>
                       <ProgressBar
                         value={(course.conceptsCompleted / course.totalConcepts) * 100}
                         label={`${course.conceptsCompleted}/${course.totalConcepts}`}
