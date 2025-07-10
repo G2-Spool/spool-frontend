@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-  BookOpen,
   Home,
   User,
   LogOut,
@@ -12,6 +11,7 @@ import {
   Trophy,
   MessageCircle,
   BarChart3,
+  Spool,
 } from 'lucide-react';
 import { Button } from '../atoms/Button';
 import { SidebarNav } from '../molecules/SidebarNav';
@@ -158,7 +158,7 @@ export const DashboardLayout: React.FC = () => {
             {/* Logo */}
             <div className="flex items-center gap-8">
               <Link to={getDashboardHref()} className="flex items-center gap-2">
-                <BookOpen className="h-8 w-8 text-teal-500" />
+                <Spool className="h-8 w-8 text-teal-500" />
                 <span className="text-2xl font-bold text-obsidian dark:text-gray-100">Spool</span>
               </Link>
 

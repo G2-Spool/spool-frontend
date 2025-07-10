@@ -7,6 +7,7 @@ import {
   TrendingUp, 
   Flame,
   Trophy,
+  Spool,
 } from 'lucide-react';
 
 interface NavItem {
@@ -49,7 +50,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
       {/* Logo */}
       <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <Link to="/dashboard" className="flex items-center gap-2">
-          <BookOpen className="h-8 w-8 text-teal-500" />
+          <Spool className="h-8 w-8 text-teal-500" />
           <span className="text-2xl font-bold text-obsidian dark:text-gray-100">Spool</span>
         </Link>
       </div>
