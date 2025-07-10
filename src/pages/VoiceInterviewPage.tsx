@@ -37,12 +37,12 @@ interface DetectedInterest {
 
 export const VoiceInterviewPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, studentProfile } = useAuth();
+  const { user } = useAuth();
   const [isInterviewing, setIsInterviewing] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
   const [detectedInterests, setDetectedInterests] = useState<DetectedInterest[]>([]);
-  const [rtcEndpoints, setRtcEndpoints] = useState<RTCEndpoints | null>(null);
+  const [, setRtcEndpoints] = useState<RTCEndpoints | null>(null);
   const [status, setStatus] = useState<string>('Ready to discover your learning threads');
   const [isConnecting, setIsConnecting] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -366,9 +366,10 @@ export const VoiceInterviewPage: React.FC = () => {
                         </div>
                       </div>
                       <Button
-                        variant={isMuted ? 'danger' : 'ghost'}
+                        variant={isMuted ? 'secondary' : 'ghost'}
                         size="sm"
                         onClick={toggleMute}
+                        className={isMuted ? 'bg-red-500 hover:bg-red-600 text-white' : ''}
                       >
                         {isMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                       </Button>
