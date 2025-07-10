@@ -38,6 +38,10 @@ interface DetectedInterest {
 export const VoiceInterviewPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  
+  console.log('🔄 VoiceInterviewPage rendered');
+  console.log('Current user:', user);
+  console.log('Current path:', window.location.pathname);
   const [isInterviewing, setIsInterviewing] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
@@ -74,14 +78,20 @@ export const VoiceInterviewPage: React.FC = () => {
 
   const startInterview = async () => {
     try {
+      console.log('🎙️ STARTING VOICE INTERVIEW');
+      console.log('User:', user);
+      console.log('API Base URL from config:', import.meta.env.VITE_API_BASE_URL);
+      
       setIsConnecting(true);
       setStatus('Starting your thread discovery interview...');
       
       // Start interview session
+      console.log('📡 Making API call to /api/interview/start');
       const response = await api.post<{ session_id: string; rtc_endpoints: RTCEndpoints }>(
         '/api/interview/start', 
         { user_id: user?.id || 'anonymous' }
       );
+      console.log('✅ Interview start response:', response);
       const { session_id, rtc_endpoints } = response;
       
       setSessionId(session_id);
@@ -113,8 +123,14 @@ export const VoiceInterviewPage: React.FC = () => {
       setIsConnecting(false);
       setStatus('Connected! Let\'s discover your interests together.');
     } catch (error) {
-      console.error('Failed to start interview:', error);
-      setStatus('Failed to start interview. Please check your microphone and try again.');
+      console.error('❌ FAILED TO START INTERVIEW:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : null,
+        response: (error as any)?.response?.data || 'No response data'
+      });
+      
+      setStatus(`Failed to start interview: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsConnecting(false);
     }
   };

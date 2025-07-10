@@ -183,7 +183,11 @@ export const StudentDashboard: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/voice-interview')}
+              onClick={() => {
+                console.log('🎯 DISCOVER MORE BUTTON CLICKED - Navigating to /interview');
+                console.log('Current location:', window.location.pathname);
+                navigate('/interview');
+              }}
               className="rounded-full border-2 border-dashed"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -201,7 +205,11 @@ export const StudentDashboard: React.FC = () => {
             <Button
               variant="primary"
               size="sm"
-              onClick={() => navigate('/voice-interview')}
+              onClick={() => {
+                console.log('🎯 NEW THREAD BUTTON CLICKED - Navigating to /interview');
+                console.log('Current location:', window.location.pathname);
+                navigate('/interview');
+              }}
               className="flex items-center gap-2"
             >
               <Plus className="h-4 w-4" />
@@ -263,7 +271,11 @@ export const StudentDashboard: React.FC = () => {
             <p className="text-gray-600 dark:text-gray-400 mb-4">No learning paths in this category yet.</p>
             <Button
               variant="primary"
-              onClick={() => navigate('/voice-interview')}
+              onClick={() => {
+                console.log('🎯 EMPTY STATE BUTTON CLICKED - Navigating to /interview');
+                console.log('Current location:', window.location.pathname);
+                navigate('/interview');
+              }}
             >
               <Zap className="h-4 w-4 mr-2" />
               Take Voice Interview
