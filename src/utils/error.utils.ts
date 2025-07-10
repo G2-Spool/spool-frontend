@@ -1,13 +1,15 @@
 // Error types for better error handling
-export enum ErrorType {
-  NETWORK = 'NETWORK',
-  AUTHENTICATION = 'AUTHENTICATION',
-  PERMISSION = 'PERMISSION',
-  VALIDATION = 'VALIDATION',
-  NOT_FOUND = 'NOT_FOUND',
-  SERVER = 'SERVER',
-  UNKNOWN = 'UNKNOWN',
-}
+export const ErrorType = {
+  NETWORK: 'NETWORK',
+  AUTHENTICATION: 'AUTHENTICATION',
+  PERMISSION: 'PERMISSION',
+  VALIDATION: 'VALIDATION',
+  NOT_FOUND: 'NOT_FOUND',
+  SERVER: 'SERVER',
+  UNKNOWN: 'UNKNOWN',
+} as const;
+
+export type ErrorType = typeof ErrorType[keyof typeof ErrorType];
 
 export interface AppError extends Error {
   type: ErrorType;

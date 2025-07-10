@@ -24,22 +24,22 @@ export const cacheKeys = {
 // Cache invalidation helpers
 export const invalidateQueries = {
   courses: (queryClient: QueryClient) => {
-    queryClient.invalidateQueries(cacheKeys.courses.all);
+    queryClient.invalidateQueries({ queryKey: cacheKeys.courses.all });
   },
   courseDetail: (queryClient: QueryClient, courseId: string) => {
-    queryClient.invalidateQueries(cacheKeys.courses.detail(courseId));
+    queryClient.invalidateQueries({ queryKey: cacheKeys.courses.detail(courseId) });
   },
   learningPaths: (queryClient: QueryClient) => {
-    queryClient.invalidateQueries(cacheKeys.learningPaths.all);
+    queryClient.invalidateQueries({ queryKey: cacheKeys.learningPaths.all });
   },
   learningPathDetail: (queryClient: QueryClient, pathId: string) => {
-    queryClient.invalidateQueries(cacheKeys.learningPaths.detail(pathId));
+    queryClient.invalidateQueries({ queryKey: cacheKeys.learningPaths.detail(pathId) });
   },
 };
 
 // Optimistic update helpers
 export const optimisticUpdates = {
-  enrollCourse: (queryClient: QueryClient, courseId: string, userId: string) => {
+  enrollCourse: (queryClient: QueryClient, courseId: string) => {
     // Update the course detail to show enrolled status
     queryClient.setQueryData(cacheKeys.courses.detail(courseId), (old: any) => {
       if (!old) return old;
@@ -93,31 +93,27 @@ export const optimisticUpdates = {
 // Prefetch helpers
 export const prefetchQueries = {
   courseDetail: async (queryClient: QueryClient, courseId: string) => {
-    await queryClient.prefetchQuery(
-      cacheKeys.courses.detail(courseId),
-      async () => {
+    await queryClient.prefetchQuery({
+      queryKey: cacheKeys.courses.detail(courseId),
+      queryFn: async () => {
         const response = await fetch(`/api/courses/${courseId}`);
         if (!response.ok) throw new Error('Failed to fetch course');
         return response.json();
       },
-      {
-        staleTime: 5 * 60 * 1000, // 5 minutes
-      }
-    );
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    });
   },
 
   learningPathDetail: async (queryClient: QueryClient, pathId: string) => {
-    await queryClient.prefetchQuery(
-      cacheKeys.learningPaths.detail(pathId),
-      async () => {
+    await queryClient.prefetchQuery({
+      queryKey: cacheKeys.learningPaths.detail(pathId),
+      queryFn: async () => {
         const response = await fetch(`/api/learning-paths/${pathId}`);
         if (!response.ok) throw new Error('Failed to fetch learning path');
         return response.json();
       },
-      {
-        staleTime: 5 * 60 * 1000, // 5 minutes
-      }
-    );
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    });
   },
 };
 

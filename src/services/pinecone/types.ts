@@ -1,4 +1,4 @@
-import { LifeCategory } from '../../types';
+import type { LifeCategory } from '../../types';
 
 // Vector types for Pinecone
 export interface CourseVector {

@@ -1,4 +1,4 @@
-import { LifeCategory } from './index';
+import type { LifeCategory } from './index';
 
 // Course-related types
 export interface Course {

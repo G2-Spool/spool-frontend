@@ -4,8 +4,7 @@ import type {
   LearningPath, 
   Concept,
   ApiResponse,
-  PaginatedResponse,
-  StudentProfile
+  PaginatedResponse
 } from '../types';
 import type { FilterMetadata } from './pinecone/types';
 

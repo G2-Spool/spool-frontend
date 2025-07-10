@@ -1,5 +1,5 @@
 import { Pinecone } from '@pinecone-database/pinecone';
-import { 
+import type { 
   CourseVector, 
   LearningPathVector, 
   ConceptVector,
@@ -10,7 +10,36 @@ import {
   PineconeSearchResponse
 } from './types';
 import { EmbeddingService } from '../embedding/embedding.service';
-import type { Course, LearningPath, Concept, StudentProfile } from '../../types';
+import type { Course, LearningPath, Concept, StudentProfile, LifeCategory } from '../../types';
+
+// Extended types for Pinecone operations to handle missing properties
+interface ExtendedLearningPath extends Partial<LearningPath> {
+  title?: string;
+  description?: string;
+  category?: string;
+  courseIds?: string[];
+  sectionIds?: string[];
+  conceptIds?: string[];
+  totalConcepts?: number;
+  estimatedHours?: number;
+  points?: number;
+  prerequisitePathIds?: string[];
+  requiredSkillLevel?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  targetAgeGroup?: string;
+}
+
+interface ExtendedConcept extends Concept {
+  courseId?: string;
+  pathId?: string;
+  componentTypes?: string[];
+  exerciseTypes?: string[];
+  prerequisiteConceptIds?: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
+  interestTags?: string[];
+}
 
 export class PineconeService {
   private pinecone: Pinecone;
@@ -63,7 +92,7 @@ export class PineconeService {
   }
 
   // Core operations - Learning Paths
-  async upsertLearningPath(path: LearningPath): Promise<void> {
+  async upsertLearningPath(path: ExtendedLearningPath): Promise<void> {
     const embedding = await this.embedder.generateEmbedding(
       this.preparePathText(path)
     );
@@ -72,15 +101,15 @@ export class PineconeService {
       id: `path_${path.id}`,
       values: embedding,
       metadata: {
-        title: path.title,
-        description: path.description,
-        category: path.category,
+        title: path.title || '',
+        description: path.description || '',
+        category: (path.category || 'personal') as LifeCategory,
         courseIds: path.courseIds || [],
         sectionIds: path.sectionIds || [],
         conceptIds: path.conceptIds || [],
-        totalConcepts: path.totalConcepts,
-        estimatedHours: path.estimatedHours,
-        points: path.points,
+        totalConcepts: path.totalConcepts || 0,
+        estimatedHours: path.estimatedHours || 0,
+        points: path.points || 0,
         prerequisitePathIds: path.prerequisitePathIds,
         requiredSkillLevel: path.requiredSkillLevel,
         createdAt: new Date(path.createdAt || Date.now()).getTime(),
@@ -95,7 +124,7 @@ export class PineconeService {
   }
 
   // Core operations - Concepts
-  async upsertConcept(concept: Concept): Promise<void> {
+  async upsertConcept(concept: ExtendedConcept): Promise<void> {
     const embedding = await this.embedder.generateEmbedding(
       this.prepareConceptText(concept)
     );
@@ -109,18 +138,18 @@ export class PineconeService {
         sectionId: concept.sectionId,
         courseId: concept.courseId || '',
         pathId: concept.pathId || '',
-        componentTypes: concept.componentTypes || [],
-        exerciseTypes: concept.exerciseTypes || [],
+        componentTypes: (concept as any).componentTypes || concept.contentTypes || [],
+        exerciseTypes: (concept as any).exerciseTypes || [],
         contentDuration: concept.estimatedMinutes,
         difficulty: concept.difficultyLevel,
         keyVocabulary: concept.keyVocabulary,
         learningObjectives: concept.learningObjectives,
-        prerequisiteConceptIds: concept.prerequisiteConceptIds,
+        prerequisiteConceptIds: (concept as any).prerequisiteConceptIds || [],
         createdAt: new Date(concept.createdAt || Date.now()).getTime(),
         updatedAt: new Date(concept.updatedAt || Date.now()).getTime(),
         searchableText: this.prepareConceptText(concept),
         keywords: this.extractKeywords(concept),
-        interestTags: concept.interestTags || [],
+        interestTags: (concept as any).interestTags || [],
       },
     };
 
@@ -288,7 +317,7 @@ export class PineconeService {
     return `${course.title}. ${course.description}. Category: ${course.category}. Difficulty: ${course.difficulty}.`;
   }
 
-  private preparePathText(path: LearningPath): string {
+  private preparePathText(path: ExtendedLearningPath): string {
     return `${path.title}. ${path.description}. Category: ${path.category}.`;
   }
 

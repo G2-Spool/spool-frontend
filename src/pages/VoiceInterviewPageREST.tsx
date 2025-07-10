@@ -24,7 +24,7 @@ const VoiceInterviewPageREST: React.FC = () => {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
-  const [rtcEndpoints, setRtcEndpoints] = useState<RTCEndpoints | null>(null);
+  const [_rtcEndpoints, setRtcEndpoints] = useState<RTCEndpoints | null>(null);
   const [status, setStatus] = useState<string>('Ready to start');
   
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
@@ -43,8 +43,8 @@ const VoiceInterviewPageREST: React.FC = () => {
       setStatus('Starting interview...');
       
       // Start interview session
-      const response = await api.post('/api/interview/start', { user_id: user?.sub || 'anonymous' });
-      const { session_id, rtc_endpoints } = response.data;
+      const response = await api.post<{ session_id: string; rtc_endpoints: RTCEndpoints }>('/api/interview/start', { user_id: user?.id || 'anonymous' });
+      const { session_id, rtc_endpoints } = response;
       
       setSessionId(session_id);
       setRtcEndpoints(rtc_endpoints);
@@ -52,18 +52,18 @@ const VoiceInterviewPageREST: React.FC = () => {
       setStatus('Initializing audio...');
       
       // Get ICE servers including TURN credentials
-      const iceResponse = await api.get(`/api/interview/${session_id}/ice-servers`);
-      const { iceServers } = iceResponse.data;
+      const iceResponse = await api.get<{ iceServers: RTCIceServer[] }>(`/api/interview/${session_id}/ice-servers`);
+      const { iceServers } = iceResponse;
       
       // Setup WebRTC
       await setupWebRTC(session_id, rtc_endpoints, iceServers);
       
       // Get initial status
-      const statusResponse = await api.get(`/api/interview/${session_id}/status`);
-      if (statusResponse.data.greeting) {
+      const statusResponse = await api.get<{ greeting?: string }>(`/api/interview/${session_id}/status`);
+      if (statusResponse.greeting) {
         setTranscript([{
           speaker: 'assistant',
-          text: statusResponse.data.greeting,
+          text: statusResponse.greeting,
           timestamp: new Date().toISOString()
         }]);
       }
@@ -136,12 +136,12 @@ const VoiceInterviewPageREST: React.FC = () => {
       await pc.setLocalDescription(offer);
       
       // Send offer to server and get answer
-      const response = await api.post(endpoints.offer, {
+      const response = await api.post<RTCSessionDescriptionInit>(endpoints.offer, {
         sdp: offer.sdp,
         type: offer.type
       });
       
-      const answer = response.data;
+      const answer = response;
       await pc.setRemoteDescription(new RTCSessionDescription(answer));
       
       // Start polling for transcript updates
@@ -157,13 +157,13 @@ const VoiceInterviewPageREST: React.FC = () => {
     // Poll for transcript updates every 2 seconds
     const pollInterval = setInterval(async () => {
       try {
-        const response = await api.get(`/api/interview/${sessionId}/status`);
+        const response = await api.get<{ interests_detected: number }>(`/api/interview/${sessionId}/status`);
         
         // Check for new interests
-        if (response.data.interests_detected > interests.length) {
+        if (response.interests_detected > interests.length) {
           // Fetch full results to get new interests
-          const resultsResponse = await api.get(`/api/interview/${sessionId}/results`);
-          const newInterests = resultsResponse.data.interests.map((i: any) => i.name);
+          const resultsResponse = await api.get<{ interests: { name: string }[] }>(`/api/interview/${sessionId}/results`);
+          const newInterests = resultsResponse.interests.map((i) => i.name);
           setInterests(newInterests);
         }
       } catch (error) {
@@ -229,8 +229,8 @@ const VoiceInterviewPageREST: React.FC = () => {
                   <ChatBubble
                     key={index}
                     message={entry.text}
-                    isUser={entry.speaker === 'user'}
-                    timestamp={new Date(entry.timestamp).toLocaleTimeString()}
+                    sender={entry.speaker === 'user' ? 'student' : 'ai'}
+                    timestamp={new Date(entry.timestamp)}
                   />
                 ))}
                 <div ref={transcriptEndRef} />
@@ -283,7 +283,12 @@ const VoiceInterviewPageREST: React.FC = () => {
                 ) : (
                   <div className="space-y-2">
                     {interests.map((interest, index) => (
-                      <InterestBubble key={index} interest={interest} />
+                      <InterestBubble
+                        key={index}
+                        interest={interest}
+                        category="personal"
+                        strength={0.8}
+                      />
                     ))}
                   </div>
                 )}

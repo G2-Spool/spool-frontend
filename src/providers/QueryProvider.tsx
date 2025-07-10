@@ -33,7 +33,7 @@ const queryClient = new QueryClient({
 
 // Global error handler
 queryClient.setMutationDefaults(['enrollCourse'], {
-  mutationFn: async ({ courseId }: { courseId: string }) => {
+  mutationFn: async ({ courseId: _courseId }: { courseId: string }) => {
     // This will be overridden by the actual mutation
     throw new Error('Mutation not implemented');
   },
@@ -42,7 +42,7 @@ queryClient.setMutationDefaults(['enrollCourse'], {
     console.error('Course enrollment error:', error);
     
     // Show user-friendly error message
-    const message = error?.response?.data?.message || 'Failed to enroll in course';
+    // const message = error?.response?.data?.message || 'Failed to enroll in course';
     // You can integrate with a toast notification system here
   },
 });
@@ -56,7 +56,7 @@ export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
     <QueryClientProvider client={queryClient}>
       {children}
       {process.env.NODE_ENV === 'development' && (
-        <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+        <ReactQueryDevtools initialIsOpen={false} />
       )}
     </QueryClientProvider>
   );

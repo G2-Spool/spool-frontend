@@ -16,6 +16,7 @@ import {
   RefreshCw,
   AlertCircle,
 } from 'lucide-react';
+import type { LifeCategory } from '../types';
 import { useLearningPath, useLearningPathProgress } from '../hooks/useLearningPath';
 import { useQuery } from '@tanstack/react-query';
 
@@ -343,7 +344,7 @@ export const LearningPathDetail: React.FC = () => {
                 id={activeConcept.id}
                 title={activeConcept.title}
                 description={activeConcept.description}
-                category={activeConcept.category || 'personal'}
+                category={(activeConcept.category || 'personal') as LifeCategory}
                 components={activeConcept.components}
                 completedComponents={completedComponents[activeConcept.id] || []}
                 onComponentComplete={handleComponentComplete}
@@ -358,7 +359,7 @@ export const LearningPathDetail: React.FC = () => {
                   <ExerciseCard
                     title={activeConcept.exercises.initial.title}
                     description={activeConcept.exercises.initial.description}
-                    category={activeConcept.category || 'personal'}
+                    category={(activeConcept.category || 'personal') as LifeCategory}
                     type="initial"
                     onSubmit={(response) => handleExerciseComplete(activeConcept.exercises.initial.id, response)}
                     isCompleted={completedExercises[activeConcept.exercises.initial.id]}
@@ -369,7 +370,7 @@ export const LearningPathDetail: React.FC = () => {
                     <ExerciseCard
                       title={activeConcept.exercises.articulation.title}
                       description={activeConcept.exercises.articulation.description}
-                      category={activeConcept.category || 'personal'}
+                      category={(activeConcept.category || 'personal') as LifeCategory}
                       type="articulation"
                       onSubmit={(response) => handleExerciseComplete(activeConcept.exercises.articulation.id, response)}
                       isCompleted={completedExercises[activeConcept.exercises.articulation.id]}
@@ -427,7 +428,7 @@ export const LearningPathDetail: React.FC = () => {
 };
 
 // Temporary mock function - replace with actual API call
-function mockSectionsForPath(pathId: string | undefined) {
+function mockSectionsForPath(_pathId: string | undefined) {
   // This would be replaced by actual API call to fetch sections and concepts
   return [
     {
