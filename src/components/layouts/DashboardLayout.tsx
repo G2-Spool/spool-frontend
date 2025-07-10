@@ -102,7 +102,7 @@ export const DashboardLayout: React.FC = () => {
                   <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                     {location.pathname === '/dashboard' && 'Dashboard'}
                     {location.pathname.startsWith('/learning-path') && 'Learning Path'}
-                    {location.pathname === '/courses' && 'My Courses'}
+                    {location.pathname === '/courses' && 'My Learning Paths'}
                     {location.pathname === '/progress' && 'My Progress'}
                     {location.pathname === '/profile' && 'Profile'}
                   </h1>

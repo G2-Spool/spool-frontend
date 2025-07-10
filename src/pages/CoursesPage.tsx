@@ -114,7 +114,7 @@ export const CoursesPage: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-obsidian mb-2">My Courses</h1>
+            <h1 className="text-3xl font-bold text-obsidian mb-2">My Learning Paths</h1>
             <p className="text-gray-600">Continue learning or explore new subjects</p>
           </div>
           <div className="flex items-center gap-2">
@@ -228,7 +228,7 @@ export const CoursesPage: React.FC = () => {
 
       {/* Enrolled Courses */}
       <section className="mb-12">
-        <h2 className="text-xl font-semibold text-obsidian mb-6">Currently Learning</h2>
+        <h2 className="text-xl font-semibold text-obsidian mb-6">Current Threads</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading ? (
             // Loading skeletons
