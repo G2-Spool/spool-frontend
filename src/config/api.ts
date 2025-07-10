@@ -60,4 +60,10 @@ export const API_ENDPOINTS = {
   admin: {
     pineconeStats: '/api/admin/pinecone/stats',
   },
+  
+  // Textbooks
+  textbooks: {
+    all: '/api/textbooks',
+    byId: '/api/textbooks/:id',
+  },
 };

@@ -1,20 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '../components/atoms/Card';
 import { Badge } from '../components/atoms/Badge';
 import { ProgressBar } from '../components/molecules/ProgressBar';
 import { Button } from '../components/atoms/Button';
+import { TextbookCard } from '../components/molecules/TextbookCard';
 import { 
   Clock, 
   Trophy, 
   ArrowRight,
-  Users,
   Search,
   RefreshCw,
   AlertCircle,
 } from 'lucide-react';
 import type { LifeCategory } from '../types';
-import { useCourses, useCourseSearch, useEnrollCourse } from '../hooks/useCourses';
+import { useCourses, useCourseSearch } from '../hooks/useCourses';
+import { useTextbooks } from '../hooks/useTextbooks';
 import type { FilterMetadata } from '../services/pinecone/types';
 
 // Create custom hook for debouncing
@@ -39,12 +40,6 @@ const categoryColors: Record<LifeCategory, string> = {
   social: 'border-social',
   career: 'border-career',
   philanthropic: 'border-philanthropic',
-};
-
-const difficultyColors: Record<string, string> = {
-  Beginner: 'bg-green-100 text-green-700',
-  Intermediate: 'bg-yellow-100 text-yellow-700',
-  Advanced: 'bg-red-100 text-red-700',
 };
 
 export const CoursesPage: React.FC = () => {
@@ -74,24 +69,16 @@ export const CoursesPage: React.FC = () => {
     debouncedSearchQuery.length > 2
   );
   
-  // Enroll mutation
-  const enrollMutation = useEnrollCourse();
+  // Fetch textbooks
+  const { 
+    data: textbooks, 
+    isLoading: isLoadingTextbooks,
+    error: textbooksError 
+  } = useTextbooks();
   
   // Filter courses based on enrollment status
   const courses = searchResults || coursesData?.items || [];
   const enrolledCourses = courses.filter(course => course.enrolled);
-  const availableCourses = courses.filter(course => !course.enrolled);
-  
-  // Handle enrollment
-  const handleEnroll = useCallback(async (courseId: string) => {
-    try {
-      await enrollMutation.mutateAsync(courseId);
-      // Optionally show success message
-    } catch (error) {
-      console.error('Failed to enroll:', error);
-      // Optionally show error message
-    }
-  }, [enrollMutation]);
   
   // Loading skeleton component
   const CourseCardSkeleton = () => (
@@ -302,86 +289,39 @@ export const CoursesPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Available Courses */}
+      {/* Core Subjects (Textbooks) */}
       <section>
-        <h2 className="text-xl font-semibold text-obsidian mb-6">Explore New Courses</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoading ? (
+        <h2 className="text-xl font-semibold text-obsidian mb-6">Explore Core Subjects</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {isLoadingTextbooks ? (
             // Loading skeletons
-            Array.from({ length: 6 }).map((_, index) => (
+            Array.from({ length: 8 }).map((_, index) => (
               <CourseCardSkeleton key={index} />
             ))
-          ) : availableCourses.length === 0 ? (
+          ) : textbooksError ? (
+            // Error state
+            <div className="col-span-full text-center py-12">
+              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <p className="text-gray-600">Failed to load textbooks.</p>
+              <p className="text-gray-400 text-sm mt-1">Please try again later.</p>
+            </div>
+          ) : !textbooks || !Array.isArray(textbooks) || textbooks.length === 0 ? (
             // Empty state
             <div className="col-span-full text-center py-12">
-              <p className="text-gray-500">No courses found matching your criteria.</p>
-              <p className="text-gray-400 text-sm mt-1">Try adjusting your filters or search query.</p>
+              <p className="text-gray-500">No textbooks available yet.</p>
+              <p className="text-gray-400 text-sm mt-1">Check back soon for core subjects.</p>
             </div>
           ) : (
-            // Course cards
-            availableCourses.map((course) => (
-              <Card key={course.id} className={`h-full border-t-4 ${categoryColors[course.category]}`}>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-lg font-semibold text-obsidian line-clamp-2">
-                        {course.title}
-                      </h3>
-                      <Badge variant="primary" size="sm">
-                        {course.category}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {course.description}
-                    </p>
-                  </div>
-
-                  {/* Course Info */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Difficulty</span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${difficultyColors[course.difficulty]}`}>
-                        {course.difficulty}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Sections</span>
-                      <span className="font-medium">{course.totalSections}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Concepts</span>
-                      <span className="font-medium">{course.totalConcepts}</span>
-                    </div>
-                  </div>
-
-                  {/* Meta Info */}
-                  <div className="pt-4 border-t border-gray-200">
-                    <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          <span>{course.estimatedHours}h</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Trophy className="h-4 w-4" />
-                          <span>{course.points}pts</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Users className="h-4 w-4" />
-                          <span>{course.students.toLocaleString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => handleEnroll(course.id)}
-                      disabled={enrollMutation.isPending}
-                      className="w-full px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {enrollMutation.isPending ? 'Enrolling...' : 'Enroll Now'}
-                    </button>
-                  </div>
-                </div>
-              </Card>
+            // Textbook cards
+            textbooks.map((textbook) => (
+              <TextbookCard
+                key={textbook.id}
+                textbook={textbook}
+                onClick={() => {
+                  // Navigate to learning path or create course from textbook
+                  console.log('Selected textbook:', textbook.id);
+                }}
+              />
             ))
           )}
         </div>

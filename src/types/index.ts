@@ -71,6 +71,21 @@ export interface NotificationPreferences {
 }
 
 // Learning Content Types
+export interface Textbook {
+  id: string;
+  title: string;
+  subject: string;
+  gradeLevel: string;
+  description: string;
+  isbn?: string;
+  publisher?: string;
+  publishYear?: number;
+  coverImageUrl?: string;
+  totalChapters: number;
+  estimatedHours: number;
+  topics: string[];
+}
+
 export interface Subject {
   id: string;
   name: string;
