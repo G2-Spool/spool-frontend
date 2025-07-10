@@ -180,13 +180,15 @@ export const StudentDashboard: React.FC = () => {
                 onClick={() => setSelectedCategory(interest.category)}
               />
             ))}
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => navigate('/voice-interview')}
-              className="rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors duration-normal flex items-center gap-2"
+              className="rounded-full border-2 border-dashed"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 mr-2" />
               Discover More
-            </button>
+            </Button>
           </div>
         </Card>
       </div>
@@ -195,42 +197,53 @@ export const StudentDashboard: React.FC = () => {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100">Learning Paths</h2>
-          <div className="flex items-center gap-2">
-            <Badge
-              variant={selectedCategory === 'all' ? 'primary' : 'default'}
-              onClick={() => setSelectedCategory('all')}
-              className="cursor-pointer"
+          <div className="flex items-center gap-4">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => navigate('/voice-interview')}
+              className="flex items-center gap-2"
             >
-              All
-            </Badge>
-            <Badge
-              variant={selectedCategory === 'personal' ? 'primary' : 'default'}
-              onClick={() => setSelectedCategory('personal')}
-              className="cursor-pointer"
-            >
-              Personal
-            </Badge>
-            <Badge
-              variant={selectedCategory === 'social' ? 'primary' : 'default'}
-              onClick={() => setSelectedCategory('social')}
-              className="cursor-pointer"
-            >
-              Social
-            </Badge>
-            <Badge
-              variant={selectedCategory === 'career' ? 'primary' : 'default'}
-              onClick={() => setSelectedCategory('career')}
-              className="cursor-pointer"
-            >
-              Career
-            </Badge>
-            <Badge
-              variant={selectedCategory === 'philanthropic' ? 'primary' : 'default'}
-              onClick={() => setSelectedCategory('philanthropic')}
-              className="cursor-pointer"
-            >
-              Philanthropic
-            </Badge>
+              <Plus className="h-4 w-4" />
+              New Thread
+            </Button>
+            <div className="flex items-center gap-2">
+              <Badge
+                variant={selectedCategory === 'all' ? 'primary' : 'default'}
+                onClick={() => setSelectedCategory('all')}
+                className="cursor-pointer"
+              >
+                All
+              </Badge>
+              <Badge
+                variant={selectedCategory === 'personal' ? 'primary' : 'default'}
+                onClick={() => setSelectedCategory('personal')}
+                className="cursor-pointer"
+              >
+                Personal
+              </Badge>
+              <Badge
+                variant={selectedCategory === 'social' ? 'primary' : 'default'}
+                onClick={() => setSelectedCategory('social')}
+                className="cursor-pointer"
+              >
+                Social
+              </Badge>
+              <Badge
+                variant={selectedCategory === 'career' ? 'primary' : 'default'}
+                onClick={() => setSelectedCategory('career')}
+                className="cursor-pointer"
+              >
+                Career
+              </Badge>
+              <Badge
+                variant={selectedCategory === 'philanthropic' ? 'primary' : 'default'}
+                onClick={() => setSelectedCategory('philanthropic')}
+                className="cursor-pointer"
+              >
+                Philanthropic
+              </Badge>
+            </div>
           </div>
         </div>
 
