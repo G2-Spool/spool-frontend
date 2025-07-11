@@ -40,7 +40,9 @@ npm install --production
 # Package the function
 echo "Packaging Lambda function..."
 rm -f createThread.zip
-zip -r createThread.zip . -x "*.git*" "tests/*" "scripts/*" "*.md" "*.json" "!package.json"
+# Include everything except git, tests, scripts, and markdown files
+# But make sure to include node_modules and package.json
+zip -r createThread.zip . -x "*.git*" "tests/*" "scripts/*" "*.md" "package-lock.json"
 
 # Create or update the Lambda function
 echo "Checking if Lambda function exists..."

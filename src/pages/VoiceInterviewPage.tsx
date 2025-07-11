@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Button } from '../components/atoms/Button';
 import { Card } from '../components/atoms/Card';
 import { ChatBubble } from '../components/molecules/ChatBubble';
@@ -51,6 +52,8 @@ export const VoiceInterviewPage: React.FC = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
+  const [userInput, setUserInput] = useState('');
+  const [isSending, setIsSending] = useState(false);
   
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
@@ -89,73 +92,45 @@ export const VoiceInterviewPage: React.FC = () => {
       setIsConnecting(true);
       setStatus('Starting your thread discovery interview...');
       
-      // Check if voice interview is enabled
-      if (import.meta.env.VITE_ENABLE_VOICE_INTERVIEW !== 'true') {
-        throw new Error('Voice interviews are currently disabled');
-      }
       
       // Start interview session
       console.log('📡 Making API call to /api/interview/start');
-      const response = await api.post<{ session_id: string; rtc_endpoints: RTCEndpoints }>(
+      const response = await api.post<{ sessionId: string; status: string; topic: string; iceServers: RTCIceServer[] }>(
         '/api/interview/start', 
         { 
           user_id: user?.id || 'anonymous',
-          type: 'voice' // Explicitly request voice interview
+          topic: 'Learning Interests Discovery'
         }
       );
       console.log('✅ Interview start response:', response);
-      const { session_id, rtc_endpoints } = response;
+      const { sessionId: session_id, iceServers } = response;
       
       setSessionId(session_id);
-      setRtcEndpoints(rtc_endpoints);
-      setStatus('Initializing audio connection...');
+      setStatus('Interview session started...');
       
-      // Get ICE servers including TURN credentials
-      const iceResponse = await api.get<{ iceServers: RTCIceServer[] }>(
-        `/api/interview/${session_id}/ice-servers`
-      );
-      const { iceServers } = iceResponse;
-      
-      // Setup WebRTC
-      await setupWebRTC(session_id, rtc_endpoints, iceServers);
-      
-      // Get initial greeting
-      const statusResponse = await api.get<{ greeting?: string }>(
-        `/api/interview/${session_id}/status`
-      );
-      if (statusResponse.greeting) {
-        setTranscript([{
-          speaker: 'assistant',
-          text: statusResponse.greeting,
-          timestamp: new Date().toISOString()
-        }]);
-      }
-      
+      // For now, skip WebRTC and just start with chat interface
+      // We'll implement WebRTC in a follow-up once the basic chat works
       setIsInterviewing(true);
       setIsConnecting(false);
-      setStatus('Connected! Let\'s discover your interests together.');
-    } catch (error) {
-      console.error('❌ FAILED TO START INTERVIEW:', error);
-      console.error('Error details:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : null,
-        response: (error as any)?.response?.data || 'No response data'
-      });
       
-      // More specific error messages
-      let errorMessage = 'Failed to start interview';
-      if (error instanceof Error) {
-        if (error.message.includes('disabled')) {
-          errorMessage = 'Voice interviews are currently disabled';
-        } else if ((error as any).response?.status === 404) {
-          errorMessage = 'Interview service not found. Please ensure the backend is running.';
-        } else if ((error as any).response?.status === 401) {
-          errorMessage = 'Authentication failed. Please log in again.';
-        } else if ((error as any).code === 'ERR_NETWORK') {
-          errorMessage = 'Network error. Please check your internet connection.';
-        } else {
-          errorMessage = error.message;
-        }
+      // Add initial greeting
+      setTranscript([{
+        speaker: 'assistant',
+        text: "Hello! I'm excited to learn about your interests and passions. What subjects or topics have you been curious about lately?",
+        timestamp: new Date().toISOString()
+      }]);
+      
+      // Start polling for status
+      startPolling(session_id);
+      
+    } catch (error) {
+      console.error('Failed to start interview:', error);
+      
+      let errorMessage = 'Failed to start interview. Please try again.';
+      if ((error as any)?.response?.status === 404) {
+        errorMessage = 'Interview service not available. Please check that the backend is running.';
+      } else if ((error as any)?.code === 'ERR_NETWORK') {
+        errorMessage = 'Network error. Please check your connection.';
       }
       
       setStatus(errorMessage);
@@ -164,7 +139,7 @@ export const VoiceInterviewPage: React.FC = () => {
     }
   };
 
-  const setupWebRTC = async (sessionId: string, endpoints: RTCEndpoints, iceServers: RTCIceServer[]) => {
+  const setupWebRTC = async (sessionId: string, endpoints: RTCEndpoints | null, iceServers: RTCIceServer[]) => {
     try {
       console.log('🌐 Setting up WebRTC with ICE servers:', iceServers);
       
@@ -196,11 +171,13 @@ export const VoiceInterviewPage: React.FC = () => {
         if (event.candidate) {
           console.log('🧊 New ICE candidate:', event.candidate.candidate);
           try {
-            // Send ICE candidate to server
-            await api.post(endpoints.ice_candidate, {
-              session_id: sessionId,
-              candidate: event.candidate.toJSON()
-            });
+            // Send ICE candidate to server (when we have WebRTC endpoints)
+            if (endpoints?.ice_candidate) {
+              await api.post(endpoints.ice_candidate, {
+                session_id: sessionId,
+                candidate: event.candidate.toJSON()
+              });
+            }
             console.log('✅ ICE candidate sent successfully');
           } catch (error) {
             console.error('❌ Failed to send ICE candidate:', error);
@@ -256,17 +233,16 @@ export const VoiceInterviewPage: React.FC = () => {
       
       await pc.setLocalDescription(offer);
       
-      // Send offer to server and get answer
-      const response = await api.post<RTCSessionDescriptionInit>(endpoints.offer, {
-        sdp: offer.sdp,
-        type: offer.type
-      });
-      
-      const answer = response;
-      await pc.setRemoteDescription(new RTCSessionDescription(answer));
-      
-      // Start polling for updates
-      startPolling(sessionId);
+      // Send offer to server and get answer (when we have WebRTC endpoints)
+      if (endpoints?.offer) {
+        const response = await api.post<RTCSessionDescriptionInit>(endpoints.offer, {
+          sdp: offer.sdp,
+          type: offer.type
+        });
+        
+        const answer = response;
+        await pc.setRemoteDescription(new RTCSessionDescription(answer));
+      }
       
     } catch (error) {
       console.error('❌ WebRTC setup failed:', error);
@@ -320,22 +296,20 @@ export const VoiceInterviewPage: React.FC = () => {
     const pollInterval = setInterval(async () => {
       try {
         const response = await api.get<{ 
-          interests_detected: number;
-          transcript?: TranscriptEntry[];
+          sessionId: string;
+          status: string;
+          startTime: string;
+          messageCount: number;
+          topic: string;
+          duration: number;
         }>(`/api/interview/${sessionId}/status`);
         
-        // Update transcript if provided
-        if (response.transcript && response.transcript.length > transcript.length) {
-          setTranscript(response.transcript);
-        }
-        
-        // Check for new interests
-        if (response.interests_detected > detectedInterests.length) {
-          // Fetch full results to get new interests
-          const resultsResponse = await api.get<{ 
-            interests: DetectedInterest[] 
-          }>(`/api/interview/${sessionId}/results`);
-          setDetectedInterests(resultsResponse.interests);
+        // For now, we'll just check the status
+        // In a real implementation, we'd check for new messages here
+        if (response.status !== 'active') {
+          clearInterval(pollIntervalRef.current!);
+          pollIntervalRef.current = null;
+          setStatus('Interview session ended');
         }
       } catch (error) {
         console.error('Polling error:', error);
@@ -375,6 +349,89 @@ export const VoiceInterviewPage: React.FC = () => {
     }
   };
 
+  const sendMessage = async () => {
+    if (!userInput.trim() || !sessionId || isSending) return;
+    
+    try {
+      setIsSending(true);
+      const userMessage = userInput.trim();
+      setUserInput('');
+      
+      // Add user message to transcript
+      const userEntry: TranscriptEntry = {
+        speaker: 'user',
+        text: userMessage,
+        timestamp: new Date().toISOString()
+      };
+      setTranscript(prev => [...prev, userEntry]);
+      
+      // Send message to server
+      const response = await api.post<{ response: string; sessionId: string; messageCount: number }>(
+        `/api/interview/${sessionId}/message`,
+        { message: userMessage }
+      );
+      
+      // Add AI response to transcript
+      const assistantEntry: TranscriptEntry = {
+        speaker: 'assistant',
+        text: response.response,
+        timestamp: new Date().toISOString()
+      };
+      setTranscript(prev => [...prev, assistantEntry]);
+      
+      // Simulate interest detection (in a real app, this would come from the backend)
+      const lowerMessage = userMessage.toLowerCase();
+      const interestMap: Record<string, { name: string; category: DetectedInterest['category'] }> = {
+        'math': { name: 'Mathematics', category: 'career' },
+        'mathematics': { name: 'Mathematics', category: 'career' },
+        'science': { name: 'Science', category: 'career' },
+        'physics': { name: 'Physics', category: 'career' },
+        'chemistry': { name: 'Chemistry', category: 'career' },
+        'biology': { name: 'Biology', category: 'career' },
+        'history': { name: 'History', category: 'personal' },
+        'programming': { name: 'Computer Science', category: 'career' },
+        'coding': { name: 'Computer Science', category: 'career' },
+        'computer': { name: 'Computer Science', category: 'career' },
+        'art': { name: 'Visual Arts', category: 'personal' },
+        'music': { name: 'Music', category: 'personal' },
+        'creative': { name: 'Creative Arts', category: 'personal' },
+        'language': { name: 'Languages', category: 'personal' },
+        'literature': { name: 'Literature', category: 'personal' },
+        'sports': { name: 'Sports & Fitness', category: 'personal' },
+        'volunteer': { name: 'Community Service', category: 'philanthropic' },
+        'environment': { name: 'Environmental Studies', category: 'social' }
+      };
+      
+      Object.entries(interestMap).forEach(([keyword, interest]) => {
+        if (lowerMessage.includes(keyword)) {
+          const newInterest: DetectedInterest = {
+            name: interest.name,
+            category: interest.category,
+            confidence: 0.75 + Math.random() * 0.2 // Random confidence between 0.75-0.95
+          };
+          setDetectedInterests(prev => {
+            if (!prev.find(i => i.name === newInterest.name)) {
+              return [...prev, newInterest];
+            }
+            return prev;
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
   const endInterview = async () => {
     try {
       setStatus('Wrapping up your interview...');
@@ -385,9 +442,10 @@ export const VoiceInterviewPage: React.FC = () => {
         pollIntervalRef.current = null;
       }
       
-      // End session on server
+      // End session on server (when this endpoint is available)
+      // For now, we'll just clean up locally
       if (sessionId) {
-        await api.post(`/api/interview/${sessionId}/end`);
+        // await api.post(`/api/interview/${sessionId}/end`);
       }
       
       cleanup();
@@ -438,31 +496,10 @@ export const VoiceInterviewPage: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100">
-                      Voice Conversation
+                      Learning Interest Discovery
                     </h2>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{status}</p>
                   </div>
-                  {isInterviewing && (
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2">
-                        <Volume2 className="h-4 w-4 text-gray-500" />
-                        <div className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-teal-500 transition-all duration-75"
-                            style={{ width: `${Math.min(audioLevel / 128 * 100, 100)}%` }}
-                          />
-                        </div>
-                      </div>
-                      <Button
-                        variant={isMuted ? 'secondary' : 'ghost'}
-                        size="sm"
-                        onClick={toggleMute}
-                        className={isMuted ? 'bg-red-500 hover:bg-red-600 text-white' : ''}
-                      >
-                        {isMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                  )}
                 </div>
               </div>
               
@@ -518,22 +555,48 @@ export const VoiceInterviewPage: React.FC = () => {
                   </Button>
                 ) : (
                   <div className="space-y-3">
-                    <div className="flex items-center justify-center space-x-3">
+                    {/* Chat input */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={userInput}
+                        onChange={(e) => setUserInput(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder="Type your response here..."
+                        className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        disabled={isSending}
+                      />
+                      <Button
+                        onClick={sendMessage}
+                        variant="primary"
+                        size="md"
+                        disabled={!userInput.trim() || isSending}
+                        className="px-6"
+                      >
+                        {isSending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          'Send'
+                        )}
+                      </Button>
+                    </div>
+                    
+                    {/* Interview status and end button */}
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
                         <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                           Interview in progress
                         </span>
                       </div>
+                      <Button
+                        onClick={endInterview}
+                        variant="secondary"
+                        size="sm"
+                      >
+                        End Interview
+                      </Button>
                     </div>
-                    <Button
-                      onClick={endInterview}
-                      className="w-full"
-                      variant="secondary"
-                      size="lg"
-                    >
-                      End Interview
-                    </Button>
                   </div>
                 )}
               </div>

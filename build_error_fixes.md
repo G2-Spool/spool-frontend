@@ -1,4 +1,4 @@
-# Build Error Fixes Guide for Spool Frontend
+npm install -g @anthropic-ai/claude-code# Build Error Fixes Guide for Spool Frontend
 
 ## Build Status Overview
 

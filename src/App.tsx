@@ -13,8 +13,6 @@ import { StudentDashboard } from './pages/StudentDashboard';
 import { LearningPathDetail } from './pages/LearningPathDetail';
 import { ConceptPage } from './pages/ConceptPage';
 import { ExercisePage } from './pages/ExercisePage';
-import { ParentDashboard } from './pages/ParentDashboard';
-import { EducatorDashboard } from './pages/EducatorDashboard';
 import { ProfilePage } from './pages/ProfilePage';
 import { CoursesPage } from './pages/CoursesPage';
 import { ProgressPage } from './pages/ProgressPage';
@@ -72,26 +70,6 @@ function App() {
                 <Route path="/profile" element={<ProfilePage />} />
               </Route>
 
-              {/* Protected Routes - Parent/Educator */}
-              <Route
-                element={
-                  <ProtectedRoute allowedRoles={['parent', 'admin']}>
-                    <DashboardLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route path="/parent-dashboard" element={<ParentDashboard />} />
-              </Route>
-
-              <Route
-                element={
-                  <ProtectedRoute allowedRoles={['educator', 'admin']}>
-                    <DashboardLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route path="/educator-dashboard" element={<EducatorDashboard />} />
-              </Route>
 
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />

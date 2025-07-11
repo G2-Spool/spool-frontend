@@ -5,7 +5,7 @@ export * from './course.types';
 export interface User {
   id: string;
   email: string;
-  role: 'student' | 'parent' | 'educator' | 'admin';
+  role: 'student' | 'admin';
   isActive: boolean;
   emailVerified: boolean;
   lastLoginAt?: Date;
@@ -67,7 +67,6 @@ export interface NotificationPreferences {
   emailNotifications: boolean;
   streakReminders: boolean;
   achievementAlerts: boolean;
-  parentReports: boolean;
 }
 
 // Learning Content Types

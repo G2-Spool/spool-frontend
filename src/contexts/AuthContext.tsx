@@ -61,7 +61,6 @@ const mockStudentProfile: StudentProfile = {
     emailNotifications: true,
     streakReminders: true,
     achievementAlerts: true,
-    parentReports: false,
   },
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -81,7 +80,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userData: User = {
         id: cognitoUser.userId,
         email: attributes.email || '',
-        role: (attributes['custom:role'] as any) || 'student',
+        role: 'student', // Always student for individual learners
         isActive: true,
         emailVerified: attributes.email_verified === 'true',
         createdAt: new Date(),
@@ -90,13 +89,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       setUser(userData);
       
-      // If user is a student, fetch their profile
-      if (userData.role === 'student') {
-        // In production, this would be an API call
-        // const profile = await fetchStudentProfile(userData.id);
-        // For now, use mock data
-        setStudentProfile(mockStudentProfile);
-      }
+      // Fetch student profile
+      // In production, this would be an API call
+      // const profile = await fetchStudentProfile(userData.id);
+      // For now, use mock data
+      setStudentProfile(mockStudentProfile);
     } catch (error) {
       console.error('Error fetching user:', error);
       setUser(null);

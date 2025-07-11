@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ThreadService } from '../services/thread.service';
 import type { Thread, CreateThreadRequest } from '../types/thread.types';
+import { EXAMPLE_THREAD, isExampleThread } from '../data/exampleThread';
 
 // Query keys
 export const threadKeys = {
@@ -15,10 +16,30 @@ export const threadKeys = {
 export const useThread = (threadId: string) => {
   return useQuery<Thread>({
     queryKey: threadKeys.detail(threadId),
-    queryFn: () => ThreadService.getThread(threadId),
+    queryFn: async () => {
+      // Return example thread if it's an example thread ID
+      if (isExampleThread(threadId)) {
+        return Promise.resolve(EXAMPLE_THREAD);
+      }
+      try {
+        return await ThreadService.getThread(threadId);
+      } catch (error) {
+        // If API fails and it's the example thread, return it
+        if (threadId === 'example-thread-001') {
+          console.warn('Failed to fetch from API, using local example thread');
+          return EXAMPLE_THREAD;
+        }
+        throw error;
+      }
+    },
     enabled: !!threadId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    retry: (failureCount, error: any) => {
+      // Don't retry for 404s
+      if (error?.response?.status === 404) return false;
+      return failureCount < 2;
+    }
   });
 };
 
@@ -26,10 +47,34 @@ export const useThread = (threadId: string) => {
 export const useUserThreads = (userId: string, limit: number = 10) => {
   return useQuery<Thread[]>({
     queryKey: threadKeys.list(userId),
-    queryFn: () => ThreadService.getUserThreads(userId, limit),
+    queryFn: async () => {
+      try {
+        const threads = await ThreadService.getUserThreads(userId, limit);
+        // Always include example thread at the beginning
+        const allThreads = [EXAMPLE_THREAD, ...threads];
+        // Remove duplicates based on threadId
+        const uniqueThreads = allThreads.filter((thread, index, self) =>
+          index === self.findIndex((t) => t.threadId === thread.threadId)
+        );
+        return uniqueThreads;
+      } catch (error: any) {
+        // If API fails, still return example thread
+        console.warn('Failed to fetch user threads, showing example only:', error);
+        // Check if it's an auth error
+        if (error?.response?.status === 401) {
+          console.info('Authentication required for thread API');
+        }
+        return [EXAMPLE_THREAD];
+      }
+    },
     enabled: !!userId,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
+    retry: (failureCount, error: any) => {
+      // Don't retry for auth errors
+      if (error?.response?.status === 401) return false;
+      return failureCount < 2;
+    }
   });
 };
 

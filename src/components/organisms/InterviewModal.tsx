@@ -20,12 +20,16 @@ interface InterviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   onInterestsExtracted?: (interests: Array<{ interest: string; category: string; strength: number }>) => void;
+  mode?: 'interests' | 'thread'; // New prop to support thread creation mode
+  onThreadCreated?: (threadId: string) => void; // Callback when thread is created
 }
 
 export const InterviewModal: React.FC<InterviewModalProps> = ({
   isOpen,
   onClose,
   onInterestsExtracted,
+  mode = 'interests', // Default to interests mode
+  onThreadCreated,
 }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -52,11 +56,13 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
 
   const startInterview = async () => {
     try {
-      // Add initial system message
+      // Add initial system message based on mode
       const systemMessage: Message = {
         id: 'system-1',
         role: 'system',
-        content: "Hi! I'm here to learn about your interests. What do you enjoy doing for fun? It could be anything - hobbies, activities, games, or things you're curious about!",
+        content: mode === 'thread' 
+          ? "Hi! I'm here to help you explore any academic topic or question. What would you like to learn about today? Feel free to ask about any subject, concept, or how different topics connect!"
+          : "Hi! I'm here to learn about your interests. What do you enjoy doing for fun? It could be anything - hobbies, activities, games, or things you're curious about!",
         timestamp: new Date(),
       };
       setMessages([systemMessage]);
@@ -77,6 +83,8 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
       const response = await api.post<{ sessionId: string }>(API_ENDPOINTS.interview.start, {
         studentId: user?.id,
         type: 'text', // Using text-based interview instead of voice
+        mode: mode, // Pass the mode to backend
+        purpose: mode === 'thread' ? 'create_learning_thread' : 'extract_interests',
       });
       
       console.log('Interview started successfully:', response);
@@ -138,8 +146,11 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
         reply: string;
         interests?: Array<{ interest: string; category: string; strength: number }>;
         isComplete?: boolean;
+        threadId?: string; // Add thread ID for thread mode
+        threadCreated?: boolean; // Flag to indicate thread was created
       }>(`/api/interview/${sessionId}/message`, {
         message: messageText,
+        mode: mode, // Include mode in message payload
       });
 
       console.log('Message response:', response);
@@ -153,18 +164,41 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
       };
       setMessages(prev => [...prev, assistantMessage]);
 
-      // If interests were extracted, save them
-      if (response.interests && response.interests.length > 0) {
-        console.log('Interests extracted:', response.interests);
-        await saveInterests(response.interests);
-        onInterestsExtracted?.(response.interests);
+      // Handle response based on mode
+      if (mode === 'thread') {
+        // Thread mode: Check if thread was created
+        if (response.threadCreated && response.threadId) {
+          console.log('Thread created successfully:', response.threadId);
+          toast.success('Learning thread created successfully!');
+          
+          // Call the callback if provided
+          onThreadCreated?.(response.threadId);
+          
+          // Navigate to thread page
+          setTimeout(() => {
+            navigate(`/thread/${response.threadId}`);
+            onClose();
+          }, 1000);
+        }
+      } else {
+        // Interests mode: Handle interest extraction
+        if (response.interests && response.interests.length > 0) {
+          console.log('Interests extracted:', response.interests);
+          await saveInterests(response.interests);
+          onInterestsExtracted?.(response.interests);
+        }
       }
 
       // If interview is complete, show completion message
       if (response.isComplete) {
         setTimeout(() => {
-          toast.success('Thanks for sharing your interests!');
-          onClose();
+          const message = mode === 'thread' 
+            ? 'Your learning thread is being prepared...'
+            : 'Thanks for sharing your interests!';
+          toast.success(message);
+          if (!response.threadCreated) {
+            onClose();
+          }
         }, 2000);
       }
     } catch (error: any) {
@@ -227,10 +261,12 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div>
             <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100">
-              Let's Learn About Your Interests
+              {mode === 'thread' ? 'Create a Learning Thread' : "Let's Learn About Your Interests"}
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Have a quick chat to help us personalize your learning journey
+              {mode === 'thread' 
+                ? 'Ask any academic question and explore topics with AI guidance'
+                : 'Have a quick chat to help us personalize your learning journey'}
             </p>
           </div>
           <Button

@@ -20,7 +20,7 @@ import { useCourses, useCourseSearch } from '../hooks/useCourses';
 import { useTextbooks } from '../hooks/useTextbooks';
 import { useUserThreads } from '../hooks/useThread';
 import { ThreadCard } from '../components/molecules/ThreadCard';
-import { CreateThreadDialog } from '../components/molecules/CreateThreadDialog';
+import { InterviewModal } from '../components/organisms/InterviewModal';
 import type { FilterMetadata } from '../services/pinecone/types';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -53,7 +53,7 @@ export const CoursesPage: React.FC = () => {
   const [filters, setFilters] = useState<FilterMetadata>({});
   const [page, setPage] = useState(1);
   const [showSearch, setShowSearch] = useState(false);
-  const [showCreateThread, setShowCreateThread] = useState(false);
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
   
   // Get current user
   const { user } = useAuth();
@@ -236,7 +236,10 @@ export const CoursesPage: React.FC = () => {
           <h2 className="text-xl font-semibold text-obsidian">Your Learning Threads</h2>
           <Button
             size="sm"
-            onClick={() => setShowCreateThread(true)}
+            onClick={() => {
+              console.log('🎯 CREATE THREAD BUTTON CLICKED - Opening interview modal');
+              setShowInterviewModal(true);
+            }}
           >
             <Plus className="h-4 w-4 mr-2" />
             Create Thread
@@ -273,7 +276,10 @@ export const CoursesPage: React.FC = () => {
             </p>
             <Button
               size="sm"
-              onClick={() => setShowCreateThread(true)}
+              onClick={() => {
+              console.log('🎯 CREATE THREAD BUTTON CLICKED - Opening interview modal');
+              setShowInterviewModal(true);
+            }}
             >
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Thread
@@ -421,11 +427,18 @@ export const CoursesPage: React.FC = () => {
         )}
       </section>
       
-      {/* Create Thread Dialog */}
-      <CreateThreadDialog
-        isOpen={showCreateThread}
-        onClose={() => setShowCreateThread(false)}
-        userId={userId}
+      {/* Interview Modal */}
+      <InterviewModal
+        isOpen={showInterviewModal}
+        onClose={() => setShowInterviewModal(false)}
+        mode="thread" // Use thread mode for creating learning threads
+        onThreadCreated={(threadId) => {
+          console.log('Thread created from courses page:', threadId);
+          // The modal will automatically navigate to the thread page
+        }}
+        onInterestsExtracted={(interests) => {
+          console.log('Interests extracted from courses page:', interests);
+        }}
       />
     </div>
   );
