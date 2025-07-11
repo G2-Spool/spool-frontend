@@ -14,7 +14,7 @@ import { LearningPathDetail } from './pages/LearningPathDetail';
 import { ConceptPage } from './pages/ConceptPage';
 import { ExercisePage } from './pages/ExercisePage';
 import { ProfilePage } from './pages/ProfilePage';
-import { CoursesPage } from './pages/CoursesPage';
+import { ThreadsPage } from './pages/ThreadsPage';
 import { ProgressPage } from './pages/ProgressPage';
 import { ThreadPage } from './pages/ThreadPage';
 
@@ -61,7 +61,7 @@ function App() {
               >
                 <Route path="/dashboard" element={<StudentDashboard />} />
                 <Route path="/interview" element={<VoiceInterviewPage />} />
-                <Route path="/courses" element={<CoursesPage />} />
+                <Route path="/threads" element={<ThreadsPage />} />
                 <Route path="/progress" element={<ProgressPage />} />
                 <Route path="/learning-path/:id" element={<LearningPathDetail />} />
                 <Route path="/learn/:conceptId" element={<ConceptPage />} />

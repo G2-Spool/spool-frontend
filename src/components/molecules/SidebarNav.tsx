@@ -18,7 +18,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { name: 'Home', href: '/dashboard', icon: Home },
-  { name: 'Threads', href: '/courses', icon: AudioWaveform },
+  { name: 'Threads', href: '/threads', icon: AudioWaveform },
   { name: 'Progress', href: '/progress', icon: TrendingUp },
 ];
 
@@ -39,7 +39,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     if (path === '/dashboard' && location.pathname === '/dashboard') {
       return true;
     }
-    if (path === '/courses' && (location.pathname.startsWith('/courses') || location.pathname.startsWith('/learning-path'))) {
+    if (path === '/threads' && (location.pathname.startsWith('/threads') || location.pathname.startsWith('/learning-path') || location.pathname.startsWith('/thread'))) {
       return true;
     }
     return location.pathname === path;

@@ -75,7 +75,7 @@ export const ThreadPage: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             We couldn't find the thread you're looking for.
           </p>
-          <Button onClick={() => navigate('/courses')}>
+          <Button onClick={() => navigate('/threads')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Courses
           </Button>
@@ -96,7 +96,7 @@ export const ThreadPage: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/courses')}
+              onClick={() => navigate('/threads')}
               className="mb-4"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />

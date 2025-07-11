@@ -168,7 +168,7 @@ export const LearningPathDetail: React.FC = () => {
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-red-700 mb-2">Failed to load learning path</h2>
           <p className="text-red-600 mb-4">Please try again or contact support if the problem persists.</p>
-          <Button variant="primary" onClick={() => navigate('/courses')}>
+          <Button variant="primary" onClick={() => navigate('/threads')}>
             Back to Courses
           </Button>
         </div>
@@ -182,7 +182,7 @@ export const LearningPathDetail: React.FC = () => {
         <div className="p-8 bg-gray-50 border border-gray-200 rounded-lg text-center">
           <h2 className="text-xl font-semibold text-gray-700 mb-2">Learning path not found</h2>
           <p className="text-gray-600 mb-4">This learning path may have been removed or is not available.</p>
-          <Button variant="primary" onClick={() => navigate('/courses')}>
+          <Button variant="primary" onClick={() => navigate('/threads')}>
             Back to Courses
           </Button>
         </div>
@@ -196,7 +196,7 @@ export const LearningPathDetail: React.FC = () => {
       <div className="mb-8">
         <Button
           variant="ghost"
-          onClick={() => navigate('/courses')}
+          onClick={() => navigate('/threads')}
           className="mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -409,7 +409,7 @@ export const LearningPathDetail: React.FC = () => {
                   setActiveSectionIndex(activeSectionIndex + 1);
                   setActiveConceptIndex(0);
                 } else {
-                  navigate('/courses');
+                  navigate('/threads');
                 }
               }}
               disabled={!isConceptCompleted(activeConcept)}

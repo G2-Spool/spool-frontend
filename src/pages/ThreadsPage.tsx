@@ -48,7 +48,7 @@ const categoryColors: Record<LifeCategory, string> = {
   philanthropic: 'border-philanthropic',
 };
 
-export const CoursesPage: React.FC = () => {
+export const ThreadsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<FilterMetadata>({});
   const [page, setPage] = useState(1);
@@ -118,8 +118,8 @@ export const CoursesPage: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-obsidian mb-2">My Learning Paths</h1>
-            <p className="text-gray-600">Continue learning or explore new subjects</p>
+            <h1 className="text-3xl font-bold text-obsidian dark:text-gray-100 mb-2">Threads</h1>
+            <p className="text-gray-600 dark:text-gray-400">Continue learning or explore new subjects</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
