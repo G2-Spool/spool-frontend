@@ -21,6 +21,7 @@ frontend:
         # Create .env file with SSM parameters (Amplify automatically loads them as env vars)
         - |
           cat > .env << EOF
+          VITE_API_BASE_URL=$VITE_API_BASE_URL
           REACT_APP_API_ENDPOINT=$REACT_APP_API_ENDPOINT
           REACT_APP_COGNITO_REGION=$REACT_APP_COGNITO_REGION
           REACT_APP_COGNITO_USER_POOL_ID=$REACT_APP_COGNITO_USER_POOL_ID

@@ -10,6 +10,7 @@ import { ExpandableStatsCard } from '../components/molecules/ExpandableStatsCard
 import { StreakDisplay } from '../components/molecules/StreakDisplay';
 import { InterestBubble } from '../components/molecules/InterestBubble';
 import { LearningPathSkeleton } from '../components/LoadingStates/LearningPathSkeleton';
+import { InterviewModal } from '../components/organisms/InterviewModal';
 import { 
   BookOpen, 
   Trophy, 
@@ -24,8 +25,9 @@ import type { LifeCategory } from '../types';
 
 export const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { studentProfile, user } = useAuth();
+  const { studentProfile, user, updateStudentProfile } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<LifeCategory | 'all'>('all');
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
   
   // Fetch real data from API
   const { data: learningPaths, isLoading: pathsLoading } = useLearningPaths();
@@ -56,8 +58,8 @@ export const StudentDashboard: React.FC = () => {
           variant="primary"
           size="lg"
           onClick={() => {
-            console.log('🎯 NEW THREAD BUTTON CLICKED - Navigating to /interview');
-            navigate('/interview');
+            console.log('🎯 NEW THREAD BUTTON CLICKED - Opening interview modal');
+            setShowInterviewModal(true);
           }}
           className="flex items-center gap-3 px-6 py-3"
         >
@@ -186,9 +188,8 @@ export const StudentDashboard: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={() => {
-                console.log('🎯 DISCOVER MORE BUTTON CLICKED - Navigating to /interview');
-                console.log('Current location:', window.location.pathname);
-                navigate('/interview');
+                console.log('🎯 DISCOVER MORE BUTTON CLICKED - Opening interview modal');
+                setShowInterviewModal(true);
               }}
               className="rounded-full border-2 border-dashed"
             >
@@ -267,19 +268,38 @@ export const StudentDashboard: React.FC = () => {
                 <Button
                   variant="primary"
                   onClick={() => {
-                    console.log('🎯 EMPTY STATE BUTTON CLICKED - Navigating to /interview');
-                    console.log('Current location:', window.location.pathname);
-                    navigate('/interview');
+                    console.log('🎯 EMPTY STATE BUTTON CLICKED - Opening interview modal');
+                    setShowInterviewModal(true);
                   }}
                 >
                   <Zap className="h-4 w-4 mr-2" />
-                  Take Voice Interview
+                  Discover Interests
                 </Button>
               </Card>
             )}
           </>
         )}
       </div>
+
+      {/* Interview Modal */}
+      <InterviewModal
+        isOpen={showInterviewModal}
+        onClose={() => setShowInterviewModal(false)}
+        onInterestsExtracted={(interests) => {
+          console.log('Interests extracted:', interests);
+          // Update local state if needed
+          if (updateStudentProfile) {
+            updateStudentProfile({
+              ...studentProfile,
+              interests: interests.map(i => ({
+                interest: i.interest,
+                category: i.category as LifeCategory,
+                strength: i.strength
+              }))
+            });
+          }
+        }}
+      />
     </div>
   );
 };
