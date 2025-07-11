@@ -79,17 +79,29 @@ export const VoiceInterviewPage: React.FC = () => {
   const startInterview = async () => {
     try {
       console.log('🎙️ STARTING VOICE INTERVIEW');
-      console.log('User:', user);
-      console.log('API Base URL from config:', import.meta.env.VITE_API_BASE_URL);
+      console.log('👤 User:', user);
+      console.log('🔧 Environment Config:', {
+        API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+        WEBRTC_SIGNAL_SERVER: import.meta.env.VITE_WEBRTC_SIGNAL_SERVER,
+        ENABLE_VOICE_INTERVIEW: import.meta.env.VITE_ENABLE_VOICE_INTERVIEW
+      });
       
       setIsConnecting(true);
       setStatus('Starting your thread discovery interview...');
+      
+      // Check if voice interview is enabled
+      if (import.meta.env.VITE_ENABLE_VOICE_INTERVIEW !== 'true') {
+        throw new Error('Voice interviews are currently disabled');
+      }
       
       // Start interview session
       console.log('📡 Making API call to /api/interview/start');
       const response = await api.post<{ session_id: string; rtc_endpoints: RTCEndpoints }>(
         '/api/interview/start', 
-        { user_id: user?.id || 'anonymous' }
+        { 
+          user_id: user?.id || 'anonymous',
+          type: 'voice' // Explicitly request voice interview
+        }
       );
       console.log('✅ Interview start response:', response);
       const { session_id, rtc_endpoints } = response;
@@ -130,28 +142,71 @@ export const VoiceInterviewPage: React.FC = () => {
         response: (error as any)?.response?.data || 'No response data'
       });
       
-      setStatus(`Failed to start interview: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      // More specific error messages
+      let errorMessage = 'Failed to start interview';
+      if (error instanceof Error) {
+        if (error.message.includes('disabled')) {
+          errorMessage = 'Voice interviews are currently disabled';
+        } else if ((error as any).response?.status === 404) {
+          errorMessage = 'Interview service not found. Please ensure the backend is running.';
+        } else if ((error as any).response?.status === 401) {
+          errorMessage = 'Authentication failed. Please log in again.';
+        } else if ((error as any).code === 'ERR_NETWORK') {
+          errorMessage = 'Network error. Please check your internet connection.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setStatus(errorMessage);
+      toast.error(errorMessage);
       setIsConnecting(false);
     }
   };
 
   const setupWebRTC = async (sessionId: string, endpoints: RTCEndpoints, iceServers: RTCIceServer[]) => {
     try {
+      console.log('🌐 Setting up WebRTC with ICE servers:', iceServers);
+      
       // Create peer connection with ICE servers
       const pc = new RTCPeerConnection({
         iceServers,
         iceCandidatePoolSize: 10,
+        bundlePolicy: 'max-bundle',
+        rtcpMuxPolicy: 'require'
       });
       
       peerConnectionRef.current = pc;
       
+      // Add connection state debugging
+      pc.addEventListener('connectionstatechange', () => {
+        console.log('🔌 Connection state changed:', pc.connectionState);
+      });
+      
+      pc.addEventListener('iceconnectionstatechange', () => {
+        console.log('🧊 ICE connection state changed:', pc.iceConnectionState);
+      });
+      
+      pc.addEventListener('icegatheringstatechange', () => {
+        console.log('📍 ICE gathering state changed:', pc.iceGatheringState);
+      });
+      
       // Setup event handlers
       pc.onicecandidate = async (event) => {
         if (event.candidate) {
-          // Send ICE candidate to server
-          await api.post(endpoints.ice_candidate, {
-            candidate: event.candidate
-          });
+          console.log('🧊 New ICE candidate:', event.candidate.candidate);
+          try {
+            // Send ICE candidate to server
+            await api.post(endpoints.ice_candidate, {
+              session_id: sessionId,
+              candidate: event.candidate.toJSON()
+            });
+            console.log('✅ ICE candidate sent successfully');
+          } catch (error) {
+            console.error('❌ Failed to send ICE candidate:', error);
+          }
+        } else {
+          console.log('🏁 ICE gathering complete');
         }
       };
       
@@ -214,7 +269,24 @@ export const VoiceInterviewPage: React.FC = () => {
       startPolling(sessionId);
       
     } catch (error) {
-      console.error('WebRTC setup failed:', error);
+      console.error('❌ WebRTC setup failed:', error);
+      console.error('🔍 Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : null,
+        type: error instanceof Error ? error.constructor.name : typeof error
+      });
+      
+      // Check for specific WebRTC errors
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          setStatus('Microphone access denied. Please allow microphone access and try again.');
+        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+          setStatus('No microphone found. Please connect a microphone and try again.');
+        } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+          setStatus('Microphone is already in use by another application.');
+        }
+      }
+      
       throw error;
     }
   };
