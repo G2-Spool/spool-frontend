@@ -46,18 +46,18 @@ export const DashboardLayout: React.FC = () => {
 
   const navigation = user?.role === 'student'
     ? [
-        { name: 'Dashboard', href: '/dashboard', icon: Home },
+        { name: 'Home', href: '/dashboard', icon: Home },
         { name: 'Voice Interview', href: '/interview', icon: MessageCircle },
         { name: 'Profile', href: '/profile', icon: User },
       ]
     : user?.role === 'parent'
     ? [
-        { name: 'Dashboard', href: '/parent-dashboard', icon: Home },
+        { name: 'Home', href: '/parent-dashboard', icon: Home },
         { name: 'Analytics', href: '/analytics', icon: BarChart3 },
         { name: 'Profile', href: '/profile', icon: User },
       ]
     : [
-        { name: 'Dashboard', href: '/educator-dashboard', icon: Home },
+        { name: 'Home', href: '/educator-dashboard', icon: Home },
         { name: 'Analytics', href: '/analytics', icon: BarChart3 },
         { name: 'Profile', href: '/profile', icon: User },
       ];
@@ -100,7 +100,7 @@ export const DashboardLayout: React.FC = () => {
                 {/* Page Title or Search can go here */}
                 <div className="hidden lg:block">
                   <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {location.pathname === '/dashboard' && 'Dashboard'}
+                    {location.pathname === '/dashboard' && 'Home'}
                     {location.pathname.startsWith('/learning-path') && 'Learning Path'}
                     {location.pathname === '/courses' && 'My Learning Paths'}
                     {location.pathname === '/progress' && 'My Progress'}

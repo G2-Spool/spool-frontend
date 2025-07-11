@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLearningPaths, useActiveLearningPath, useStudentStats } from '../hooks/useLearningPaths';
 import { Button } from '../components/atoms/Button';
 import { Card } from '../components/atoms/Card';
 import { Badge } from '../components/atoms/Badge';
 import { LearningPathCard } from '../components/molecules/LearningPathCard';
-import { StatsCard } from '../components/molecules/StatsCard';
+import { ExpandableStatsCard } from '../components/molecules/ExpandableStatsCard';
 import { StreakDisplay } from '../components/molecules/StreakDisplay';
 import { InterestBubble } from '../components/molecules/InterestBubble';
+import { LearningPathSkeleton } from '../components/LoadingStates/LearningPathSkeleton';
 import { 
   BookOpen, 
   Trophy, 
@@ -17,86 +19,53 @@ import {
   Plus,
   ArrowRight,
   Sparkles,
+  Loader2,
 } from 'lucide-react';
 import type { LifeCategory } from '../types';
 
-// Mock data for learning paths
-const mockLearningPaths = [
-  {
-    id: '1',
-    title: 'Game Development Fundamentals',
-    category: 'career' as LifeCategory,
-    description: 'Learn the basics of game development, from concept to implementation',
-    progress: 65,
-    totalExercises: 12,
-    completedExercises: 8,
-    estimatedMinutes: 45,
-    points: 150,
-    isActive: true,
-  },
-  {
-    id: '2',
-    title: 'Environmental Science & Action',
-    category: 'philanthropic' as LifeCategory,
-    description: 'Understand climate change and learn how to make a positive impact',
-    progress: 40,
-    totalExercises: 10,
-    completedExercises: 4,
-    estimatedMinutes: 30,
-    points: 120,
-    isActive: false,
-  },
-  {
-    id: '3',
-    title: 'Team Leadership Skills',
-    category: 'social' as LifeCategory,
-    description: 'Develop leadership abilities for sports teams and group projects',
-    progress: 25,
-    totalExercises: 8,
-    completedExercises: 2,
-    estimatedMinutes: 35,
-    points: 100,
-    isActive: false,
-  },
-  {
-    id: '4',
-    title: 'Advanced Gaming Strategies',
-    category: 'personal' as LifeCategory,
-    description: 'Master advanced techniques in your favorite games',
-    progress: 80,
-    totalExercises: 15,
-    completedExercises: 12,
-    estimatedMinutes: 50,
-    points: 200,
-    isActive: false,
-  },
-];
 
 export const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { studentProfile, user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<LifeCategory | 'all'>('all');
+  
+  // Fetch real data from API
+  const { data: learningPaths, isLoading: pathsLoading } = useLearningPaths();
+  const { data: activePath, isLoading: activePathLoading } = useActiveLearningPath();
+  const { data: stats, isLoading: statsLoading } = useStudentStats();
 
   if (!studentProfile || !user) {
     return null;
   }
 
   const filteredPaths = selectedCategory === 'all' 
-    ? mockLearningPaths 
-    : mockLearningPaths.filter(path => path.category === selectedCategory);
-
-  const activePath = mockLearningPaths.find(path => path.isActive);
+    ? (learningPaths || [])
+    : (learningPaths || []).filter(path => path.category === selectedCategory);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-obsidian dark:text-gray-100 mb-2">
-          Welcome back, {studentProfile.firstName}! 👋
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Ready to continue your learning journey?
-        </p>
+      {/* Header with New Thread Button */}
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-obsidian dark:text-gray-100 mb-2">
+            Home
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Welcome back, {studentProfile.firstName}! Ready to continue your learning journey?
+          </p>
+        </div>
+        <Button
+          variant="primary"
+          size="lg"
+          onClick={() => {
+            console.log('🎯 NEW THREAD BUTTON CLICKED - Navigating to /interview');
+            navigate('/interview');
+          }}
+          className="flex items-center gap-3 px-6 py-3"
+        >
+          <Plus className="h-5 w-5" />
+          New Thread
+        </Button>
       </div>
 
       {/* Streak Display */}
@@ -113,58 +82,93 @@ export const StudentDashboard: React.FC = () => {
         </div>
       </Card>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <StatsCard
-          title="Total Points"
-          value={studentProfile.totalPoints}
-          subtitle="All time"
+      {/* Quick Stats - More subtle and expandable */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <ExpandableStatsCard
+          title="Points"
+          value={statsLoading ? '—' : (stats?.totalPoints || studentProfile.totalPoints).toLocaleString()}
+          subtitle="all time"
           icon={Trophy}
-          variant="primary"
+          variant="default"
           trend={{ value: 12, isPositive: true }}
+          expandedContent={{
+            weeklyData: stats?.weeklyData?.points || [0, 0, 0, 0, 0, 0, 0],
+            monthlyGoal: 5000,
+            bestRecord: 850,
+            insights: [
+              "You're 12% above average this week",
+              "Complete 3 more exercises to reach next level"
+            ]
+          }}
         />
-        <StatsCard
-          title="Exercises Done"
-          value="47"
-          subtitle="This month"
+        <ExpandableStatsCard
+          title="Exercises"
+          value={statsLoading ? '—' : stats?.exercisesThisMonth || 0}
+          subtitle="this month"
           icon={BookOpen}
-          variant="success"
+          variant="default"
           trend={{ value: 8, isPositive: true }}
+          expandedContent={{
+            weeklyData: stats?.weeklyData?.exercises || [0, 0, 0, 0, 0, 0, 0],
+            monthlyGoal: 60,
+            bestRecord: 15,
+            insights: [
+              "On track to exceed monthly goal",
+              "Most productive on Wednesdays"
+            ]
+          }}
         />
-        <StatsCard
-          title="Learning Time"
-          value="12.5h"
-          subtitle="This week"
+        <ExpandableStatsCard
+          title="Time"
+          value={statsLoading ? '—' : `${(stats?.learningTimeThisWeek || 0) / 60}h`}
+          subtitle="this week"
           icon={Clock}
-          variant="warning"
+          variant="default"
           trend={{ value: 5, isPositive: false }}
+          expandedContent={{
+            weeklyData: stats?.weeklyData?.timeMinutes?.map(m => m / 60) || [0, 0, 0, 0, 0, 0, 0],
+            monthlyGoal: 50,
+            bestRecord: 3.5,
+            insights: [
+              "5% below last week",
+              "Try morning sessions for better focus"
+            ]
+          }}
         />
-        <StatsCard
-          title="Daily Goal"
-          value={`${studentProfile.dailyGoalMinutes}m`}
-          subtitle="Per day"
+        <ExpandableStatsCard
+          title="Goal"
+          value={`${stats?.dailyGoalMinutes || studentProfile.dailyGoalMinutes}m`}
+          subtitle="daily target"
           icon={Target}
           variant="default"
+          expandedContent={{
+            weeklyData: stats?.weeklyData?.goalMinutes || [30, 30, 30, 30, 30, 30, 30],
+            monthlyGoal: (stats?.dailyGoalMinutes || studentProfile.dailyGoalMinutes) * 30,
+            bestRecord: 60,
+            insights: [
+              "Met goal 5 out of 7 days",
+              "Consider adjusting to 35 minutes"
+            ]
+          }}
         />
       </div>
 
-      {/* Active Learning Path */}
-      {activePath && (
+      {/* Continue Thread - Half width */}
+      {activePathLoading ? (
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100">Continue Learning</h2>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => navigate(`/learning-path/${activePath.id}`)}
-            >
-              Resume
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
+          <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100 mb-4">Continue Thread</h2>
+          <div className="max-w-xl">
+            <LearningPathSkeleton />
           </div>
-          <LearningPathCard {...activePath} />
         </div>
-      )}
+      ) : activePath ? (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100 mb-4">Continue Thread</h2>
+          <div className="max-w-xl">
+            <LearningPathCard {...activePath} />
+          </div>
+        </div>
+      ) : null}
 
       {/* Interests Section */}
       <div className="mb-8">
@@ -201,21 +205,7 @@ export const StudentDashboard: React.FC = () => {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100">Learning Paths</h2>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => {
-                console.log('🎯 NEW THREAD BUTTON CLICKED - Navigating to /interview');
-                console.log('Current location:', window.location.pathname);
-                navigate('/interview');
-              }}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              New Thread
-            </Button>
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
               <Badge
                 variant={selectedCategory === 'all' ? 'primary' : 'default'}
                 onClick={() => setSelectedCategory('all')}
@@ -255,32 +245,42 @@ export const StudentDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredPaths.map((path) => (
-            <LearningPathCard
-              key={path.id}
-              {...path}
-              onClick={() => navigate(`/learning-path/${path.id}`)}
-            />
-          ))}
-        </div>
+        {pathsLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <LearningPathSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredPaths.map((path) => (
+                <LearningPathCard
+                  key={path.id}
+                  {...path}
+                  onClick={() => navigate(`/learning-path/${path.id}`)}
+                />
+              ))}
+            </div>
 
-        {filteredPaths.length === 0 && (
-          <Card className="text-center py-12">
-            <Sparkles className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600 dark:text-gray-400 mb-4">No learning paths in this category yet.</p>
-            <Button
-              variant="primary"
-              onClick={() => {
-                console.log('🎯 EMPTY STATE BUTTON CLICKED - Navigating to /interview');
-                console.log('Current location:', window.location.pathname);
-                navigate('/interview');
-              }}
-            >
-              <Zap className="h-4 w-4 mr-2" />
-              Take Voice Interview
-            </Button>
-          </Card>
+            {filteredPaths.length === 0 && (
+              <Card className="text-center py-12">
+                <Sparkles className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-600 dark:text-gray-400 mb-4">No learning paths in this category yet.</p>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    console.log('🎯 EMPTY STATE BUTTON CLICKED - Navigating to /interview');
+                    console.log('Current location:', window.location.pathname);
+                    navigate('/interview');
+                  }}
+                >
+                  <Zap className="h-4 w-4 mr-2" />
+                  Take Voice Interview
+                </Button>
+              </Card>
+            )}
+          </>
         )}
       </div>
     </div>

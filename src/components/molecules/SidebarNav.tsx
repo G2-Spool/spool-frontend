@@ -17,7 +17,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
+  { name: 'Home', href: '/dashboard', icon: Home },
   { name: 'Threads', href: '/courses', icon: AudioWaveform },
   { name: 'Progress', href: '/progress', icon: TrendingUp },
 ];
