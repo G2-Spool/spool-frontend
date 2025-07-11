@@ -1,372 +1,356 @@
-# Spool Master Design System
+# Spool Design System 2.0: Threads & Illumination
 
-## 1. Design Philosophy
+## 1. Core Design Philosophy
 
-Spool's design system embodies **clarity through simplicity**. We prioritize educational content and student engagement over decorative elements. Every design decision supports our core mission: making learning personally relevant through AI-powered personalization.
+**Threads & Illumination** represents the evolution of Spool's visual language, combining educational clarity with a modern, tactile aesthetic that makes learning feel approachable and engaging.
 
-**Core Principles:**
-- **Clarity First**: Clean layouts that never compete with educational content
-- **Subtle Engagement**: Teal accents guide without overwhelming
-- **Consistent Hierarchy**: Predictable patterns reduce cognitive load
-- **Accessible Always**: High contrast, clear typography, keyboard-friendly
-- **Performance Matters**: Lightweight components for fast interactions
+### Primary Principles
+
+- **Illuminated Threads**: Components feel subtly lit from within, like threads catching light in the learning journey
+- **Tactile Minimalism**: Soft shadows and gentle glows make UI elements feel touchable and real
+- **Layered Clarity**: Multiple depth layers guide focus without overwhelming the educational content
+- **Thread Physics**: Subtle animations suggest the natural movement of threads connecting concepts
+- **Focused Accessibility**: Every design decision supports learners of all abilities
+
+### Dark Mode Philosophy
+
+- **Illuminated Surfaces**: Components glow softly from within on darker backgrounds
+- **Tactile & Approachable**: Soft shadows and gentle borders create inviting interaction points
+- **Focused Clarity**: Dark environments reduce visual noise, allowing content to shine
 
 ## 2. Foundational Design Tokens
 
 ### 2.1 Color System
 
-**Primary Palette**
 ```css
-/* Teal Accent Scale */
---color-teal-50: #E6FFFA;    /* Lightest background tint */
---color-teal-100: #B2F5EA;   /* Light backgrounds */
---color-teal-200: #81E6D9;   /* Hover states */
---color-teal-300: #4FD1C5;   /* Default teal */
---color-teal-400: #38B2AC;   /* Primary actions */
---color-teal-500: #319795;   /* Primary brand color */
---color-teal-600: #2C7A7B;   /* Pressed states */
---color-teal-700: #285E61;   /* Dark accents */
-
-/* Obsidian & Neutral Scale */
---color-obsidian: #0A0E1A;   /* Primary text */
---color-gray-900: #1A202C;   /* Headers */
---color-gray-800: #2D3748;   /* Body text */
---color-gray-700: #4A5568;   /* Secondary text */
---color-gray-600: #718096;   /* Muted text */
---color-gray-500: #A0AEC0;   /* Placeholders */
---color-gray-400: #CBD5E0;   /* Borders */
---color-gray-300: #E2E8F0;   /* Dividers */
---color-gray-200: #EDF2F7;   /* Backgrounds */
---color-gray-100: #F7FAFC;   /* Light backgrounds */
---color-white: #FFFFFF;      /* Pure white */
-
-/* Semantic Colors */
---color-success: #48BB78;    /* Green for correct/complete */
---color-warning: #ED8936;    /* Orange for warnings */
---color-error: #F56565;      /* Red for errors */
---color-info: #4299E1;       /* Blue for information */
-
-/* Application Specific */
---color-student-bubble: #319795;     /* Student voice in chat */
---color-ai-bubble: #4299E1;          /* AI voice in chat */
---color-personal: #805AD5;           /* Personal life category */
---color-social: #D69E2E;             /* Social life category */
---color-career: #38B2AC;             /* Career life category */
---color-philanthropic: #E53E3E;     /* Philanthropic category */
-```
-
-**Usage Guidelines:**
-- **Primary Actions**: Use `--color-teal-500` for main CTAs
-- **Text Hierarchy**: `--color-obsidian` for headers, `--color-gray-800` for body
-- **Interactive States**: Teal scale for hover/active states
-- **Backgrounds**: Gray scale from `100` to `200`
-- **Life Categories**: Distinct colors for the four categories
-
-### 2.2 Typography
-
-```css
-/* Font Families */
---font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
---font-mono: 'Fira Code', 'Consolas', monospace;
-
-/* Font Sizes - 1.25 Scale */
---text-xs: 0.75rem;     /* 12px - Captions */
---text-sm: 0.875rem;    /* 14px - Small text */
---text-base: 1rem;      /* 16px - Body text */
---text-lg: 1.125rem;    /* 18px - Large body */
---text-xl: 1.25rem;     /* 20px - Small headers */
---text-2xl: 1.5rem;     /* 24px - Section headers */
---text-3xl: 1.875rem;   /* 30px - Page headers */
---text-4xl: 2.25rem;    /* 36px - Major headers */
---text-5xl: 3rem;       /* 48px - Display */
-
-/* Font Weights */
---font-normal: 400;
---font-medium: 500;
---font-semibold: 600;
---font-bold: 700;
-
-/* Line Heights */
---leading-tight: 1.25;
---leading-normal: 1.5;
---leading-relaxed: 1.75;
-
-/* Letter Spacing */
---tracking-tight: -0.025em;
---tracking-normal: 0;
---tracking-wide: 0.025em;
-```
-
-**Typography Hierarchy:**
-```css
-/* Headers */
-.h1 {
-  font-size: var(--text-3xl);
-  font-weight: var(--font-bold);
-  line-height: var(--leading-tight);
-  color: var(--color-obsidian);
+:root {
+  /* Thread Colors - Primary Palette */
+  --thread-primary: #4FD1C5;      /* Teal - main thread color */
+  --thread-secondary: #805AD5;    /* Purple - connecting threads */
+  --thread-tertiary: #ED64A6;     /* Pink - discovery moments */
+  --thread-accent: #38B2AC;       /* Deep teal - emphasis */
+  
+  /* Surface Colors - Light Mode */
+  --surface-ground: #FAFAFA;      /* Base background */
+  --surface-base: #FFFFFF;        /* Component background */
+  --surface-raised: #FFFFFF;      /* Elevated components */
+  --surface-overlay: #F7FAFC;     /* Hover states */
+  
+  /* Text Colors - Light Mode */
+  --text-primary: #1A202C;        /* Primary text */
+  --text-secondary: #4A5568;      /* Secondary text */
+  --text-muted: #718096;          /* Muted text */
+  --text-inverse: #FFFFFF;        /* Inverse text */
+  
+  /* Semantic Colors */
+  --color-success: #48BB78;       /* Green for correct/complete */
+  --color-warning: #ED8936;       /* Orange for warnings */
+  --color-error: #F56565;         /* Red for errors */
+  --color-info: #4299E1;          /* Blue for information */
+  
+  /* Life Categories */
+  --color-personal: #805AD5;      /* Personal life */
+  --color-social: #D69E2E;        /* Social life */
+  --color-career: #38B2AC;        /* Career */
+  --color-philanthropic: #E53E3E; /* Philanthropic */
+  
+  /* Border System */
+  --border-color: rgba(0, 0, 0, 0.05);
+  --border-color-strong: rgba(0, 0, 0, 0.1);
 }
 
-.h2 {
-  font-size: var(--text-2xl);
-  font-weight: var(--font-semibold);
-  line-height: var(--leading-tight);
-  color: var(--color-gray-900);
-}
-
-.h3 {
-  font-size: var(--text-xl);
-  font-weight: var(--font-semibold);
-  line-height: var(--leading-normal);
-  color: var(--color-gray-900);
-}
-
-/* Body Text */
-.body-large {
-  font-size: var(--text-lg);
-  line-height: var(--leading-relaxed);
-  color: var(--color-gray-800);
-}
-
-.body {
-  font-size: var(--text-base);
-  line-height: var(--leading-normal);
-  color: var(--color-gray-800);
-}
-
-.body-small {
-  font-size: var(--text-sm);
-  line-height: var(--leading-normal);
-  color: var(--color-gray-700);
-}
-
-/* Special Text */
-.caption {
-  font-size: var(--text-xs);
-  line-height: var(--leading-normal);
-  color: var(--color-gray-600);
-  letter-spacing: var(--tracking-wide);
-}
-
-.code {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  background: var(--color-gray-100);
-  padding: 0.125rem 0.25rem;
-  border-radius: 0.25rem;
+/* Dark Mode Colors */
+[data-theme="dark"] {
+  /* Surface Colors - Dark Mode */
+  --surface-ground: #0A0E1A;      /* Deepest background */
+  --surface-base: #1A202C;        /* Component background */
+  --surface-raised: #2D3748;      /* Elevated components */
+  --surface-overlay: #374151;     /* Hover states */
+  
+  /* Text Colors - Dark Mode */
+  --text-primary: #F7FAFC;        /* Primary text */
+  --text-secondary: #CBD5E0;      /* Secondary text */
+  --text-muted: #A0AEC0;          /* Muted text */
+  --text-inverse: #1A202C;        /* Inverse text */
+  
+  /* Border System - Dark Mode */
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-color-strong: rgba(255, 255, 255, 0.2);
+  --border-glow: rgba(255, 255, 255, 0.05);
+  
+  /* Adjusted Thread Colors for Dark Mode */
+  --thread-primary: #5FE1D5;      /* Brighter teal */
+  --thread-secondary: #9F7AEA;    /* Lighter purple */
+  --thread-tertiary: #F687B3;     /* Lighter pink */
 }
 ```
 
-### 2.3 Spacing System
+### 2.2 Shadow & Glow System
 
 ```css
-/* 8px Base Unit Scale */
---space-0: 0;
---space-1: 0.25rem;   /* 4px */
---space-2: 0.5rem;    /* 8px */
---space-3: 0.75rem;   /* 12px */
---space-4: 1rem;      /* 16px */
---space-5: 1.25rem;   /* 20px */
---space-6: 1.5rem;    /* 24px */
---space-8: 2rem;      /* 32px */
---space-10: 2.5rem;   /* 40px */
---space-12: 3rem;     /* 48px */
---space-16: 4rem;     /* 64px */
---space-20: 5rem;     /* 80px */
---space-24: 6rem;     /* 96px */
+:root {
+  /* Light Mode Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 
+               0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.04), 
+               0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.04), 
+               0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.04), 
+               0 10px 10px rgba(0, 0, 0, 0.04);
+  
+  /* Focus States */
+  --focus-ring: 0 0 0 3px rgba(79, 209, 197, 0.5);
+  --focus-ring-error: 0 0 0 3px rgba(245, 101, 101, 0.5);
+}
 
-/* Component Spacing */
---spacing-card-padding: var(--space-6);
---spacing-section-gap: var(--space-8);
---spacing-page-margin: var(--space-6);
+[data-theme="dark"] {
+  /* Dark Mode Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2), 
+               0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.3), 
+               0 2px 5px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.3), 
+               0 5px 10px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 35px rgba(0, 0, 0, 0.3), 
+               0 10px 15px rgba(0, 0, 0, 0.2);
+  
+  /* Inner Glow Effects */
+  --glow-inner: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  --glow-inner-strong: inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  
+  /* Focus States - Dark Mode */
+  --focus-ring: 0 0 0 3px rgba(79, 209, 197, 0.6);
+  --focus-ring-error: 0 0 0 3px rgba(245, 101, 101, 0.6);
+}
 ```
 
-### 2.4 Layout & Grid
+### 2.3 Typography System
 
 ```css
-/* Breakpoints */
---screen-sm: 640px;   /* Mobile landscape */
---screen-md: 768px;   /* Tablet */
---screen-lg: 1024px;  /* Desktop */
---screen-xl: 1280px;  /* Large desktop */
---screen-2xl: 1536px; /* Extra large */
-
-/* Container Widths */
---container-sm: 640px;
---container-md: 768px;
---container-lg: 1024px;
---container-xl: 1280px;
-
-/* Grid System */
---grid-columns: 12;
---grid-gap: var(--space-4);
+:root {
+  /* Font Families */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Fira Code', 'Consolas', monospace;
+  
+  /* Font Sizes - 1.25 Scale */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+  
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+  
+  /* Letter Spacing */
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+}
 ```
 
-### 2.5 Borders & Radius
+### 2.4 Spacing & Layout
 
 ```css
-/* Border Widths */
---border-0: 0;
---border-1: 1px;
---border-2: 2px;
---border-4: 4px;
-
-/* Border Radius */
---radius-none: 0;
---radius-sm: 0.125rem;   /* 2px */
---radius-base: 0.25rem;  /* 4px */
---radius-md: 0.375rem;   /* 6px */
---radius-lg: 0.5rem;     /* 8px */
---radius-xl: 0.75rem;    /* 12px */
---radius-2xl: 1rem;      /* 16px */
---radius-full: 9999px;   /* Pills */
-
-/* Component Specific */
---radius-button: var(--radius-md);
---radius-card: var(--radius-lg);
---radius-modal: var(--radius-xl);
+:root {
+  /* Spacing Scale - 4px base */
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius-md: 0.375rem;   /* 6px */
+  --radius-lg: 0.5rem;     /* 8px */
+  --radius-xl: 0.75rem;    /* 12px */
+  --radius-2xl: 1rem;      /* 16px */
+  --radius-3xl: 1.25rem;   /* 20px */
+  --radius-full: 9999px;   /* Full circle */
+  
+  /* Breakpoints */
+  --screen-sm: 640px;
+  --screen-md: 768px;
+  --screen-lg: 1024px;
+  --screen-xl: 1280px;
+  --screen-2xl: 1536px;
+  
+  /* Container Widths */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+}
 ```
 
-### 2.6 Shadows & Elevation
+### 2.5 Animation & Motion
 
 ```css
-/* Shadow Scale */
---shadow-none: none;
---shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
---shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
---shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
---shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
---shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-
-/* Focus Ring */
---shadow-focus: 0 0 0 3px rgba(49, 151, 149, 0.5); /* Teal focus */
+:root {
+  /* Duration Scale */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+  --duration-slowest: 600ms;
+  
+  /* Easing Functions */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Standard Transitions */
+  --transition-all: all var(--duration-normal) var(--ease-in-out);
+  --transition-colors: background-color, border-color, color, fill, stroke var(--duration-fast) var(--ease-in-out);
+  --transition-opacity: opacity var(--duration-normal) var(--ease-in-out);
+  --transition-transform: transform var(--duration-normal) var(--ease-out);
+  --transition-shadow: box-shadow var(--duration-normal) var(--ease-in-out);
+}
 ```
 
-### 2.7 Animation & Motion
+## 3. Core Components
+
+### 3.1 Button Component
 
 ```css
-/* Duration Scale */
---duration-instant: 0ms;
---duration-fast: 150ms;
---duration-normal: 200ms;
---duration-slow: 300ms;
---duration-slower: 400ms;
-
-/* Easing Functions */
---ease-in: cubic-bezier(0.4, 0, 1, 1);
---ease-out: cubic-bezier(0, 0, 0.2, 1);
---ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
---ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-
-/* Standard Transitions */
---transition-all: all var(--duration-normal) var(--ease-in-out);
---transition-colors: background-color, border-color, color, fill, stroke var(--duration-fast) var(--ease-in-out);
---transition-opacity: opacity var(--duration-normal) var(--ease-in-out);
---transition-transform: transform var(--duration-normal) var(--ease-out);
-```
-
-### 2.8 Iconography
-
-**Icon Library**: Lucide React (Consistent stroke-based design)
-
-**Standard Icon Sizes:**
-```css
---icon-xs: 12px;
---icon-sm: 16px;
---icon-base: 20px;
---icon-lg: 24px;
---icon-xl: 32px;
-```
-
-**Icon Categories & Usage:**
-- **Navigation**: Home, ChevronLeft, ChevronRight, Menu, X, ArrowLeft, ArrowRight
-- **Actions**: Play, Pause, Check, Plus, Minus, Edit3, Trash2, Save, Share2, Download
-- **Status**: CheckCircle2, XCircle, AlertTriangle, Info, AlertCircle
-- **Learning**: BookOpen, GraduationCap, Lightbulb, Puzzle, Trophy, Award
-- **Communication**: MessageCircle, Mic, Volume2, Video, Phone
-- **Progress**: BarChart3, Flame (streak), Star (achievement), Flag (milestone)
-- **User**: User, Users, Settings, LogOut, Bell
-- **Content**: FileText, Folder, Image, Link, Search, Filter
-- **Time**: Clock, Calendar, Timer, History
-- **Arrows**: ArrowUp, ArrowDown, ChevronUp, ChevronDown, ChevronsUp, ChevronsDown
-
-## 3. Component Library
-
-### 3.1 Atoms
-
-#### Button
-```css
-/* Base Button */
 .btn {
-  /* Structure */
+  /* Base Structure */
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
   
   /* Typography */
   font-family: var(--font-sans);
   font-weight: var(--font-medium);
+  font-size: var(--text-base);
   line-height: 1;
   
-  /* Spacing */
-  padding: var(--space-3) var(--space-4);
-  
   /* Visual */
-  border: var(--border-1) solid transparent;
-  border-radius: var(--radius-button);
-  
-  /* Interaction */
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
   transition: var(--transition-all);
   
-  /* States */
-  &:focus-visible {
-    outline: none;
-    box-shadow: var(--shadow-focus);
+  /* Thread Animation on Click */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(79, 209, 197, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width var(--duration-slowest), height var(--duration-slowest);
   }
   
+  &:active::after {
+    width: 300px;
+    height: 300px;
+  }
+  
+  /* Focus State */
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+  
+  /* Disabled State */
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 }
 
-/* Variants */
+/* Primary Button */
 .btn-primary {
-  background: var(--color-teal-500);
-  color: var(--color-white);
+  background: var(--thread-primary);
+  color: var(--surface-ground);
+  box-shadow: var(--shadow-sm);
   
-  &:hover { background: var(--color-teal-600); }
-  &:active { background: var(--color-teal-700); }
-}
-
-.btn-secondary {
-  background: var(--color-gray-200);
-  color: var(--color-gray-800);
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
   
-  &:hover { background: var(--color-gray-300); }
-}
-
-.btn-outline {
-  background: transparent;
-  border-color: var(--color-gray-400);
-  color: var(--color-gray-700);
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
   
-  &:hover { 
-    border-color: var(--color-teal-500);
-    color: var(--color-teal-600);
+  [data-theme="dark"] & {
+    color: var(--text-inverse);
+    box-shadow: var(--shadow-sm), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 }
 
-.btn-ghost {
-  background: transparent;
-  color: var(--color-gray-700);
+/* Secondary Button */
+.btn-secondary {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  border-color: var(--border-color);
   
-  &:hover { background: var(--color-gray-100); }
+  &:hover:not(:disabled) {
+    background: var(--surface-overlay);
+    border-color: var(--border-color-strong);
+  }
+  
+  [data-theme="dark"] & {
+    box-shadow: var(--shadow-sm), var(--glow-inner);
+  }
 }
 
-/* Sizes */
+/* Ghost Button */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  
+  &:hover:not(:disabled) {
+    background: var(--surface-overlay);
+    color: var(--text-primary);
+  }
+}
+
+/* Icon Button */
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--radius-full);
+}
+
+/* Size Variants */
 .btn-sm {
   font-size: var(--text-sm);
   padding: var(--space-2) var(--space-3);
@@ -376,55 +360,69 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
   font-size: var(--text-lg);
   padding: var(--space-4) var(--space-6);
 }
-
-.btn-icon {
-  padding: var(--space-2);
-  width: 40px;
-  height: 40px;
-}
 ```
 
-#### Input
+### 3.2 Input Component
+
 ```css
 .input {
-  /* Structure */
+  /* Base Structure */
   width: 100%;
+  padding: var(--space-3) var(--space-4);
   
   /* Typography */
   font-family: var(--font-sans);
   font-size: var(--text-base);
-  color: var(--color-gray-800);
-  
-  /* Spacing */
-  padding: var(--space-3) var(--space-4);
+  color: var(--text-primary);
   
   /* Visual */
-  background: var(--color-white);
-  border: var(--border-1) solid var(--color-gray-400);
-  border-radius: var(--radius-base);
+  background: var(--surface-base);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  transition: var(--transition-all);
   
-  /* States */
   &::placeholder {
-    color: var(--color-gray-500);
+    color: var(--text-muted);
   }
   
   &:focus {
     outline: none;
-    border-color: var(--color-teal-500);
-    box-shadow: var(--shadow-focus);
+    border-color: var(--thread-primary);
+    box-shadow: var(--focus-ring);
   }
   
   &:disabled {
-    background: var(--color-gray-100);
+    background: var(--surface-overlay);
     cursor: not-allowed;
   }
   
   &.input-error {
     border-color: var(--color-error);
+    
+    &:focus {
+      box-shadow: var(--focus-ring-error);
+    }
+  }
+  
+  /* Dark Mode */
+  [data-theme="dark"] & {
+    background: var(--surface-base);
+    border-color: var(--border-color);
+    box-shadow: var(--glow-inner);
+    
+    &:focus {
+      box-shadow: var(--focus-ring), var(--glow-inner-strong);
+    }
   }
 }
 
-/* Sizes */
+/* Textarea Variant */
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Size Variants */
 .input-sm {
   font-size: var(--text-sm);
   padding: var(--space-2) var(--space-3);
@@ -436,169 +434,276 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
 }
 ```
 
-#### Badge
-```css
-.badge {
-  /* Structure */
-  display: inline-flex;
-  align-items: center;
-  
-  /* Typography */
-  font-size: var(--text-xs);
-  font-weight: var(--font-medium);
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  
-  /* Spacing */
-  padding: var(--space-1) var(--space-2);
-  
-  /* Visual */
-  border-radius: var(--radius-full);
-  
-  /* Variants */
-  &.badge-default {
-    background: var(--color-gray-200);
-    color: var(--color-gray-700);
-  }
-  
-  &.badge-teal {
-    background: var(--color-teal-100);
-    color: var(--color-teal-700);
-  }
-  
-  &.badge-success {
-    background: var(--color-success);
-    background-opacity: 0.1;
-    color: var(--color-success);
-  }
-}
-```
+### 3.3 Thread Card Component
 
-### 3.2 Molecules
-
-#### Voice Interview Chat Bubble
 ```css
-.chat-bubble {
-  /* Structure */
-  max-width: 70%;
-  
-  /* Spacing */
-  padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-2);
-  
-  /* Visual */
-  border-radius: var(--radius-lg);
-  
-  /* Typography */
-  font-size: var(--text-base);
-  line-height: var(--leading-relaxed);
-  
-  /* Variants */
-  &.chat-bubble-student {
-    background: var(--color-teal-500);
-    color: var(--color-white);
-    align-self: flex-end;
-    border-bottom-right-radius: var(--radius-sm);
-  }
-  
-  &.chat-bubble-ai {
-    background: var(--color-gray-100);
-    color: var(--color-gray-800);
-    align-self: flex-start;
-    border-bottom-left-radius: var(--radius-sm);
-  }
-  
-  /* Timestamp */
-  .chat-timestamp {
-    font-size: var(--text-xs);
-    color: var(--color-gray-600);
-    margin-top: var(--space-1);
-  }
-}
-```
-
-#### Concept Hook Card
-```css
-.hook-card {
-  /* Structure */
+.thread-card {
+  /* Base Structure */
+  background: var(--surface-base);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
   position: relative;
-  height: 200px;
-  
-  /* Spacing */
-  padding: var(--space-4);
-  
-  /* Visual */
-  background: var(--color-white);
-  border: var(--border-1) solid var(--color-gray-300);
-  border-radius: var(--radius-card);
+  overflow: hidden;
   transition: var(--transition-all);
   
-  /* Hover */
-  &:hover {
-    border-color: var(--color-teal-400);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
+  /* Light Mode Shadow */
+  box-shadow: var(--shadow-sm);
   
-  /* Life Category Indicator */
+  /* Thread Accent Line */
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    height: 4px;
-    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      var(--thread-primary),
+      transparent
+    );
+    opacity: 0;
+    transition: opacity var(--duration-slow) ease;
   }
   
-  &.hook-personal::before { background: var(--color-personal); }
-  &.hook-social::before { background: var(--color-social); }
-  &.hook-career::before { background: var(--color-career); }
-  &.hook-philanthropic::before { background: var(--color-philanthropic); }
-  
-  /* Content */
-  .hook-icon {
-    width: var(--icon-lg);
-    height: var(--icon-lg);
-    margin-bottom: var(--space-3);
+  /* Hover State */
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    
+    &::before {
+      opacity: 0.8;
+    }
+    
+    .thread-indicator {
+      transform: translateX(4px);
+    }
   }
   
-  .hook-title {
+  /* Dark Mode */
+  [data-theme="dark"] & {
+    background: var(--surface-raised);
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-sm), var(--glow-inner);
+    
+    &:hover {
+      box-shadow: var(--shadow-md), var(--glow-inner-strong);
+      border-color: rgba(79, 209, 197, 0.3);
+    }
+  }
+}
+
+.thread-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--thread-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  transition: transform var(--duration-normal) ease;
+}
+
+.thread-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: var(--space-3) 0;
+}
+
+.thread-description {
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-4);
+}
+
+.thread-stats {
+  display: flex;
+  gap: var(--space-4);
+  
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
     font-size: var(--text-sm);
-    font-weight: var(--font-semibold);
-    color: var(--color-gray-600);
-    margin-bottom: var(--space-2);
-  }
-  
-  .hook-text {
-    font-size: var(--text-base);
-    color: var(--color-gray-800);
-    line-height: var(--leading-relaxed);
+    color: var(--text-muted);
+    
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 ```
 
-#### Progress Indicator
+### 3.4 Chat Bubble Component
+
+```css
+.chat-bubble {
+  /* Base Structure */
+  max-width: 70%;
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-xl);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  
+  /* Student Bubble (FR-005) */
+  &.chat-bubble-student {
+    background: var(--thread-primary);
+    color: var(--surface-ground);
+    align-self: flex-end;
+    border-bottom-right-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    
+    [data-theme="dark"] & {
+      color: var(--text-inverse);
+    }
+  }
+  
+  /* AI Bubble */
+  &.chat-bubble-ai {
+    background: var(--surface-overlay);
+    color: var(--text-primary);
+    align-self: flex-start;
+    border-bottom-left-radius: var(--radius-sm);
+    
+    [data-theme="dark"] & {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--glow-inner);
+    }
+  }
+  
+  .chat-timestamp {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-top: var(--space-1);
+  }
+}
+```
+
+### 3.5 Rich Text Editor Component
+
+```css
+.rich-text-editor {
+  /* Container */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface-raised);
+  padding: var(--space-2);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  
+  /* Dark Mode */
+  [data-theme="dark"] & {
+    background: var(--surface-raised);
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-md), var(--glow-inner);
+  }
+}
+
+.editor-group {
+  display: inline-flex;
+  gap: var(--space-1);
+}
+
+.editor-btn {
+  /* Base Structure */
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-all);
+  position: relative;
+  
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  &:hover {
+    color: var(--text-primary);
+    background: var(--surface-overlay);
+  }
+  
+  &.active {
+    background: var(--surface-ground);
+    color: var(--text-primary);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Dark Mode */
+  [data-theme="dark"] & {
+    color: var(--text-muted);
+    
+    &:hover {
+      color: var(--text-primary);
+      background: var(--surface-overlay);
+    }
+    
+    &.active {
+      background: var(--surface-ground);
+      color: var(--thread-primary);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.editor-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-color);
+  margin: 0 var(--space-1);
+  
+  [data-theme="dark"] & {
+    background: var(--border-color);
+  }
+}
+```
+
+### 3.6 Progress Components
+
+#### Progress Bar
 ```css
 .progress-bar {
   /* Container */
   position: relative;
   width: 100%;
   height: 8px;
-  background: var(--color-gray-200);
+  background: var(--surface-overlay);
   border-radius: var(--radius-full);
   overflow: hidden;
+  
+  [data-theme="dark"] & {
+    background: var(--surface-ground);
+    box-shadow: var(--glow-inner);
+  }
   
   /* Fill */
   .progress-fill {
     height: 100%;
-    background: var(--color-teal-500);
+    background: var(--thread-primary);
     border-radius: var(--radius-full);
     transition: width var(--duration-slow) var(--ease-out);
+    position: relative;
     
     /* Animated Stripes */
-    &.progress-animated {
+    &.progress-animated::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background-image: linear-gradient(
         45deg,
         rgba(255, 255, 255, 0.15) 25%,
@@ -621,7 +726,7 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
     right: 0;
     font-size: var(--text-xs);
     font-weight: var(--font-medium);
-    color: var(--color-gray-600);
+    color: var(--text-muted);
   }
 }
 
@@ -631,24 +736,169 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
 }
 ```
 
-### 3.3 Organisms
+#### Learning Progress Widget
+```css
+.progress-widget {
+  /* Base Structure */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: var(--radius-3xl);
+  padding: var(--space-6);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  
+  /* Glass Overlay Effect */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-3xl);
+  }
+  
+  .widget-content {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .widget-title {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-2);
+  }
+  
+  .widget-subtitle {
+    font-size: var(--text-base);
+    opacity: 0.9;
+    margin-bottom: var(--space-4);
+  }
+  
+  /* Thread Progress Display */
+  .thread-progress {
+    display: flex;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+    
+    .progress-item {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: var(--radius-xl);
+      padding: var(--space-3) var(--space-4);
+      backdrop-filter: blur(5px);
+      transition: var(--transition-all);
+      
+      &.completed {
+        background: rgba(255, 255, 255, 0.3);
+        box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.5);
+      }
+      
+      .progress-value {
+        font-size: var(--text-xl);
+        font-weight: var(--font-bold);
+      }
+      
+      .progress-label {
+        font-size: var(--text-sm);
+        opacity: 0.9;
+      }
+    }
+  }
+}
+```
 
-#### Navigation Header
+### 3.7 Navigation Components
+
+#### Thread Navigation
+```css
+.thread-nav {
+  /* Container */
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-4) 0;
+  
+  .thread-node {
+    /* Base Node */
+    width: 12px;
+    height: 12px;
+    border-radius: var(--radius-full);
+    background: var(--surface-raised);
+    border: 2px solid var(--border-color);
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition-all);
+    
+    /* Connector Line */
+    &::after {
+      content: '';
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      width: var(--space-6);
+      height: 1px;
+      background: var(--border-color);
+      transform: translateY(-50%);
+    }
+    
+    &:last-child::after {
+      display: none;
+    }
+    
+    /* States */
+    &.active {
+      background: var(--thread-primary);
+      border-color: var(--thread-primary);
+      transform: scale(1.2);
+      box-shadow: 0 0 0 4px rgba(79, 209, 197, 0.2);
+    }
+    
+    &.completed {
+      background: var(--thread-accent);
+      border-color: var(--thread-accent);
+      
+      &::after {
+        background: var(--thread-accent);
+      }
+    }
+    
+    /* Dark Mode */
+    [data-theme="dark"] & {
+      background: var(--surface-raised);
+      border-color: var(--border-color);
+      box-shadow: var(--glow-inner);
+      
+      &.active {
+        box-shadow: 0 0 0 4px rgba(79, 209, 197, 0.3),
+                    var(--glow-inner-strong);
+      }
+    }
+  }
+}
+```
+
+#### Header Navigation
 ```css
 .nav-header {
-  /* Structure */
+  /* Container */
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 40;
-  
-  /* Visual */
-  background: var(--color-white);
-  border-bottom: var(--border-1) solid var(--color-gray-300);
+  background: var(--surface-base);
+  border-bottom: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
   
-  /* Content Container */
+  [data-theme="dark"] & {
+    background: var(--surface-base);
+    box-shadow: var(--shadow-sm), var(--glow-inner);
+  }
+  
   .nav-container {
     max-width: var(--container-xl);
     margin: 0 auto;
@@ -666,12 +916,12 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
     gap: var(--space-3);
     font-size: var(--text-xl);
     font-weight: var(--font-bold);
-    color: var(--color-obsidian);
+    color: var(--text-primary);
     
     .logo-mark {
       width: 32px;
       height: 32px;
-      color: var(--color-teal-500);
+      color: var(--thread-primary);
     }
   }
   
@@ -683,11 +933,28 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
     
     .nav-link {
       font-size: var(--text-base);
-      color: var(--color-gray-700);
+      color: var(--text-secondary);
       transition: var(--transition-colors);
+      position: relative;
       
-      &:hover { color: var(--color-teal-600); }
-      &.active { color: var(--color-teal-500); }
+      &:hover {
+        color: var(--thread-primary);
+      }
+      
+      &.active {
+        color: var(--thread-primary);
+        
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: var(--thread-primary);
+          border-radius: var(--radius-full);
+        }
+      }
     }
   }
   
@@ -702,182 +969,24 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
       align-items: center;
       gap: var(--space-1);
       padding: var(--space-1) var(--space-3);
-      background: var(--color-teal-100);
-      color: var(--color-teal-700);
+      background: var(--color-warning);
+      background-opacity: 0.1;
+      color: var(--color-warning);
       border-radius: var(--radius-full);
       font-size: var(--text-sm);
       font-weight: var(--font-medium);
       
       .streak-icon {
-        width: var(--icon-sm);
-        height: var(--icon-sm);
-        color: var(--color-warning);
+        width: 16px;
+        height: 16px;
       }
     }
   }
 }
 ```
 
-#### Concept Display Container
-```css
-.concept-display {
-  /* Structure */
-  max-width: 1024px;
-  margin: 0 auto;
-  
-  /* Section: Hook & Relevance */
-  .hooks-section {
-    margin-bottom: var(--space-12);
-    
-    .hooks-header {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      margin-bottom: var(--space-6);
-      
-      .hooks-icon {
-        width: var(--icon-lg);
-        height: var(--icon-lg);
-        color: var(--color-teal-500);
-      }
-      
-      h2 {
-        font-size: var(--text-2xl);
-        font-weight: var(--font-semibold);
-        color: var(--color-gray-900);
-      }
-    }
-    
-    .hooks-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-4);
-      
-      @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-      }
-    }
-  }
-  
-  /* Section: Show Me Examples */
-  .examples-section {
-    margin-bottom: var(--space-12);
-    
-    .examples-header {
-      /* Same as hooks-header */
-    }
-    
-    .examples-carousel {
-      position: relative;
-      
-      .example-card {
-        background: var(--color-gray-50);
-        border-radius: var(--radius-card);
-        padding: var(--space-6);
-        margin-bottom: var(--space-4);
-        
-        .example-interest-tag {
-          display: inline-flex;
-          align-items: center;
-          gap: var(--space-1);
-          padding: var(--space-1) var(--space-3);
-          background: var(--color-teal-100);
-          color: var(--color-teal-700);
-          border-radius: var(--radius-full);
-          font-size: var(--text-xs);
-          font-weight: var(--font-medium);
-          margin-bottom: var(--space-3);
-        }
-        
-        .example-text {
-          font-size: var(--text-base);
-          line-height: var(--leading-relaxed);
-          color: var(--color-gray-800);
-        }
-        
-        .example-visual {
-          margin-top: var(--space-4);
-          border-radius: var(--radius-base);
-          overflow: hidden;
-        }
-      }
-    }
-  }
-  
-  /* Section: What & How */
-  .core-content-section {
-    .content-tabs {
-      display: flex;
-      gap: var(--space-1);
-      padding: var(--space-1);
-      background: var(--color-gray-100);
-      border-radius: var(--radius-lg);
-      margin-bottom: var(--space-6);
-      
-      .tab-button {
-        flex: 1;
-        padding: var(--space-2) var(--space-4);
-        background: transparent;
-        border: none;
-        border-radius: var(--radius-md);
-        font-size: var(--text-sm);
-        font-weight: var(--font-medium);
-        color: var(--color-gray-600);
-        cursor: pointer;
-        transition: var(--transition-all);
-        
-        &:hover { color: var(--color-gray-800); }
-        
-        &.active {
-          background: var(--color-white);
-          color: var(--color-teal-600);
-          box-shadow: var(--shadow-sm);
-        }
-      }
-    }
-    
-    .tab-content {
-      padding: var(--space-6);
-      background: var(--color-white);
-      border: var(--border-1) solid var(--color-gray-200);
-      border-radius: var(--radius-card);
-      
-      /* Vocabulary Cards */
-      .vocab-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: var(--space-4);
-        
-        .vocab-card {
-          padding: var(--space-4);
-          background: var(--color-gray-50);
-          border-radius: var(--radius-base);
-          cursor: pointer;
-          transition: var(--transition-all);
-          
-          &:hover {
-            background: var(--color-teal-50);
-            transform: translateY(-2px);
-          }
-          
-          .vocab-term {
-            font-weight: var(--font-semibold);
-            color: var(--color-gray-900);
-            margin-bottom: var(--space-1);
-          }
-          
-          .vocab-definition {
-            font-size: var(--text-sm);
-            color: var(--color-gray-600);
-          }
-        }
-      }
-    }
-  }
-}
-```
+### 3.8 Exercise Components
 
-#### Exercise Interface
 ```css
 .exercise-container {
   max-width: 800px;
@@ -889,9 +998,14 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
     justify-content: space-between;
     align-items: center;
     padding: var(--space-4);
-    background: var(--color-gray-50);
-    border-radius: var(--radius-card);
+    background: var(--surface-overlay);
+    border-radius: var(--radius-xl);
     margin-bottom: var(--space-6);
+    
+    [data-theme="dark"] & {
+      background: var(--surface-raised);
+      box-shadow: var(--shadow-sm), var(--glow-inner);
+    }
     
     .exercise-type {
       display: flex;
@@ -900,8 +1014,9 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
       
       .type-badge {
         padding: var(--space-1) var(--space-3);
-        background: var(--color-teal-100);
-        color: var(--color-teal-700);
+        background: var(--thread-primary);
+        background-opacity: 0.1;
+        color: var(--thread-primary);
         border-radius: var(--radius-full);
         font-size: var(--text-xs);
         font-weight: var(--font-semibold);
@@ -913,23 +1028,35 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
       display: flex;
       align-items: center;
       gap: var(--space-2);
-      color: var(--color-gray-600);
+      color: var(--text-muted);
       font-size: var(--text-sm);
+      
+      svg {
+        width: 16px;
+        height: 16px;
+      }
     }
   }
   
   /* Exercise Prompt */
   .exercise-prompt {
     padding: var(--space-6);
-    background: var(--color-white);
-    border: var(--border-2) solid var(--color-teal-200);
-    border-radius: var(--radius-card);
+    background: var(--surface-base);
+    border: 2px solid var(--thread-primary);
+    border-opacity: 0.3;
+    border-radius: var(--radius-xl);
     margin-bottom: var(--space-8);
+    
+    [data-theme="dark"] & {
+      background: var(--surface-raised);
+      box-shadow: var(--shadow-md), var(--glow-inner);
+    }
     
     .prompt-context {
       padding: var(--space-4);
-      background: var(--color-teal-50);
-      border-radius: var(--radius-base);
+      background: var(--thread-primary);
+      background-opacity: 0.05;
+      border-radius: var(--radius-lg);
       margin-bottom: var(--space-4);
       
       .context-tag {
@@ -937,7 +1064,7 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
         align-items: center;
         gap: var(--space-1);
         font-size: var(--text-sm);
-        color: var(--color-teal-700);
+        color: var(--thread-primary);
         font-weight: var(--font-medium);
       }
     }
@@ -945,7 +1072,7 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
     .prompt-text {
       font-size: var(--text-lg);
       line-height: var(--leading-relaxed);
-      color: var(--color-gray-800);
+      color: var(--text-primary);
     }
   }
   
@@ -957,21 +1084,23 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
       gap: var(--space-3);
       padding: var(--space-4);
       background: var(--color-info);
-      background-opacity: 0.1;
-      border-radius: var(--radius-base);
+      background-opacity: 0.05;
+      border: 1px solid var(--color-info);
+      border-opacity: 0.2;
+      border-radius: var(--radius-lg);
       margin-bottom: var(--space-4);
       
-      /* Lucide React Info Icon */
       .info-icon {
-        width: var(--icon-base);
-        height: var(--icon-base);
+        width: 20px;
+        height: 20px;
         color: var(--color-info);
         flex-shrink: 0;
       }
       
       p {
         font-size: var(--text-sm);
-        color: var(--color-gray-700);
+        color: var(--text-secondary);
+        line-height: var(--leading-relaxed);
       }
     }
     
@@ -982,16 +1111,26 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
       font-family: var(--font-sans);
       font-size: var(--text-base);
       line-height: var(--leading-relaxed);
-      color: var(--color-gray-800);
-      background: var(--color-white);
-      border: var(--border-1) solid var(--color-gray-400);
-      border-radius: var(--radius-base);
+      color: var(--text-primary);
+      background: var(--surface-base);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
       resize: vertical;
+      transition: var(--transition-all);
       
       &:focus {
         outline: none;
-        border-color: var(--color-teal-500);
-        box-shadow: var(--shadow-focus);
+        border-color: var(--thread-primary);
+        box-shadow: var(--focus-ring);
+      }
+      
+      [data-theme="dark"] & {
+        background: var(--surface-base);
+        box-shadow: var(--glow-inner);
+        
+        &:focus {
+          box-shadow: var(--focus-ring), var(--glow-inner-strong);
+        }
       }
     }
     
@@ -1003,7 +1142,7 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
       
       .character-count {
         font-size: var(--text-sm);
-        color: var(--color-gray-600);
+        color: var(--text-muted);
         
         &.warning { color: var(--color-warning); }
         &.error { color: var(--color-error); }
@@ -1013,160 +1152,102 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
 }
 ```
 
-#### Progress Dashboard
+## 4. Animation Patterns
+
 ```css
-.progress-dashboard {
-  /* Stats Grid */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-4);
-    margin-bottom: var(--space-8);
-    
-    @media (max-width: 1024px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    @media (max-width: 640px) {
-      grid-template-columns: 1fr;
-    }
-    
-    .stat-card {
-      padding: var(--space-6);
-      background: var(--color-white);
-      border: var(--border-1) solid var(--color-gray-200);
-      border-radius: var(--radius-card);
-      
-      .stat-label {
-        font-size: var(--text-sm);
-        color: var(--color-gray-600);
-        margin-bottom: var(--space-2);
-      }
-      
-      .stat-value {
-        font-size: var(--text-3xl);
-        font-weight: var(--font-bold);
-        color: var(--color-obsidian);
-        line-height: 1;
-        margin-bottom: var(--space-1);
-      }
-      
-      .stat-change {
-        font-size: var(--text-sm);
-        color: var(--color-success);
-        
-        &.negative { color: var(--color-error); }
-      }
-      
-      &.stat-streak {
-        background: var(--color-teal-50);
-        border-color: var(--color-teal-200);
-        
-        .stat-value { color: var(--color-teal-600); }
-      }
-    }
+/* Thread Unravel Animation */
+@keyframes thread-unravel {
+  0% {
+    clip-path: circle(0% at left center);
   }
-  
-  /* Learning Path Visualization */
-  .learning-path {
-    padding: var(--space-8);
-    background: var(--color-white);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-base);
-    
-    .path-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--space-6);
-      
-      h3 {
-        font-size: var(--text-xl);
-        font-weight: var(--font-semibold);
-        color: var(--color-gray-900);
-      }
-      
-      .path-progress {
-        font-size: var(--text-sm);
-        color: var(--color-gray-600);
-      }
-    }
-    
-    .path-nodes {
-      display: flex;
-      align-items: center;
-      gap: var(--space-4);
-      overflow-x: auto;
-      padding-bottom: var(--space-4);
-      
-      .path-node {
-        flex-shrink: 0;
-        position: relative;
-        
-        .node-circle {
-          width: 48px;
-          height: 48px;
-          border-radius: var(--radius-full);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: var(--font-semibold);
-          transition: var(--transition-all);
-          cursor: pointer;
-          
-          /* States */
-          &.completed {
-            background: var(--color-teal-500);
-            color: var(--color-white);
-          }
-          
-          &.current {
-            background: var(--color-white);
-            border: var(--border-4) solid var(--color-teal-500);
-            color: var(--color-teal-600);
-            box-shadow: var(--shadow-lg);
-          }
-          
-          &.locked {
-            background: var(--color-gray-200);
-            color: var(--color-gray-500);
-            cursor: not-allowed;
-          }
-        }
-        
-        .node-label {
-          position: absolute;
-          top: 60px;
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: var(--text-xs);
-          color: var(--color-gray-600);
-          white-space: nowrap;
-        }
-        
-        /* Connector Line */
-        &:not(:last-child)::after {
-          content: '';
-          position: absolute;
-          top: 24px;
-          left: 48px;
-          width: var(--space-4);
-          height: 2px;
-          background: var(--color-gray-300);
-        }
-        
-        &.completed:not(:last-child)::after {
-          background: var(--color-teal-500);
-        }
-      }
-    }
+  100% {
+    clip-path: circle(150% at left center);
   }
+}
+
+/* Gentle Float */
+@keyframes gentle-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Glow Pulse */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: var(--shadow-sm), var(--glow-inner);
+  }
+  50% {
+    box-shadow: var(--shadow-md), var(--glow-inner-strong);
+  }
+}
+
+/* Loading Thread */
+@keyframes loading-thread {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 40px 0;
+  }
+}
+
+/* Thread Connect */
+@keyframes thread-connect {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+/* Points Float */
+@keyframes points-float {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100px);
+  }
+}
+
+/* Wave Expand */
+@keyframes wave-expand {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Pulse */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 ```
 
-## 4. Spool-Specific Components
+## 5. Spool-Specific Components
 
-### Voice Interview Interface
+### 5.1 Voice Interview Interface
+
 ```css
 .voice-interview {
   display: grid;
@@ -1184,20 +1265,25 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
   .chat-panel {
     display: flex;
     flex-direction: column;
-    background: var(--color-white);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-base);
+    background: var(--surface-base);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
     overflow: hidden;
+    
+    [data-theme="dark"] & {
+      background: var(--surface-raised);
+      box-shadow: var(--shadow-md), var(--glow-inner);
+    }
     
     .chat-header {
       padding: var(--space-4) var(--space-6);
-      background: var(--color-gray-50);
-      border-bottom: var(--border-1) solid var(--color-gray-200);
+      background: var(--surface-overlay);
+      border-bottom: 1px solid var(--border-color);
       
       .chat-title {
         font-size: var(--text-lg);
         font-weight: var(--font-semibold);
-        color: var(--color-gray-900);
+        color: var(--text-primary);
       }
       
       .chat-status {
@@ -1220,7 +1306,7 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
         
         .status-text {
           font-size: var(--text-sm);
-          color: var(--color-gray-600);
+          color: var(--text-muted);
         }
       }
     }
@@ -1236,8 +1322,8 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
     
     .chat-input {
       padding: var(--space-4);
-      background: var(--color-gray-50);
-      border-top: var(--border-1) solid var(--color-gray-200);
+      background: var(--surface-overlay);
+      border-top: 1px solid var(--border-color);
       
       .input-fallback {
         display: flex;
@@ -1256,25 +1342,40 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: var(--color-gray-50);
-    border-radius: var(--radius-card);
+    background: var(--surface-overlay);
+    border-radius: var(--radius-xl);
     padding: var(--space-8);
+    
+    [data-theme="dark"] & {
+      background: var(--surface-raised);
+      box-shadow: var(--shadow-md), var(--glow-inner);
+    }
     
     .voice-visualizer {
       width: 200px;
       height: 200px;
       margin-bottom: var(--space-8);
+      position: relative;
       
-      /* Voice wave animation */
+      /* Voice Wave Animation */
       .wave-ring {
+        position: absolute;
         width: 100%;
         height: 100%;
-        border: var(--border-2) solid var(--color-teal-400);
+        border: 2px solid var(--thread-primary);
         border-radius: var(--radius-full);
         opacity: 0;
         
         &.active {
           animation: wave-expand 2s ease-out infinite;
+        }
+        
+        &:nth-child(2) {
+          animation-delay: 0.5s;
+        }
+        
+        &:nth-child(3) {
+          animation-delay: 1s;
         }
       }
     }
@@ -1290,105 +1391,300 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--color-white);
-        border: var(--border-2) solid var(--color-gray-300);
+        background: var(--surface-base);
+        border: 2px solid var(--border-color);
         cursor: pointer;
         transition: var(--transition-all);
         
         &:hover {
-          border-color: var(--color-teal-400);
+          border-color: var(--thread-primary);
           transform: scale(1.05);
         }
         
         &.primary {
-          background: var(--color-teal-500);
-          border-color: var(--color-teal-500);
-          color: var(--color-white);
+          background: var(--thread-primary);
+          border-color: var(--thread-primary);
+          color: var(--surface-ground);
           
           &:hover {
-            background: var(--color-teal-600);
-            border-color: var(--color-teal-600);
+            background: var(--thread-accent);
+            border-color: var(--thread-accent);
           }
         }
         
         svg {
-          width: var(--icon-lg);
-          height: var(--icon-lg);
+          width: 24px;
+          height: 24px;
         }
       }
     }
   }
 }
-
-@keyframes wave-expand {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
 ```
 
-### Life Category Indicators
+### 5.2 Life Category Components
+
 ```css
 .life-category {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   
-  /* Lucide React Icons */
   .category-icon {
-    width: var(--icon-base);
-    height: var(--icon-base);
+    width: 20px;
+    height: 20px;
   }
-  
-  /* Icon suggestions for each category:
-  - Personal: User, Heart, Home
-  - Social: Users, MessageCircle, Share2
-  - Career: Briefcase, TrendingUp, Target
-  - Philanthropic: Heart, Globe, Sparkles
-  */
   
   .category-label {
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
   }
   
-  /* Personal */
+  /* Category Variants */
   &.category-personal {
     .category-icon { color: var(--color-personal); }
     .category-label { color: var(--color-personal); }
   }
   
-  /* Social */
   &.category-social {
     .category-icon { color: var(--color-social); }
     .category-label { color: var(--color-social); }
   }
   
-  /* Career */
   &.category-career {
     .category-icon { color: var(--color-career); }
     .category-label { color: var(--color-career); }
   }
   
-  /* Philanthropic */
   &.category-philanthropic {
     .category-icon { color: var(--color-philanthropic); }
     .category-label { color: var(--color-philanthropic); }
   }
 }
+
+/* Life Category Card */
+.life-card {
+  padding: var(--space-4);
+  background: var(--surface-base);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-all);
+  
+  /* Category Accent */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+  }
+  
+  &.card-personal::before { 
+    background: var(--color-personal);
+  }
+  
+  &.card-social::before { 
+    background: var(--color-social);
+  }
+  
+  &.card-career::before { 
+    background: var(--color-career);
+  }
+  
+  &.card-philanthropic::before { 
+    background: var(--color-philanthropic);
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  [data-theme="dark"] & {
+    background: var(--surface-raised);
+    box-shadow: var(--shadow-sm), var(--glow-inner);
+    
+    &::before {
+      filter: blur(4px);
+    }
+  }
+}
 ```
 
-### Gamification Elements
+### 5.3 Concept Display Components
+
+```css
+.concept-display {
+  max-width: 1024px;
+  margin: 0 auto;
+  
+  /* Hook Section */
+  .hooks-section {
+    margin-bottom: var(--space-12);
+    
+    .hooks-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+      
+      .hooks-icon {
+        width: 24px;
+        height: 24px;
+        color: var(--thread-primary);
+      }
+      
+      h2 {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-semibold);
+        color: var(--text-primary);
+      }
+    }
+    
+    .hooks-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+      
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+  
+  /* Examples Section */
+  .examples-section {
+    margin-bottom: var(--space-12);
+    
+    .examples-carousel {
+      position: relative;
+      
+      .example-card {
+        background: var(--surface-overlay);
+        border-radius: var(--radius-xl);
+        padding: var(--space-6);
+        margin-bottom: var(--space-4);
+        
+        [data-theme="dark"] & {
+          background: var(--surface-raised);
+          box-shadow: var(--shadow-sm), var(--glow-inner);
+        }
+        
+        .example-interest-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: var(--space-1);
+          padding: var(--space-1) var(--space-3);
+          background: var(--thread-primary);
+          background-opacity: 0.1;
+          color: var(--thread-primary);
+          border-radius: var(--radius-full);
+          font-size: var(--text-xs);
+          font-weight: var(--font-medium);
+          margin-bottom: var(--space-3);
+        }
+        
+        .example-text {
+          font-size: var(--text-base);
+          line-height: var(--leading-relaxed);
+          color: var(--text-primary);
+        }
+        
+        .example-visual {
+          margin-top: var(--space-4);
+          border-radius: var(--radius-lg);
+          overflow: hidden;
+        }
+      }
+    }
+  }
+  
+  /* Core Content Section */
+  .core-content-section {
+    .content-tabs {
+      display: flex;
+      gap: var(--space-1);
+      padding: var(--space-1);
+      background: var(--surface-overlay);
+      border-radius: var(--radius-xl);
+      margin-bottom: var(--space-6);
+      
+      .tab-button {
+        flex: 1;
+        padding: var(--space-2) var(--space-4);
+        background: transparent;
+        border: none;
+        border-radius: var(--radius-lg);
+        font-size: var(--text-sm);
+        font-weight: var(--font-medium);
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: var(--transition-all);
+        
+        &:hover { 
+          color: var(--text-primary);
+        }
+        
+        &.active {
+          background: var(--surface-base);
+          color: var(--thread-primary);
+          box-shadow: var(--shadow-sm);
+        }
+      }
+    }
+    
+    .tab-content {
+      padding: var(--space-6);
+      background: var(--surface-base);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      
+      [data-theme="dark"] & {
+        background: var(--surface-raised);
+        box-shadow: var(--shadow-sm), var(--glow-inner);
+      }
+      
+      /* Vocabulary Grid */
+      .vocab-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: var(--space-4);
+        
+        .vocab-card {
+          padding: var(--space-4);
+          background: var(--surface-overlay);
+          border-radius: var(--radius-lg);
+          cursor: pointer;
+          transition: var(--transition-all);
+          
+          &:hover {
+            background: var(--thread-primary);
+            background-opacity: 0.05;
+            transform: translateY(-2px);
+          }
+          
+          .vocab-term {
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-1);
+          }
+          
+          .vocab-definition {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### 5.4 Gamification Components
+
 ```css
 /* Achievement Badge */
 .achievement-badge {
@@ -1404,19 +1700,30 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
     width: 100%;
     height: 100%;
     border-radius: var(--radius-full);
-    background: var(--color-teal-100);
+    background: var(--thread-primary);
+    opacity: 0.1;
     
-    &.rare { background: var(--color-info); opacity: 0.2; }
-    &.epic { background: var(--color-personal); opacity: 0.2; }
-    &.legendary { background: var(--color-warning); opacity: 0.2; }
+    &.rare { 
+      background: var(--color-info);
+      opacity: 0.15;
+    }
+    
+    &.epic { 
+      background: var(--color-personal);
+      opacity: 0.15;
+    }
+    
+    &.legendary { 
+      background: var(--color-warning);
+      opacity: 0.15;
+    }
   }
   
-  /* Lucide React Icon */
   .badge-icon {
     position: relative;
-    width: var(--icon-xl);
-    height: var(--icon-xl);
-    color: var(--color-teal-600);
+    width: 32px;
+    height: 32px;
+    color: var(--thread-primary);
     
     .rare & { color: var(--color-info); }
     .epic & { color: var(--color-personal); }
@@ -1436,13 +1743,14 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   background: var(--color-warning);
-  background-opacity: 0.1;
-  border-radius: var(--radius-card);
+  background-opacity: 0.05;
+  border: 1px solid var(--color-warning);
+  border-opacity: 0.2;
+  border-radius: var(--radius-xl);
   
-  /* Lucide React Flame Icon */
   .streak-icon {
-    width: var(--icon-xl);
-    height: var(--icon-xl);
+    width: 32px;
+    height: 32px;
     color: var(--color-warning);
   }
   
@@ -1450,50 +1758,162 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
     .streak-number {
       font-size: var(--text-2xl);
       font-weight: var(--font-bold);
-      color: var(--color-gray-900);
+      color: var(--text-primary);
       line-height: 1;
     }
     
     .streak-label {
       font-size: var(--text-sm);
-      color: var(--color-gray-600);
+      color: var(--text-muted);
     }
   }
 }
 
-/* Points Animation */
+/* Points Popup */
 .points-popup {
   position: fixed;
   padding: var(--space-2) var(--space-4);
-  background: var(--color-teal-500);
-  color: var(--color-white);
+  background: var(--thread-primary);
+  color: var(--surface-ground);
   border-radius: var(--radius-full);
   font-weight: var(--font-bold);
   box-shadow: var(--shadow-lg);
   animation: points-float 2s ease-out forwards;
   pointer-events: none;
 }
-
-@keyframes points-float {
-  0% {
-    opacity: 0;
-    transform: translateY(0);
-  }
-  20% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-100px);
-  }
-}
 ```
 
-## 5. Responsive Design
+## 6. Utility Classes
 
-### Breakpoint System
+### 6.1 Spacing Utilities
+
 ```css
-/* Mobile First Approach */
+/* Margin */
+.m-0 { margin: 0; }
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+.m-6 { margin: var(--space-6); }
+.m-8 { margin: var(--space-8); }
+
+/* Margin Top */
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mt-8 { margin-top: var(--space-8); }
+
+/* Margin Bottom */
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: var(--space-1); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-6 { margin-bottom: var(--space-6); }
+.mb-8 { margin-bottom: var(--space-8); }
+
+/* Padding */
+.p-0 { padding: 0; }
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+
+/* Gap */
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
+```
+
+### 6.2 Typography Utilities
+
+```css
+/* Text Size */
+.text-xs { font-size: var(--text-xs); }
+.text-sm { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-lg { font-size: var(--text-lg); }
+.text-xl { font-size: var(--text-xl); }
+.text-2xl { font-size: var(--text-2xl); }
+.text-3xl { font-size: var(--text-3xl); }
+
+/* Font Weight */
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+.font-bold { font-weight: var(--font-bold); }
+
+/* Text Color */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+
+/* Text Alignment */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+```
+
+### 6.3 Layout Utilities
+
+```css
+/* Display */
+.block { display: block; }
+.inline-block { display: inline-block; }
+.inline { display: inline; }
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.grid { display: grid; }
+.hidden { display: none; }
+
+/* Flex Utilities */
+.flex-row { flex-direction: row; }
+.flex-col { flex-direction: column; }
+.items-start { align-items: flex-start; }
+.items-center { align-items: center; }
+.items-end { align-items: flex-end; }
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.flex-1 { flex: 1; }
+.flex-grow { flex-grow: 1; }
+.flex-shrink-0 { flex-shrink: 0; }
+
+/* Grid Utilities */
+.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Position */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.sticky { position: sticky; }
+
+/* Z-Index */
+.z-0 { z-index: 0; }
+.z-10 { z-index: 10; }
+.z-20 { z-index: 20; }
+.z-30 { z-index: 30; }
+.z-40 { z-index: 40; }
+.z-50 { z-index: 50; }
+```
+
+## 7. Responsive Design
+
+### 7.1 Container System
+
+```css
 .container {
   width: 100%;
   padding: 0 var(--space-4);
@@ -1516,38 +1936,48 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
     max-width: var(--container-xl);
   }
 }
+```
 
-/* Grid Responsive */
-.grid {
-  display: grid;
-  gap: var(--space-4);
+### 7.2 Responsive Utilities
+
+```css
+/* Hide/Show by Breakpoint */
+@media (max-width: 639px) {
+  .sm\:hidden { display: none; }
+}
+
+@media (min-width: 640px) {
+  .sm\:block { display: block; }
+  .sm\:flex { display: flex; }
+  .sm\:grid { display: grid; }
+  .sm\:hidden { display: none; }
+}
+
+@media (min-width: 768px) {
+  .md\:block { display: block; }
+  .md\:flex { display: flex; }
+  .md\:grid { display: grid; }
+  .md\:hidden { display: none; }
   
-  &.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
-  &.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-  &.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-  &.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .lg\:block { display: block; }
+  .lg\:flex { display: flex; }
+  .lg\:grid { display: grid; }
+  .lg\:hidden { display: none; }
   
-  @media (min-width: 640px) {
-    &.sm\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-    &.sm\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-  }
-  
-  @media (min-width: 768px) {
-    &.md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-    &.md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-    &.md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
-  }
-  
-  @media (min-width: 1024px) {
-    &.lg\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-    &.lg\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
-  }
+  .lg\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .lg\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
 }
 ```
 
-### Mobile-Specific Patterns
+### 7.3 Mobile-Specific Adjustments
+
 ```css
-/* Touch Targets */
+/* Touch-Friendly Targets */
 @media (max-width: 768px) {
   .btn {
     min-height: 44px;
@@ -1564,20 +1994,8 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
     }
   }
   
-  .concept-display {
-    .hooks-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .examples-carousel {
-      /* Enable touch swiping */
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      
-      .example-card {
-        scroll-snap-align: start;
-      }
-    }
+  .thread-card {
+    padding: var(--space-4);
   }
   
   .voice-interview {
@@ -1588,17 +2006,28 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
       min-height: 300px;
     }
   }
+  
+  .examples-carousel {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    
+    .example-card {
+      scroll-snap-align: start;
+    }
+  }
 }
 ```
 
-## 6. Accessibility Standards
+## 8. Accessibility Standards
 
-### Focus Management
+### 8.1 Focus Management
+
 ```css
 /* Focus Visible */
 :focus-visible {
   outline: none;
-  box-shadow: var(--shadow-focus);
+  box-shadow: var(--focus-ring);
 }
 
 /* Skip Links */
@@ -1606,11 +2035,12 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
   position: absolute;
   top: -40px;
   left: 0;
-  background: var(--color-teal-500);
-  color: var(--color-white);
+  background: var(--thread-primary);
+  color: var(--surface-ground);
   padding: var(--space-2) var(--space-4);
   text-decoration: none;
-  border-radius: var(--radius-base);
+  border-radius: var(--radius-lg);
+  z-index: 100;
   
   &:focus {
     top: var(--space-2);
@@ -1631,7 +2061,8 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
 }
 ```
 
-### ARIA Patterns
+### 8.2 ARIA Patterns
+
 ```html
 <!-- Progress Bar -->
 <div role="progressbar" 
@@ -1648,68 +2079,128 @@ Spool's design system embodies **clarity through simplicity**. We prioritize edu
   <span class="status-text">Recording your response...</span>
 </div>
 
-<!-- Exercise Timer -->
-<div class="exercise-timer" role="timer" aria-live="polite">
-  <Clock className="timer-icon" aria-hidden="true" />
-  <span>5:23 elapsed</span>
-</div>
+<!-- Thread Navigation -->
+<nav aria-label="Learning path progress">
+  <ol class="thread-nav">
+    <li class="thread-node completed" aria-label="Introduction - Completed"></li>
+    <li class="thread-node active" aria-current="step" aria-label="Core Concepts - Current"></li>
+    <li class="thread-node" aria-label="Advanced Topics - Not started"></li>
+  </ol>
+</nav>
 
-<!-- Icon Button Example -->
-<button className="btn-icon" aria-label="Start voice interview">
-  <Mic className="w-5 h-5" />
+<!-- Icon Button -->
+<button class="btn-icon" aria-label="Start voice interview">
+  <svg aria-hidden="true"><!-- Mic icon --></svg>
 </button>
 ```
 
-## 7. Dark Mode Considerations
+### 8.3 Color Contrast Requirements
 
-While the primary design uses a light theme, we can prepare for future dark mode:
+All text colors meet WCAG AA standards:
+- Normal text: 4.5:1 contrast ratio minimum
+- Large text (18px+): 3:1 contrast ratio minimum
+- Interactive elements: 3:1 contrast ratio minimum
+
+## 9. Iconography Guidelines
+
+**Icon Library**: Lucide React (Consistent 24x24 stroke-based design)
+
+### 9.1 Icon Sizes
 
 ```css
-/* Dark Mode Variables (Future Enhancement) */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-obsidian: #F7FAFC;
-    --color-gray-900: #EDF2F7;
-    --color-gray-800: #E2E8F0;
-    --color-gray-700: #CBD5E0;
-    --color-gray-600: #A0AEC0;
-    --color-gray-500: #718096;
-    --color-gray-400: #4A5568;
-    --color-gray-300: #2D3748;
-    --color-gray-200: #1A202C;
-    --color-gray-100: #171923;
-    --color-white: #0A0E1A;
-    
-    /* Adjust teal for dark backgrounds */
-    --color-teal-500: #38B2AC;
-    --color-teal-600: #319795;
-    --color-teal-700: #2C7A7B;
-  }
+:root {
+  --icon-xs: 12px;
+  --icon-sm: 16px;
+  --icon-base: 20px;
+  --icon-lg: 24px;
+  --icon-xl: 32px;
 }
 ```
 
-## 8. Implementation Guidelines
+### 9.2 Icon Categories
 
-### Component Development Order
-1. **Phase 1 - Core Atoms**: Buttons, Inputs, Badges, Typography
-2. **Phase 2 - Essential Molecules**: Chat Bubbles, Cards, Progress Bars
-3. **Phase 3 - Key Organisms**: Navigation, Voice Interview, Concept Display
-4. **Phase 4 - Complex Features**: Exercise System, Progress Dashboard
-5. **Phase 5 - Polish**: Animations, Transitions, Micro-interactions
+**Navigation**
+- Home, ChevronLeft, ChevronRight, Menu, X, ArrowLeft, ArrowRight
 
-### Performance Optimization
-- Use CSS custom properties for dynamic theming
-- Implement lazy loading for images in examples
-- Optimize animation performance with `will-change`
-- Use CSS Grid and Flexbox for layout (no heavy frameworks)
+**Actions**
+- Play, Pause, Check, Plus, Minus, Edit3, Trash2, Save, Share2, Download
+
+**Communication**
+- MessageCircle, Mic, Volume2, Video, Phone, Send
+
+**Learning**
+- BookOpen, GraduationCap, Lightbulb, Puzzle, Trophy, Award, Target
+
+**Progress**
+- BarChart3, Flame (streak), Star (achievement), Flag (milestone), TrendingUp
+
+**Content**
+- FileText, Folder, Image, Link, Search, Filter, Eye, EyeOff
+
+**Life Categories**
+- User (Personal), Users (Social), Briefcase (Career), Heart (Philanthropic)
+
+**Status**
+- CheckCircle2, XCircle, AlertTriangle, Info, AlertCircle, Clock
+
+**Formatting (Rich Text Editor)**
+- Bold, Italic, Underline, Link2, List, ListOrdered, Quote, Code
+
+## 10. Implementation Guidelines
+
+### 10.1 Development Phases
+
+**Phase 1 - Core Foundation**
+- Design tokens (colors, typography, spacing)
+- Base components (Button, Input, Card)
+- Dark mode support
+
+**Phase 2 - Thread Components**
+- ThreadCard, ThreadNavigation
+- Rich Text Editor
+- Progress components
+
+**Phase 3 - Learning Interface**
+- Voice Interview interface
+- Exercise components
+- Concept display
+
+**Phase 4 - Enhancement**
+- Animations and transitions
+- Gamification elements
+- Advanced interactions
+
+### 10.2 Performance Guidelines
+
+- Use CSS custom properties for theming
+- Implement lazy loading for images
+- Optimize animations with `will-change`
 - Minimize JavaScript for style changes
+- Use CSS Grid and Flexbox for layouts
+- Enable hardware acceleration for transforms
 
-### Testing Requirements
-- Test all interactive states (hover, focus, active, disabled)
-- Verify touch targets are 44px minimum on mobile
-- Ensure color contrast meets WCAG AA standards
-- Test keyboard navigation flows
-- Verify screen reader announcements
-- Test responsive layouts at all breakpoints
+### 10.3 Testing Checklist
 
-This design system provides a complete foundation for building Spool's UI with consistency, accessibility, and performance in mind. The simple color palette with teal accents creates a calm learning environment while maintaining visual interest through thoughtful typography and spacing.
+- [ ] All interactive states (hover, focus, active, disabled)
+- [ ] Touch targets minimum 44px on mobile
+- [ ] Color contrast WCAG AA compliance
+- [ ] Keyboard navigation flows
+- [ ] Screen reader announcements
+- [ ] Responsive layouts at all breakpoints
+- [ ] Dark mode visual consistency
+- [ ] Animation performance
+- [ ] Loading states
+- [ ] Error states
+
+## 11. Migration Guide
+
+### From Design System 1.0 to 2.0
+
+1. **Update CSS Variables**: Replace old color variables with new token system
+2. **Component Classes**: Update component classes to use new naming
+3. **Dark Mode**: Implement `[data-theme="dark"]` attribute system
+4. **Shadows**: Replace single shadows with layered shadow system
+5. **Animations**: Add new thread-based animations
+6. **Icons**: Ensure all icons use Lucide React library
+
+This design system provides a complete foundation for building Spool's modern, approachable interface with the thread metaphor at its core. The tactile aesthetic and thoughtful dark mode create an engaging learning environment that feels both minimal and rich.
