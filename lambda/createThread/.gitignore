@@ -1,0 +1,9 @@
+node_modules/
+coverage/
+*.zip
+.DS_Store
+.env
+response.json
+test-event.json
+trust-policy.json
+execution-policy.json

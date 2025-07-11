@@ -1,0 +1,117 @@
+# API Gateway Integration Configuration for CreateThread Lambda
+
+# This configuration should be added to the existing API Gateway setup
+# File: spool-infrastructure/cdk/lib/api-gateway-stack.ts
+
+ThreadResource:
+  Type: AWS::ApiGateway::Resource
+  Properties:
+    RestApiId: !Ref SpoolRestApi
+    ParentId: !GetAtt SpoolRestApi.RootResourceId
+    PathPart: thread
+
+# /api/thread/create
+ThreadCreateResource:
+  Type: AWS::ApiGateway::Resource
+  Properties:
+    RestApiId: !Ref SpoolRestApi
+    ParentId: !Ref ThreadResource
+    PathPart: create
+
+ThreadCreateMethod:
+  Type: AWS::ApiGateway::Method
+  Properties:
+    RestApiId: !Ref SpoolRestApi
+    ResourceId: !Ref ThreadCreateResource
+    HttpMethod: POST
+    AuthorizationType: COGNITO_USER_POOLS
+    AuthorizerId: !Ref CognitoAuthorizer
+    Integration:
+      Type: AWS_PROXY
+      IntegrationHttpMethod: POST
+      Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:spool-create-thread/invocations"
+    MethodResponses:
+      - StatusCode: 200
+        ResponseModels:
+          application/json: Empty
+        ResponseParameters:
+          method.response.header.Access-Control-Allow-Origin: true
+
+# /api/thread/{id}
+ThreadIdResource:
+  Type: AWS::ApiGateway::Resource
+  Properties:
+    RestApiId: !Ref SpoolRestApi
+    ParentId: !Ref ThreadResource
+    PathPart: "{id}"
+
+ThreadGetMethod:
+  Type: AWS::ApiGateway::Method
+  Properties:
+    RestApiId: !Ref SpoolRestApi
+    ResourceId: !Ref ThreadIdResource
+    HttpMethod: GET
+    AuthorizationType: COGNITO_USER_POOLS
+    AuthorizerId: !Ref CognitoAuthorizer
+    RequestParameters:
+      method.request.path.id: true
+    Integration:
+      Type: AWS_PROXY
+      IntegrationHttpMethod: POST
+      Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:spool-create-thread/invocations"
+
+ThreadUpdateMethod:
+  Type: AWS::ApiGateway::Method
+  Properties:
+    RestApiId: !Ref SpoolRestApi
+    ResourceId: !Ref ThreadIdResource
+    HttpMethod: PUT
+    AuthorizationType: COGNITO_USER_POOLS
+    AuthorizerId: !Ref CognitoAuthorizer
+    RequestParameters:
+      method.request.path.id: true
+    Integration:
+      Type: AWS_PROXY
+      IntegrationHttpMethod: POST
+      Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:spool-create-thread/invocations"
+
+# /api/thread/list/{studentId}
+ThreadListResource:
+  Type: AWS::ApiGateway::Resource
+  Properties:
+    RestApiId: !Ref SpoolRestApi
+    ParentId: !Ref ThreadResource
+    PathPart: list
+
+ThreadListStudentResource:
+  Type: AWS::ApiGateway::Resource
+  Properties:
+    RestApiId: !Ref SpoolRestApi
+    ParentId: !Ref ThreadListResource
+    PathPart: "{studentId}"
+
+ThreadListMethod:
+  Type: AWS::ApiGateway::Method
+  Properties:
+    RestApiId: !Ref SpoolRestApi
+    ResourceId: !Ref ThreadListStudentResource
+    HttpMethod: GET
+    AuthorizationType: COGNITO_USER_POOLS
+    AuthorizerId: !Ref CognitoAuthorizer
+    RequestParameters:
+      method.request.path.studentId: true
+      method.request.querystring.limit: false
+      method.request.querystring.lastEvaluatedKey: false
+    Integration:
+      Type: AWS_PROXY
+      IntegrationHttpMethod: POST
+      Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:spool-create-thread/invocations"
+
+# Lambda Permission for API Gateway
+ThreadLambdaApiGatewayPermission:
+  Type: AWS::Lambda::Permission
+  Properties:
+    FunctionName: spool-create-thread
+    Action: lambda:InvokeFunction
+    Principal: apigateway.amazonaws.com
+    SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SpoolRestApi}/*/*/thread/*"
