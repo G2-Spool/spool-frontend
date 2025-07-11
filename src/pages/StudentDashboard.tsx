@@ -17,9 +17,7 @@ import {
   Clock, 
   Zap,
   Plus,
-  ArrowRight,
   Sparkles,
-  Loader2,
 } from 'lucide-react';
 import type { LifeCategory } from '../types';
 
