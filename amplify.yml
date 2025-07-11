@@ -15,7 +15,8 @@ frontend:
     preBuild:
       commands:
         - nvm use 20
-        - npm ci --cache .npm --prefer-offline
+        - npm --version
+        - npm install --legacy-peer-deps
     build:
       commands:
         # Create .env file with SSM parameters (Amplify automatically loads them as env vars)

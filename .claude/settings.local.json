@@ -8,7 +8,9 @@
       "Bash(npm ci:*)",
       "Bash(npx vite:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }
