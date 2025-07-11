@@ -36,28 +36,28 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
   onToggleExpanded
 }) => {
   const getRelevanceColor = (score: number) => {
-    if (score >= 0.9) return 'text-green-600 bg-green-50';
-    if (score >= 0.85) return 'text-blue-600 bg-blue-50';
-    return 'text-gray-600 bg-gray-50';
+    if (score >= 0.9) return 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20';
+    if (score >= 0.85) return 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20';
+    return 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800';
   };
   
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty?.toLowerCase()) {
       case 'beginner':
-        return 'text-green-600';
+        return 'text-green-600 dark:text-green-400';
       case 'intermediate':
-        return 'text-yellow-600';
+        return 'text-yellow-600 dark:text-yellow-400';
       case 'advanced':
-        return 'text-red-600';
+        return 'text-red-600 dark:text-red-400';
       default:
-        return 'text-gray-600';
+        return 'text-gray-600 dark:text-gray-400';
     }
   };
   
   return (
-    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
+    <div className="w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 overflow-y-auto">
       <div className="p-4">
-        <h2 className="text-lg font-semibold text-obsidian mb-4">
+        <h2 className="text-lg font-semibold text-obsidian dark:text-gray-100 mb-4">
           Thread Sections
         </h2>
         
@@ -72,8 +72,8 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                 className={cn(
                   "cursor-pointer transition-all",
                   isSelected 
-                    ? "border-teal-500 shadow-md bg-teal-50" 
-                    : "hover:border-gray-300 hover:shadow-sm"
+                    ? "border-teal-500 shadow-md bg-teal-50 dark:bg-teal-900/20" 
+                    : "hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm"
                 )}
               >
                 <div 
@@ -82,12 +82,12 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-start gap-2 flex-1">
-                      <div className="text-sm font-medium text-gray-500 mt-0.5">
+                      <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-0.5">
                         {index + 1}.
                       </div>
                       <h3 className={cn(
                         "text-sm font-medium line-clamp-2 flex-1",
-                        isSelected ? "text-teal-900" : "text-obsidian"
+                        isSelected ? "text-teal-900 dark:text-teal-200" : "text-obsidian dark:text-gray-100"
                       )}>
                         {section.title}
                       </h3>
@@ -97,12 +97,12 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                         e.stopPropagation();
                         onToggleExpanded(section.id);
                       }}
-                      className="p-1 hover:bg-gray-100 rounded"
+                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
                     >
                       {isExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-gray-500" />
+                        <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                       ) : (
-                        <ChevronRight className="h-4 w-4 text-gray-500" />
+                        <ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                       )}
                     </button>
                   </div>
@@ -117,7 +117,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                     </div>
                     
                     {section.estimatedMinutes && (
-                      <div className="flex items-center gap-1 text-gray-500">
+                      <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                         <Clock className="h-3 w-3" />
                         <span>{section.estimatedMinutes}m</span>
                       </div>
@@ -134,13 +134,13 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                   </div>
                   
                   {isExpanded && (
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <p className="text-xs text-gray-600 line-clamp-3 mb-2">
+                    <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-3 mb-2">
                         {section.text.substring(0, 150)}...
                       </p>
                       
                       {section.conceptIds && section.conceptIds.length > 0 && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                           <BookOpen className="h-3 w-3" />
                           <span>{section.conceptIds.length} related concepts</span>
                         </div>
@@ -154,11 +154,11 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
         </div>
         
         {/* Summary Stats */}
-        <div className="mt-6 p-3 bg-gray-50 rounded-lg">
-          <h3 className="text-sm font-semibold text-gray-700 mb-2">
+        <div className="mt-6 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Thread Summary
           </h3>
-          <div className="space-y-1 text-xs text-gray-600">
+          <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
             <div className="flex justify-between">
               <span>Total Sections:</span>
               <span className="font-medium">{sections.length}</span>
