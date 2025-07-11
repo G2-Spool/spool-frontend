@@ -7,8 +7,8 @@ import {
   LogOut,
   Menu,
   X,
-  Flame,
-  Trophy,
+  // Flame, // TODO: Uncomment when student features are enabled
+  // Trophy, // TODO: Uncomment when student features are enabled
   MessageCircle,
   BarChart3,
   Spool,
@@ -186,8 +186,9 @@ export const DashboardLayout: React.FC = () => {
 
             {/* Right side */}
             <div className="flex items-center gap-4">
-              {/* Streak Badge (for students) - This won't show for parent/educator */}
-              {false && studentProfile && (
+              {/* Streak Badge (for students) - Currently disabled */}
+              {/* TODO: Enable when student features are ready
+              {studentProfile && (
                 <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-teal-50 dark:bg-teal-900/30 rounded-full">
                   <Flame className="h-4 w-4 text-warning" />
                   <span className="text-sm font-medium text-teal-700 dark:text-teal-400">
@@ -195,9 +196,11 @@ export const DashboardLayout: React.FC = () => {
                   </span>
                 </div>
               )}
+              */}
 
-              {/* Points (for students) - This won't show for parent/educator */}
-              {false && studentProfile && (
+              {/* Points (for students) - Currently disabled */}
+              {/* TODO: Enable when student features are ready
+              {studentProfile && (
                 <div className="hidden sm:flex items-center gap-2">
                   <Trophy className="h-4 w-4 text-teal-600" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -205,6 +208,7 @@ export const DashboardLayout: React.FC = () => {
                   </span>
                 </div>
               )}
+              */}
 
               {/* User Menu */}
               <div className="flex items-center gap-3">
@@ -292,8 +296,9 @@ export const DashboardLayout: React.FC = () => {
               </div>
             </nav>
 
-            {/* Mobile Stats - This won't show for parent/educator */}
-            {false && studentProfile && (
+            {/* Mobile Stats - Currently disabled */}
+            {/* TODO: Enable when student features are ready
+            {studentProfile && (
               <div className="p-4 border-t border-gray-200 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Streak</span>
@@ -315,6 +320,7 @@ export const DashboardLayout: React.FC = () => {
                 </div>
               </div>
             )}
+            */}
           </div>
         </div>
       )}
