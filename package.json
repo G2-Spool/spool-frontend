@@ -12,7 +12,10 @@
     "build:prod": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:cognito": "node scripts/test-cognito-config.js"
+    "test:cognito": "node scripts/test-cognito-config.js",
+    "typecheck": "tsc --noEmit",
+    "quality": "npm run typecheck && npm run lint",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.11.2",
