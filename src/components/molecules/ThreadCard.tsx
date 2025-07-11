@@ -85,12 +85,12 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
               </Badge>
             ))}
             {analysis.topics.slice(0, 2).map((topic, idx) => (
-              <Badge key={idx} variant="secondary" size="sm">
+              <Badge key={idx} variant="default" size="sm">
                 {topic}
               </Badge>
             ))}
             {analysis.subjects.length + analysis.topics.length > 4 && (
-              <Badge variant="outline" size="sm">
+              <Badge variant="default" size="sm">
                 +{analysis.subjects.length + analysis.topics.length - 4}
               </Badge>
             )}

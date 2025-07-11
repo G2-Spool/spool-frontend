@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card } from '../atoms/Card';
-import { Badge } from '../atoms/Badge';
 import { 
   ChevronRight, 
   ChevronDown,

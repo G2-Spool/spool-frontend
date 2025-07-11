@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:prod": "tsc -b --noUnusedLocals false --noUnusedParameters false && vite build",
+    "build:prod": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test:cognito": "node scripts/test-cognito-config.js"

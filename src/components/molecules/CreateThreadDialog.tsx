@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../atoms/Dialog';
 import { Button } from '../atoms/Button';
-import { Input } from '../atoms/Input';
 import { useCreateThread } from '../../hooks/useThread';
 import { useNavigate } from 'react-router-dom';
 import { Brain, Loader2, Sparkles } from 'lucide-react';

@@ -26,7 +26,7 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
   onClose,
   onInterestsExtracted,
 }) => {
-  const { user, studentProfile } = useAuth();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);

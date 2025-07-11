@@ -25,7 +25,7 @@ import type { LifeCategory } from '../types';
 
 export const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { studentProfile, user, updateStudentProfile } = useAuth();
+  const { studentProfile, user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<LifeCategory | 'all'>('all');
   const [showInterviewModal, setShowInterviewModal] = useState(false);
   
@@ -288,16 +288,7 @@ export const StudentDashboard: React.FC = () => {
         onInterestsExtracted={(interests) => {
           console.log('Interests extracted:', interests);
           // Update local state if needed
-          if (updateStudentProfile) {
-            updateStudentProfile({
-              ...studentProfile,
-              interests: interests.map(i => ({
-                interest: i.interest,
-                category: i.category as LifeCategory,
-                strength: i.strength
-              }))
-            });
-          }
+          // TODO: Implement profile update functionality when available
         }}
       />
     </div>

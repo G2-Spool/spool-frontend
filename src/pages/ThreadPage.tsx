@@ -15,19 +15,6 @@ import {
 } from 'lucide-react';
 import { useThread } from '../hooks/useThread';
 import { ThreadSectionsSidebar } from '../components/organisms/ThreadSectionsSidebar';
-import { SectionContent } from '../components/organisms/SectionContent';
-import { ConceptCard } from '../components/molecules/ConceptCard';
-
-interface ThreadSection {
-  id: string;
-  title: string;
-  text: string;
-  relevanceScore: number;
-  courseId?: string;
-  conceptIds?: string[];
-  difficulty?: string;
-  estimatedMinutes?: number;
-}
 
 export const ThreadPage: React.FC = () => {
   const { threadId } = useParams<{ threadId: string }>();
@@ -134,7 +121,7 @@ export const ThreadPage: React.FC = () => {
                       </Badge>
                     ))}
                     {thread.analysis.topics.map((topic: string, idx: number) => (
-                      <Badge key={idx} variant="secondary" size="sm">
+                      <Badge key={idx} variant="default" size="sm">
                         {topic}
                       </Badge>
                     ))}
@@ -169,7 +156,7 @@ export const ThreadPage: React.FC = () => {
                         </div>
                       )}
                       {currentSection.difficulty && (
-                        <Badge variant="outline" size="sm">
+                        <Badge variant="default" size="sm">
                           {currentSection.difficulty}
                         </Badge>
                       )}

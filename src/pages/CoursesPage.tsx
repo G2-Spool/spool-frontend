@@ -22,7 +22,7 @@ import { useUserThreads } from '../hooks/useThread';
 import { ThreadCard } from '../components/molecules/ThreadCard';
 import { CreateThreadDialog } from '../components/molecules/CreateThreadDialog';
 import type { FilterMetadata } from '../services/pinecone/types';
-import { getCurrentUser } from '../utils/auth';
+import { useAuth } from '../contexts/AuthContext';
 
 // Create custom hook for debouncing
 const useDebounce = <T,>(value: T, delay: number): T => {
@@ -56,8 +56,8 @@ export const CoursesPage: React.FC = () => {
   const [showCreateThread, setShowCreateThread] = useState(false);
   
   // Get current user
-  const currentUser = getCurrentUser();
-  const userId = currentUser?.username || 'anonymous';
+  const { user } = useAuth();
+  const userId = user?.id || 'anonymous';
   
   // Debounce search query
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
