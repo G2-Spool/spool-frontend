@@ -146,6 +146,9 @@ export default {
         'in': 'in 0.2s ease-out',
         'fade-in': 'fade-in 0.2s ease-out',
         'slide-in-from-bottom-2': 'slide-in-from-bottom-2 0.2s ease-out',
+        'slide-up': 'slide-up 0.3s ease-out',
+        'shimmer': 'shimmer 2s ease-in-out infinite',
+        'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
         'in': {
@@ -160,6 +163,29 @@ export default {
           '0%': { transform: 'translateY(0.5rem)' },
           '100%': { transform: 'translateY(0)' },
         },
+        'slide-up': {
+          '0%': { opacity: '0', transform: 'translateY(2rem)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'shimmer': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        'pulse': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' },
+        },
+      },
+      boxShadow: {
+        none: 'none',
+        sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        base: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        '3xl': '0 35px 60px -15px rgba(0, 0, 0, 0.3)',
+        focus: '0 0 0 3px rgba(49, 151, 149, 0.5)', // Teal focus
       },
     },
   },

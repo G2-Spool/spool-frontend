@@ -11,16 +11,35 @@ import {
   ChevronRight,
   MessageSquare,
   Lightbulb,
-  Target
+  Target,
+  Sparkles,
+  PlayCircle,
+  CheckCircle,
+  TrendingUp,
+  Zap,
+  Award
 } from 'lucide-react';
 import { useThread } from '../hooks/useThread';
 import { ThreadSectionsSidebar } from '../components/organisms/ThreadSectionsSidebar';
+import { TwoStageExercise } from '../components/organisms/TwoStageExercise';
+import { cn } from '../utils/cn';
+
+// Mock student profile - in production this would come from user context
+const mockStudentProfile = {
+  interests: ['gaming', 'technology', 'music', 'sports'],
+  careerInterests: ['software development', 'game design'],
+  philanthropicInterests: ['education', 'environment'],
+};
 
 export const ThreadPage: React.FC = () => {
   const { threadId } = useParams<{ threadId: string }>();
   const navigate = useNavigate();
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [showExercise, setShowExercise] = useState(false);
+  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [sectionProgress, setSectionProgress] = useState<Record<string, 'reading' | 'exercising' | 'completed'>>({});
+  const [showFloatingCTA, setShowFloatingCTA] = useState(false);
   
   // Fetch thread data
   const { data: thread, isLoading, error } = useThread(threadId || '');
@@ -31,6 +50,18 @@ export const ThreadPage: React.FC = () => {
       setSelectedSection(thread.sections[0].id);
     }
   }, [thread, selectedSection]);
+
+  // Handle scroll for floating CTA
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const shouldShow = scrollPosition > 800 && !showExercise && selectedSection && sectionProgress[selectedSection] !== 'completed';
+      setShowFloatingCTA(shouldShow);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [showExercise, selectedSection, sectionProgress]);
   
   const toggleSectionExpanded = (sectionId: string) => {
     const newExpanded = new Set(expandedSections);
@@ -40,6 +71,34 @@ export const ThreadPage: React.FC = () => {
       newExpanded.add(sectionId);
     }
     setExpandedSections(newExpanded);
+  };
+
+  const handleStartExercise = () => {
+    if (selectedSection) {
+      setSectionProgress(prev => ({ ...prev, [selectedSection]: 'exercising' }));
+      setShowExercise(true);
+    }
+  };
+
+  const handleExerciseComplete = () => {
+    if (selectedSection) {
+      setCompletedSections(prev => new Set([...prev, selectedSection]));
+      setSectionProgress(prev => ({ ...prev, [selectedSection]: 'completed' }));
+      setShowExercise(false);
+      
+      // Auto-advance to next section if available
+      const currentIndex = thread?.sections.findIndex(s => s.id === selectedSection) ?? -1;
+      if (currentIndex >= 0 && currentIndex < (thread?.sections.length ?? 0) - 1) {
+        setTimeout(() => {
+          setSelectedSection(thread?.sections[currentIndex + 1].id ?? null);
+        }, 1500);
+      }
+    }
+  };
+
+  const getProgressPercentage = () => {
+    if (!thread?.sections) return 0;
+    return (completedSections.size / thread.sections.length) * 100;
   };
   
   if (isLoading) {
@@ -85,6 +144,7 @@ export const ThreadPage: React.FC = () => {
   }
   
   const currentSection = thread.sections.find(s => s.id === selectedSection);
+  const currentSectionStatus = selectedSection ? sectionProgress[selectedSection] || 'reading' : 'reading';
   
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
@@ -106,6 +166,87 @@ export const ThreadPage: React.FC = () => {
             <h1 className="text-3xl font-bold text-obsidian dark:text-gray-100 mb-2">
               Learning Thread
             </h1>
+
+            {/* Enhanced Progress Section */}
+            <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
+                    <Target className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Learning Progress</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      {completedSections.size === 0 
+                        ? "Start your journey by reading and practicing"
+                        : completedSections.size === thread.sections.length 
+                        ? "Congratulations! You've mastered all sections!" 
+                        : "Keep going! You're making great progress"}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-teal-600 dark:text-teal-400">
+                    {Math.round(getProgressPercentage())}%
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                    {completedSections.size} of {thread.sections.length} sections
+                  </div>
+                </div>
+              </div>
+              
+              <div className="relative">
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                  <div 
+                    className="bg-gradient-to-r from-teal-500 via-blue-500 to-purple-500 h-3 rounded-full transition-all duration-700 ease-out relative"
+                    style={{ width: `${getProgressPercentage()}%` }}
+                  >
+                    {/* Animated shimmer effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+                  </div>
+                </div>
+                
+                {/* Milestone markers */}
+                <div className="absolute top-0 left-0 w-full h-3 flex items-center">
+                  {[25, 50, 75].map((milestone) => (
+                    <div
+                      key={milestone}
+                      className={cn(
+                        "absolute w-0.5 h-5 -top-1 transform -translate-x-1/2 transition-all duration-300",
+                        getProgressPercentage() >= milestone 
+                          ? "bg-teal-600 dark:bg-teal-400" 
+                          : "bg-gray-300 dark:bg-gray-600"
+                      )}
+                      style={{ left: `${milestone}%` }}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              {/* Achievement badges */}
+              {completedSections.size > 0 && (
+                <div className="flex items-center gap-2 mt-3">
+                  {completedSections.size >= 1 && (
+                    <Badge variant="success" size="sm">
+                      <Award className="h-3 w-3 mr-1" />
+                      First Step
+                    </Badge>
+                  )}
+                  {completedSections.size >= Math.floor(thread.sections.length / 2) && (
+                    <Badge variant="primary" size="sm">
+                      <TrendingUp className="h-3 w-3 mr-1" />
+                      Halfway There
+                    </Badge>
+                  )}
+                  {completedSections.size === thread.sections.length && (
+                    <Badge variant="warning" size="sm">
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      Master
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </div>
             
             {/* Analysis Summary */}
             <Card className="bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 p-4 mb-6">
@@ -135,96 +276,214 @@ export const ThreadPage: React.FC = () => {
             </div>
           </div>
           
-          {/* Selected Section Content */}
+          {/* Selected Section Content or Exercise */}
           {currentSection && (
             <div className="space-y-6">
-              <Card className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h2 className="text-2xl font-semibold text-obsidian dark:text-gray-100 mb-2">
-                      {currentSection.title}
-                    </h2>
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Target className="h-4 w-4" />
-                        <span>{Math.round(currentSection.relevanceScore * 100)}% relevant</span>
-                      </div>
-                      {currentSection.estimatedMinutes && (
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          <span>{currentSection.estimatedMinutes} min</span>
+              {showExercise && currentSectionStatus === 'exercising' ? (
+                <TwoStageExercise
+                  conceptId={currentSection.id}
+                  conceptName={currentSection.title}
+                  conceptDescription={currentSection.text.substring(0, 200)}
+                  studentProfile={mockStudentProfile}
+                  onComplete={handleExerciseComplete}
+                />
+              ) : (
+                <>
+                  <Card className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h2 className="text-2xl font-semibold text-obsidian dark:text-gray-100">
+                            {currentSection.title}
+                          </h2>
+                          {currentSectionStatus === 'completed' && (
+                            <Badge variant="success" size="sm">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Completed
+                            </Badge>
+                          )}
                         </div>
-                      )}
-                      {currentSection.difficulty && (
-                        <Badge variant="default" size="sm">
-                          {currentSection.difficulty}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Section Text Content */}
-                <div className="prose prose-gray max-w-none">
-                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                    {currentSection.text}
-                  </p>
-                </div>
-                
-                {/* Learning Tips */}
-                <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <Lightbulb className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
-                    <div>
-                      <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-1">Learning Tip</h4>
-                      <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                        This section connects to key concepts in {thread.analysis.subjects.join(' and ')}. 
-                        Try to relate this material to what you already know about these subjects.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Related Concepts */}
-                {currentSection.conceptIds && currentSection.conceptIds.length > 0 && (
-                  <div className="mt-6">
-                    <h3 className="text-lg font-semibold text-obsidian dark:text-gray-100 mb-3">
-                      Related Concepts
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {currentSection.conceptIds.slice(0, 4).map((conceptId) => (
-                        <div key={conceptId} className="cursor-pointer hover:scale-[1.02] transition-transform">
-                          <Card className="p-4 hover:shadow-md transition-shadow">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <BookOpen className="h-5 w-5 text-teal-600 dark:text-teal-400" />
-                                <span className="font-medium">Concept {conceptId.slice(-4)}</span>
-                              </div>
-                              <ChevronRight className="h-4 w-4 text-gray-400" />
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Target className="h-4 w-4" />
+                            <span>{Math.round(currentSection.relevanceScore * 100)}% relevant</span>
+                          </div>
+                          {currentSection.estimatedMinutes && (
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              <span>{currentSection.estimatedMinutes} min</span>
                             </div>
-                          </Card>
+                          )}
+                          {currentSection.difficulty && (
+                            <Badge variant="default" size="sm">
+                              {currentSection.difficulty}
+                            </Badge>
+                          )}
                         </div>
-                      ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-                
-                {/* Discussion Prompt */}
-                <Card className="mt-6 p-4 bg-personal/10 dark:bg-personal/20 border-personal/30 dark:border-personal/40">
-                  <div className="flex items-start gap-3">
-                    <MessageSquare className="h-5 w-5 text-personal dark:text-personal/80 mt-0.5" />
-                    <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Reflection Question</h4>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        How does this section relate to your initial question? What new insights have you gained?
+                    
+                    {/* Section Text Content */}
+                    <div className="prose prose-gray max-w-none">
+                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                        {currentSection.text}
                       </p>
-                      <Button variant="outline" size="sm" className="mt-3">
-                        Share Your Thoughts
-                      </Button>
                     </div>
-                  </div>
-                </Card>
-              </Card>
+                    
+                    {/* Learning Tips */}
+                    <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <Lightbulb className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+                        <div>
+                          <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-1">Learning Tip</h4>
+                          <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                            This section connects to key concepts in {thread.analysis.subjects.join(' and ')}. 
+                            Try to relate this material to what you already know about these subjects.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Related Concepts */}
+                    {currentSection.conceptIds && currentSection.conceptIds.length > 0 && (
+                      <div className="mt-6">
+                        <h3 className="text-lg font-semibold text-obsidian dark:text-gray-100 mb-3">
+                          Related Concepts
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {currentSection.conceptIds.slice(0, 4).map((conceptId) => (
+                            <div key={conceptId} className="cursor-pointer hover:scale-[1.02] transition-transform">
+                              <Card className="p-4 hover:shadow-md transition-shadow">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <BookOpen className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                                    <span className="font-medium">Concept {conceptId.slice(-4)}</span>
+                                  </div>
+                                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                                </div>
+                              </Card>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+
+                  {/* Two Stage Exercise CTA Section */}
+                  {currentSectionStatus !== 'completed' && (
+                    <Card className="relative overflow-hidden p-6 bg-gradient-to-br from-teal-50 via-blue-50 to-purple-50 dark:from-teal-900/20 dark:via-blue-900/20 dark:to-purple-900/20 border-2 border-teal-300 dark:border-teal-700 shadow-lg hover:shadow-xl transition-all duration-300">
+                      {/* Animated background pattern */}
+                      <div className="absolute inset-0 opacity-10">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-teal-400 to-blue-400 rounded-full blur-3xl transform translate-x-32 -translate-y-32 animate-pulse" />
+                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-purple-400 to-pink-400 rounded-full blur-3xl transform -translate-x-32 translate-y-32 animate-pulse" />
+                      </div>
+                      
+                      <div className="relative flex items-start gap-4">
+                        <div className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md transform hover:scale-105 transition-transform">
+                          <Zap className="h-10 w-10 text-teal-600 dark:text-teal-400" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <h3 className="text-xl font-bold text-obsidian dark:text-gray-100">
+                              Ready to Master This Concept?
+                            </h3>
+                            <Badge variant="success" size="sm" className="animate-pulse">
+                              <Sparkles className="h-3 w-3 mr-1" />
+                              Interactive
+                            </Badge>
+                          </div>
+                          <p className="text-gray-700 dark:text-gray-300 mb-6 text-base leading-relaxed">
+                            Our AI-powered Two-Stage Exercise System creates personalized challenges based on your interests, 
+                            ensuring you truly understand and can apply what you've learned.
+                          </p>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                            <div className="flex items-start gap-3 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg backdrop-blur-sm">
+                              <div className="p-2 bg-gradient-to-br from-teal-100 to-blue-100 dark:from-teal-900/30 dark:to-blue-900/30 rounded-lg">
+                                <Brain className="h-6 w-6 text-teal-600 dark:text-teal-400" />
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-base text-gray-900 dark:text-gray-100">Stage 1: Initial Exercise</h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                  Test core understanding with scenarios from your interests
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-3 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg backdrop-blur-sm">
+                              <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
+                                <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-base text-gray-900 dark:text-gray-100">Stage 2: Advanced Exercise</h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                  Apply knowledge to complex real-world challenges
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                            <Button
+                              variant="primary"
+                              size="lg"
+                              onClick={handleStartExercise}
+                              className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-white font-semibold px-8"
+                            >
+                              <PlayCircle className="h-6 w-6 mr-2" />
+                              Start Two-Stage Exercise
+                            </Button>
+                            <div className="flex flex-wrap items-center gap-4 text-sm">
+                              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                <Award className="h-5 w-5 text-yellow-500" />
+                                <span className="font-medium">Earn mastery badge</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                <Clock className="h-4 w-4" />
+                                <span>~10-15 minutes</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  )}
+
+                  {/* Completed Section Celebration */}
+                  {currentSectionStatus === 'completed' && (
+                    <Card className="p-6 bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border-green-200 dark:border-green-800">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                          <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-green-900 dark:text-green-100 mb-1">
+                            Section Mastered! 🎉
+                          </h3>
+                          <p className="text-green-800 dark:text-green-200">
+                            You've successfully completed both exercises for this section. Great work!
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+                  )}
+                  
+                  {/* Discussion Prompt */}
+                  <Card className="p-4 bg-personal/10 dark:bg-personal/20 border-personal/30 dark:border-personal/40">
+                    <div className="flex items-start gap-3">
+                      <MessageSquare className="h-5 w-5 text-personal dark:text-personal/80 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Reflection Question</h4>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          How does this section relate to your initial question? What new insights have you gained?
+                        </p>
+                        <Button variant="outline" size="sm" className="mt-3">
+                          Share Your Thoughts
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -234,10 +493,41 @@ export const ThreadPage: React.FC = () => {
       <ThreadSectionsSidebar
         sections={thread.sections}
         selectedSection={selectedSection}
-        onSelectSection={setSelectedSection}
+        onSelectSection={(sectionId) => {
+          setSelectedSection(sectionId);
+          setShowExercise(false);
+        }}
         expandedSections={expandedSections}
         onToggleExpanded={toggleSectionExpanded}
+        completedSections={completedSections}
+        sectionProgress={sectionProgress}
       />
+
+      {/* Floating Exercise CTA */}
+      {showFloatingCTA && (
+        <div className="fixed bottom-8 right-8 z-40 animate-slide-up">
+          <div className="relative">
+            {/* Pulsing background effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full blur-xl opacity-75 animate-pulse" />
+            
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={handleStartExercise}
+              className="relative bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-200 text-white font-semibold px-6 py-4 rounded-full flex items-center gap-3"
+            >
+              <div className="p-2 bg-white/20 rounded-full">
+                <Zap className="h-6 w-6" />
+              </div>
+              <div className="text-left">
+                <div className="text-sm opacity-90">Ready to practice?</div>
+                <div className="text-base font-bold">Start Exercise</div>
+              </div>
+              <PlayCircle className="h-8 w-8 ml-2" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
