@@ -7,7 +7,7 @@ export const useLearningPaths = () => {
     queryKey: ['learningPaths'],
     queryFn: () => learningPathsService.getLearningPaths(),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
   });
 };
 
@@ -16,7 +16,7 @@ export const useActiveLearningPath = () => {
     queryKey: ['activeLearningPath'],
     queryFn: () => learningPathsService.getActiveLearningPath(),
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -25,7 +25,7 @@ export const useStudentStats = () => {
     queryKey: ['studentStats'],
     queryFn: () => learningPathsService.getStudentStats(),
     staleTime: 1 * 60 * 1000, // 1 minute (more frequent updates for stats)
-    cacheTime: 5 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 };
 
@@ -35,7 +35,7 @@ export const useSearchLearningPaths = (query: string, category?: LifeCategory) =
     queryFn: () => learningPathsService.searchLearningPaths(query, category),
     enabled: !!query || !!category,
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 

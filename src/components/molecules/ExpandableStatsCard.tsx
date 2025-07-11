@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from '../atoms/Card';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '../../utils/cn';
-import { TrendingUp, TrendingDown, Calendar, Target, Info } from 'lucide-react';
+import { TrendingUp, TrendingDown, Info } from 'lucide-react';
 
 export interface ExpandableStatsCardProps {
   title: string;
@@ -140,7 +140,7 @@ export const ExpandableStatsCard: React.FC<ExpandableStatsCardProps> = ({
                           "flex-1 rounded-t transition-all duration-300",
                           variantStyles[variant].split(' ')[0]
                         )}
-                        style={{ height: `${(value / Math.max(...expandedContent.weeklyData)) * 100}%` }}
+                        style={{ height: `${(value / Math.max(...(expandedContent.weeklyData || []))) * 100}%` }}
                       />
                     ))}
                   </div>
