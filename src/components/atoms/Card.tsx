@@ -7,6 +7,7 @@ export interface CardProps {
   onClick?: () => void;
   hover?: boolean;
   padding?: 'none' | 'sm' | 'md' | 'lg';
+  variant?: 'default' | 'thread';
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -15,6 +16,7 @@ export const Card: React.FC<CardProps> = ({
   onClick,
   hover = false,
   padding = 'md',
+  variant = 'default',
 }) => {
   const paddingClasses = {
     none: '',
@@ -23,10 +25,15 @@ export const Card: React.FC<CardProps> = ({
     lg: 'p-8',
   };
 
+  const variantClasses = {
+    default: 'card',
+    thread: 'thread-card',
+  };
+
   return (
     <div
       className={cn(
-        'card',
+        variantClasses[variant],
         paddingClasses[padding],
         hover && 'transition-all duration-normal hover:shadow-lg hover:-translate-y-0.5',
         onClick && 'cursor-pointer',

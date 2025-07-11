@@ -16,9 +16,9 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   isTyping = false,
 }) => {
   const bubbleClasses = {
-    student: 'bg-student-bubble text-white self-end rounded-br-sm',
-    ai: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 self-start rounded-bl-sm',
-    system: 'bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400 self-center text-center italic',
+    student: 'chat-bubble chat-bubble-student',
+    ai: 'chat-bubble chat-bubble-ai',
+    system: 'chat-bubble self-center text-center italic',
   };
 
   const containerClasses = {
@@ -28,10 +28,9 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   };
 
   return (
-    <div className={cn('flex flex-col mb-4', containerClasses[sender])}>
+    <div className={cn('flex flex-col', containerClasses[sender])}>
       <div
         className={cn(
-          'max-w-[70%] px-4 py-3 rounded-lg',
           bubbleClasses[sender],
           isTyping && 'min-w-[80px]'
         )}
@@ -43,11 +42,11 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
             <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
         ) : (
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">{message}</p>
+          <p className="whitespace-pre-wrap">{message}</p>
         )}
       </div>
       {!isTyping && sender !== 'system' && (
-        <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-4">
+        <span className="chat-timestamp">
           {format(timestamp, 'h:mm a')}
         </span>
       )}

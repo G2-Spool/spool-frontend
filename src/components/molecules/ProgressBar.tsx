@@ -30,32 +30,31 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
     lg: 'h-3',
   };
 
-  const variantClasses = {
-    default: 'bg-teal-500',
-    success: 'bg-success',
-    warning: 'bg-warning',
+  const variantColors = {
+    default: 'var(--thread-primary)',
+    success: 'var(--color-success)',
+    warning: 'var(--color-warning)',
   };
 
   return (
     <div className={cn('w-full', className)}>
       {(label || showPercentage) && (
         <div className="flex justify-between items-center mb-2">
-          {label && <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>}
+          {label && <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{label}</span>}
           {showPercentage && (
-            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{Math.round(percentage)}%</span>
+            <span className="progress-label">{Math.round(percentage)}%</span>
           )}
         </div>
       )}
-      <div className={cn('w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden', sizeClasses[size])}>
+      <div className={cn('progress-bar', sizeClasses[size])}>
         <div
           className={cn(
-            'h-full rounded-full transition-all duration-slow ease-out',
-            variantClasses[variant],
-            animated && 'animate-progress-stripes bg-gradient-to-r from-transparent via-white/20 to-transparent'
+            'progress-fill',
+            animated && 'progress-animated'
           )}
           style={{
             width: `${percentage}%`,
-            backgroundSize: animated ? '1rem 1rem' : undefined,
+            backgroundColor: variantColors[variant],
           }}
           role="progressbar"
           aria-valuenow={value}

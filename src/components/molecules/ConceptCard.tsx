@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card } from '../atoms/Card';
 import { Button } from '../atoms/Button';
+import { ProgressBar } from './ProgressBar';
 import { 
   Sparkles,
   Eye,
@@ -41,10 +42,10 @@ export interface ConceptCardProps {
 }
 
 const categoryColors: Record<LifeCategory, string> = {
-  personal: 'border-personal',
-  social: 'border-social',
-  career: 'border-career',
-  philanthropic: 'border-philanthropic',
+  personal: 'var(--color-personal)',
+  social: 'var(--color-social)',
+  career: 'var(--color-career)',
+  philanthropic: 'var(--color-philanthropic)',
 };
 
 const componentIcons = {
@@ -95,37 +96,31 @@ export const ConceptCard: React.FC<ConceptCardProps> = ({
 
   if (isLocked) {
     return (
-      <Card className={cn('relative overflow-hidden opacity-60', 'border-t-4 border-gray-300 dark:border-gray-600')}>
+      <Card variant="thread" className="relative overflow-hidden opacity-60" style={{ borderTopWidth: '4px', borderTopStyle: 'solid', borderTopColor: 'var(--border-color-strong)' }}>
         <div className="flex items-center justify-center py-8">
-          <Lock className="h-8 w-8 text-gray-400 dark:text-gray-500 mr-3" />
-          <p className="text-gray-600 dark:text-gray-400 font-medium">Complete previous concept to unlock</p>
+          <Lock className="h-8 w-8 mr-3" style={{ color: 'var(--text-muted)' }} />
+          <p className="font-medium" style={{ color: 'var(--text-muted)' }}>Complete previous concept to unlock</p>
         </div>
       </Card>
     );
   }
 
   return (
-    <Card className={cn('border-t-4', categoryColors[category])}>
+    <Card variant="thread" style={{ borderTopWidth: '4px', borderTopStyle: 'solid', borderTopColor: categoryColors[category] }}>
       <div className="space-y-4">
         {/* Header */}
         <div>
-          <h3 className="text-xl font-semibold text-obsidian dark:text-gray-100 mb-2">{title}</h3>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">{description}</p>
+          <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{title}</h3>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{description}</p>
         </div>
 
         {/* Progress Bar */}
-        <div>
-          <div className="flex justify-between text-xs mb-1">
-            <span className="text-gray-600 dark:text-gray-400">Progress</span>
-            <span className="text-gray-700 dark:text-gray-300 font-medium">{Math.round(progress)}%</span>
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div 
-              className="bg-teal-500 h-2 rounded-full transition-all duration-normal"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </div>
+        <ProgressBar
+          value={progress}
+          label="Progress"
+          showPercentage
+          size="md"
+        />
 
         {/* 3 Components */}
         <div className="space-y-3">
@@ -140,49 +135,50 @@ export const ConceptCard: React.FC<ConceptCardProps> = ({
               <div
                 key={component.id}
                 className={cn(
-                  'border rounded-lg transition-all duration-normal',
-                  isExpanded ? 'border-teal-300 dark:border-teal-600 shadow-sm' : 'border-gray-200 dark:border-gray-700',
-                  isCompleted && 'bg-gray-50 dark:bg-gray-800'
+                  'border rounded-lg transition-all',
+                  isExpanded && 'shadow-sm'
                 )}
+                style={{
+                  borderColor: isExpanded ? 'var(--thread-primary)' : 'var(--border-color)',
+                  backgroundColor: isCompleted ? 'var(--surface-overlay)' : 'transparent'
+                }}
               >
                 <button
                   onClick={() => setExpandedComponent(isExpanded ? null : component.id)}
-                  className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-lg"
+                  className="w-full px-4 py-3 flex items-center justify-between transition-colors rounded-lg hover:bg-opacity-50"
+                  style={{ ':hover': { backgroundColor: 'var(--surface-overlay)' } }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={cn(
-                      'p-2 rounded-lg',
-                      isCompleted ? 'bg-green-100 dark:bg-green-900/30' : 'bg-teal-50 dark:bg-teal-900/30'
-                    )}>
+                    <div className="p-2 rounded-lg" style={{ backgroundColor: isCompleted ? 'rgba(72, 187, 120, 0.1)' : 'rgba(79, 209, 197, 0.1)' }}>
                       {isCompleted ? (
-                        <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        <CheckCircle className="h-5 w-5" style={{ color: 'var(--color-success)' }} />
                       ) : (
-                        <Icon className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                        <Icon className="h-5 w-5" style={{ color: 'var(--thread-primary)' }} />
                       )}
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-sm text-obsidian dark:text-gray-100">
+                      <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
                         {componentLabels[key]}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{component.title}</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{component.title}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <ContentIcon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    <ContentIcon className="h-4 w-4" style={{ color: 'var(--text-muted)' }} />
                     {component.duration && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400">{component.duration}</span>
+                      <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{component.duration}</span>
                     )}
                     {isExpanded ? (
-                      <ChevronUp className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                      <ChevronUp className="h-4 w-4" style={{ color: 'var(--text-muted)' }} />
                     ) : (
-                      <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                      <ChevronDown className="h-4 w-4" style={{ color: 'var(--text-muted)' }} />
                     )}
                   </div>
                 </button>
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                  <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-700">
+                  <div className="px-4 pb-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
                     <div className="pt-3 space-y-3">
                       <Button
                         variant="primary"
@@ -203,8 +199,8 @@ export const ConceptCard: React.FC<ConceptCardProps> = ({
 
         {/* Completion Message */}
         {allComponentsCompleted && (
-          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 text-center">
-            <p className="text-sm text-green-800 dark:text-green-200 font-medium">
+          <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'rgba(72, 187, 120, 0.05)', border: '1px solid rgba(72, 187, 120, 0.2)' }}>
+            <p className="text-sm font-medium" style={{ color: 'var(--color-success)' }}>
               ✨ Concept completed! Ready for exercises.
             </p>
           </div>

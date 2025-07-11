@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card } from '../atoms/Card';
 import { Button } from '../atoms/Button';
 import { Badge } from '../atoms/Badge';
+import { ProgressBar } from './ProgressBar';
 import { 
   BookOpen, 
   Video, 
@@ -41,16 +42,16 @@ const componentIcons = {
 };
 
 const difficultyColors = {
-  beginner: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200',
-  intermediate: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200',
-  advanced: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200',
+  beginner: { background: 'rgba(72, 187, 120, 0.1)', color: 'var(--color-success)' },
+  intermediate: { background: 'rgba(237, 137, 54, 0.1)', color: 'var(--color-warning)' },
+  advanced: { background: 'rgba(245, 101, 101, 0.1)', color: 'var(--color-error)' },
 };
 
 const categoryColors: Record<LifeCategory, string> = {
-  personal: 'border-personal',
-  social: 'border-social',
-  career: 'border-career',
-  philanthropic: 'border-philanthropic',
+  personal: 'var(--color-personal)',
+  social: 'var(--color-social)',
+  career: 'var(--color-career)',
+  philanthropic: 'var(--color-philanthropic)',
 };
 
 export const ConceptDisplay: React.FC<ConceptDisplayProps> = ({
@@ -75,24 +76,23 @@ export const ConceptDisplay: React.FC<ConceptDisplayProps> = ({
   };
 
   return (
-    <Card className={cn('border-t-4', categoryColors[category])}>
+    <Card variant="thread" style={{ borderTopWidth: '4px', borderTopStyle: 'solid', borderTopColor: categoryColors[category] }}>
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h2 className="text-2xl font-bold text-obsidian dark:text-gray-100 mb-2">{title}</h2>
-          <p className="text-gray-600 dark:text-gray-400">{description}</p>
+          <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{title}</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>{description}</p>
           
           {/* Progress */}
           <div className="mt-4">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-600 dark:text-gray-400">Concept Progress</span>
-              <span className="font-medium dark:text-gray-200">{completedComponents.length} of {components.length} completed</span>
-            </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-teal-500 h-2 rounded-full transition-all duration-normal"
-                style={{ width: `${completionPercentage}%` }}
-              />
+            <ProgressBar
+              value={completionPercentage}
+              label="Concept Progress"
+              showPercentage={false}
+              size="md"
+            />
+            <div className="flex justify-end text-sm mt-1">
+              <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{completedComponents.length} of {components.length} completed</span>
             </div>
           </div>
         </div>
@@ -108,39 +108,38 @@ export const ConceptDisplay: React.FC<ConceptDisplayProps> = ({
               <div
                 key={index}
                 className={cn(
-                  'border rounded-lg transition-all duration-normal',
-                  isExpanded ? 'border-teal-300 dark:border-teal-600 shadow-md' : 'border-gray-200 dark:border-gray-700',
-                  isCompleted && 'bg-gray-50 dark:bg-gray-800'
+                  'border rounded-lg transition-all',
+                  isExpanded && 'shadow-md'
                 )}
+                style={{
+                  borderColor: isExpanded ? 'var(--thread-primary)' : 'var(--border-color)',
+                  backgroundColor: isCompleted ? 'var(--surface-overlay)' : 'transparent'
+                }}
               >
                 <button
                   onClick={() => handleToggle(index)}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="w-full px-6 py-4 flex items-center justify-between transition-colors"
+                  onMouseEnter={(e) => { if (!isCompleted) e.currentTarget.style.backgroundColor = 'var(--surface-overlay)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={cn(
-                      'p-3 rounded-lg',
-                      isCompleted ? 'bg-green-100 dark:bg-green-900/30' : 'bg-teal-50 dark:bg-teal-900/30'
-                    )}>
-                      <Icon className={cn(
-                        'h-5 w-5',
-                        isCompleted ? 'text-green-600 dark:text-green-400' : 'text-teal-600 dark:text-teal-400'
-                      )} />
+                    <div className="p-3 rounded-lg" style={{ backgroundColor: isCompleted ? 'rgba(72, 187, 120, 0.1)' : 'rgba(79, 209, 197, 0.1)' }}>
+                      <Icon className="h-5 w-5" style={{ color: isCompleted ? 'var(--color-success)' : 'var(--thread-primary)' }} />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-semibold text-obsidian dark:text-gray-100 flex items-center gap-2">
+                      <h3 className="font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                         {component.title}
                         {isCompleted && (
                           <Badge variant="success" size="sm">Completed</Badge>
                         )}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{component.description}</p>
+                      <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{component.description}</p>
                       <div className="flex items-center gap-4 mt-2 text-xs">
                         {component.duration && (
-                          <span className="text-gray-500 dark:text-gray-500">Duration: {component.duration}</span>
+                          <span style={{ color: 'var(--text-muted)' }}>Duration: {component.duration}</span>
                         )}
                         {component.difficulty && (
-                          <span className={cn('px-2 py-1 rounded-full text-xs font-medium', difficultyColors[component.difficulty])}>
+                          <span className="px-2 py-1 rounded-full text-xs font-medium" style={difficultyColors[component.difficulty]}>
                             {component.difficulty}
                           </span>
                         )}
@@ -148,15 +147,15 @@ export const ConceptDisplay: React.FC<ConceptDisplayProps> = ({
                     </div>
                   </div>
                   {isExpanded ? (
-                    <ChevronUp className="h-5 w-5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                    <ChevronUp className="h-5 w-5 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
                   ) : (
-                    <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                    <ChevronDown className="h-5 w-5 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
                   )}
                 </button>
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                  <div className="px-6 pb-4 border-t border-gray-100 dark:border-gray-700">
+                  <div className="px-6 pb-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
                     <div className="pt-4 space-y-4">
                       {component.thumbnail && (
                         <img 
@@ -205,8 +204,8 @@ export const ConceptDisplay: React.FC<ConceptDisplayProps> = ({
                       </div>
 
                       {isCompleted && (
-                        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                          <p className="text-sm text-green-800 dark:text-green-200">
+                        <div className="rounded-lg p-3" style={{ backgroundColor: 'rgba(72, 187, 120, 0.05)', border: '1px solid rgba(72, 187, 120, 0.2)' }}>
+                          <p className="text-sm" style={{ color: 'var(--color-success)' }}>
                             ✓ You've completed this component. Great job!
                           </p>
                         </div>
@@ -221,8 +220,8 @@ export const ConceptDisplay: React.FC<ConceptDisplayProps> = ({
 
         {/* Next Steps */}
         {completionPercentage === 100 && (
-          <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-lg p-4 text-center">
-            <p className="text-teal-800 dark:text-teal-200 font-medium mb-3">
+          <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'rgba(79, 209, 197, 0.05)', border: '1px solid rgba(79, 209, 197, 0.2)' }}>
+            <p className="font-medium mb-3" style={{ color: 'var(--thread-primary)' }}>
               🎉 Congratulations! You've completed all components of this concept.
             </p>
             <Button variant="primary">

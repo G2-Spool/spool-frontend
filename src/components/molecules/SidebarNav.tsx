@@ -46,30 +46,27 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   };
 
   return (
-    <aside className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-full flex flex-col">
+    <aside className="nav-sidebar">
       {/* Logo */}
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-        <Link to="/dashboard" className="flex items-center gap-2">
-          <Spool className="h-8 w-8 text-teal-500" />
-          <span className="text-2xl font-bold text-obsidian dark:text-gray-100">Spool</span>
-        </Link>
-      </div>
+      <Link to="/dashboard" className="nav-logo">
+        <Spool className="logo-mark" />
+        <span>Spool</span>
+      </Link>
 
       {/* Stats */}
-      <div className="p-6 space-y-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-6 space-y-4" style={{ borderBottom: `1px solid var(--border-color)` }}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Flame className="h-5 w-5 text-orange-500" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Streak</span>
+          <div className="streak-badge">
+            <Flame className="streak-icon" />
+            <span>{currentStreak} days</span>
           </div>
-          <span className="text-sm font-bold text-obsidian dark:text-gray-100">{currentStreak} days</span>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-yellow-500" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Points</span>
+            <Trophy className="h-5 w-5" style={{ color: 'var(--color-warning)' }} />
+            <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Points</span>
           </div>
-          <span className="text-sm font-bold text-obsidian dark:text-gray-100">{totalPoints.toLocaleString()}</span>
+          <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{totalPoints.toLocaleString()}</span>
         </div>
       </div>
 
@@ -85,13 +82,11 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                 <Link
                   to={item.href}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-normal',
-                    active
-                      ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+                    'nav-link',
+                    active && 'active'
                   )}
                 >
-                  <Icon className={cn('h-5 w-5', active ? 'text-teal-600 dark:text-teal-400' : 'text-gray-500 dark:text-gray-400')} />
+                  <Icon />
                   {item.name}
                 </Link>
               </li>
@@ -101,18 +96,16 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
       </nav>
 
       {/* Profile Link */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="p-4" style={{ borderTop: `1px solid var(--border-color)` }}>
         <Link
           to="/profile"
           className={cn(
-            'flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-normal',
-            location.pathname === '/profile'
-              ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+            'nav-link',
+            location.pathname === '/profile' && 'active'
           )}
         >
-          <div className="h-8 w-8 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <span className="text-sm font-semibold text-teal-700 dark:text-teal-400">
+          <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(79, 209, 197, 0.1)' }}>
+            <span className="text-sm font-semibold" style={{ color: 'var(--thread-primary)' }}>
               {userFirstName.charAt(0).toUpperCase()}
             </span>
           </div>

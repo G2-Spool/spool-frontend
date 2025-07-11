@@ -41,7 +41,7 @@ export const DashboardLayout: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-obsidian flex">
+    <div className="min-h-screen flex" style={{ background: 'var(--surface-ground)' }}>
       {/* Sidebar Navigation */}
       <div className="hidden lg:block">
         <div className="fixed h-full">
@@ -56,13 +56,14 @@ export const DashboardLayout: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 lg:ml-64">
         {/* Top Bar */}
-        <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
+        <header className="nav-header">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               {/* Mobile menu button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="lg:hidden p-2 rounded-md transition-colors"
+                style={{ color: 'var(--text-secondary)' }}
               >
                 {isMobileMenuOpen ? (
                   <X className="h-6 w-6" />
@@ -73,7 +74,7 @@ export const DashboardLayout: React.FC = () => {
 
               {/* Page Title or Search can go here */}
               <div className="hidden lg:block">
-                <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
                   {location.pathname === '/dashboard' && 'Home'}
                   {location.pathname.startsWith('/learning-path') && 'Learning Path'}
                   {location.pathname === '/threads' && 'Threads'}
@@ -99,9 +100,10 @@ export const DashboardLayout: React.FC = () => {
 
         {/* Mobile Sidebar */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 bg-gray-900/50" onClick={() => setIsMobileMenuOpen(false)}>
+          <div className="lg:hidden fixed inset-0 z-50" style={{ background: 'rgba(0, 0, 0, 0.5)' }} onClick={() => setIsMobileMenuOpen(false)}>
             <div
-              className="fixed left-0 top-0 h-full bg-white dark:bg-gray-900 shadow-xl"
+              className="fixed left-0 top-0 h-full shadow-xl"
+              style={{ background: 'var(--surface-base)' }}
               onClick={(e) => e.stopPropagation()}
             >
               <SidebarNav
