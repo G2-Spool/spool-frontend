@@ -18,6 +18,7 @@ import { EducatorDashboard } from './pages/EducatorDashboard';
 import { ProfilePage } from './pages/ProfilePage';
 import { CoursesPage } from './pages/CoursesPage';
 import { ProgressPage } from './pages/ProgressPage';
+import { ThreadPage } from './pages/ThreadPage';
 
 // Layouts
 import { AuthLayout } from './components/layouts/AuthLayout';
@@ -67,6 +68,7 @@ function App() {
                 <Route path="/learning-path/:id" element={<LearningPathDetail />} />
                 <Route path="/learn/:conceptId" element={<ConceptPage />} />
                 <Route path="/exercise/:exerciseId" element={<ExercisePage />} />
+                <Route path="/thread/:threadId" element={<ThreadPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
               </Route>
 

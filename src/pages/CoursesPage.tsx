@@ -12,11 +12,17 @@ import {
   Search,
   RefreshCw,
   AlertCircle,
+  Plus,
+  MessageSquare,
 } from 'lucide-react';
 import type { LifeCategory } from '../types';
 import { useCourses, useCourseSearch } from '../hooks/useCourses';
 import { useTextbooks } from '../hooks/useTextbooks';
+import { useUserThreads } from '../hooks/useThread';
+import { ThreadCard } from '../components/molecules/ThreadCard';
+import { CreateThreadDialog } from '../components/molecules/CreateThreadDialog';
 import type { FilterMetadata } from '../services/pinecone/types';
+import { getCurrentUser } from '../utils/auth';
 
 // Create custom hook for debouncing
 const useDebounce = <T,>(value: T, delay: number): T => {
@@ -47,6 +53,11 @@ export const CoursesPage: React.FC = () => {
   const [filters, setFilters] = useState<FilterMetadata>({});
   const [page, setPage] = useState(1);
   const [showSearch, setShowSearch] = useState(false);
+  const [showCreateThread, setShowCreateThread] = useState(false);
+  
+  // Get current user
+  const currentUser = getCurrentUser();
+  const userId = currentUser?.username || 'anonymous';
   
   // Debounce search query
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -75,6 +86,12 @@ export const CoursesPage: React.FC = () => {
     isLoading: isLoadingTextbooks,
     error: textbooksError 
   } = useTextbooks();
+  
+  // Fetch user threads
+  const { 
+    data: threads, 
+    isLoading: isLoadingThreads 
+  } = useUserThreads(userId, 5);
   
   // Filter courses based on enrollment status
   const courses = searchResults || coursesData?.items || [];
@@ -213,9 +230,61 @@ export const CoursesPage: React.FC = () => {
         </div>
       )}
 
+      {/* Current Threads (User's Learning Threads) */}
+      <section className="mb-12">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-obsidian">Your Learning Threads</h2>
+          <Button
+            size="sm"
+            onClick={() => setShowCreateThread(true)}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create Thread
+          </Button>
+        </div>
+        
+        {threads && threads.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {isLoadingThreads ? (
+              // Loading skeletons
+              Array.from({ length: 3 }).map((_, index) => (
+                <CourseCardSkeleton key={index} />
+              ))
+            ) : (
+              threads.map((thread) => (
+                <ThreadCard
+                  key={thread.threadId}
+                  threadId={thread.threadId}
+                  userInput={thread.userInput}
+                  analysis={thread.analysis}
+                  sectionCount={thread.sections.length}
+                  createdAt={thread.createdAt}
+                  estimatedReadTime={thread.sections.reduce((sum, s) => sum + (s.estimatedMinutes || 0), 0)}
+                />
+              ))
+            )}
+          </div>
+        ) : (
+          <Card className="p-8 text-center bg-purple-50 border-purple-200">
+            <MessageSquare className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+            <p className="text-gray-700 mb-2">No learning threads yet</p>
+            <p className="text-sm text-gray-600 mb-4">
+              Create your first thread by asking any academic question
+            </p>
+            <Button
+              size="sm"
+              onClick={() => setShowCreateThread(true)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Your First Thread
+            </Button>
+          </Card>
+        )}
+      </section>
+
       {/* Enrolled Courses */}
       <section className="mb-12">
-        <h2 className="text-xl font-semibold text-obsidian mb-6">Current Threads</h2>
+        <h2 className="text-xl font-semibold text-obsidian mb-6">Current Courses</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading ? (
             // Loading skeletons
@@ -351,6 +420,13 @@ export const CoursesPage: React.FC = () => {
           </div>
         )}
       </section>
+      
+      {/* Create Thread Dialog */}
+      <CreateThreadDialog
+        isOpen={showCreateThread}
+        onClose={() => setShowCreateThread(false)}
+        userId={userId}
+      />
     </div>
   );
 };
