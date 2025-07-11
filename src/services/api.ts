@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { API_BASE_URL } from '../config/api';
 
 class ApiService {
@@ -15,10 +16,31 @@ class ApiService {
 
     // Request interceptor to add auth token
     this.axiosInstance.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+      async (config) => {
+        try {
+          // Get the current auth session from Amplify
+          const session = await fetchAuthSession();
+          const idToken = session.tokens?.idToken?.toString();
+          
+          if (idToken) {
+            config.headers.Authorization = `Bearer ${idToken}`;
+          }
+          
+          // Debug logging
+          console.log('API Request:', {
+            url: config.url,
+            baseURL: config.baseURL,
+            fullURL: `${config.baseURL}${config.url}`,
+            method: config.method,
+            headers: config.headers
+          });
+        } catch (error) {
+          console.warn('Failed to get auth token:', error);
+          // Check localStorage as fallback
+          const token = localStorage.getItem('authToken');
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
         }
         return config;
       },

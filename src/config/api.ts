@@ -2,6 +2,16 @@
 // Using API Gateway endpoint from AWS Parameter Store: /spool/api-gateway/url
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://alj6xppcj6.execute-api.us-east-1.amazonaws.com/prod';
 
+// Log the API configuration for debugging
+if (typeof window !== 'undefined') {
+  console.log('API Configuration:', {
+    VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+    API_BASE_URL: API_BASE_URL,
+    mode: import.meta.env.MODE,
+    isProd: import.meta.env.PROD
+  });
+}
+
 export const API_ENDPOINTS = {
   // Auth
   auth: {

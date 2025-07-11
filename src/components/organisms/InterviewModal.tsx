@@ -61,6 +61,7 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
       console.log('Starting interview...');
       console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL);
       console.log('Interview endpoint:', API_ENDPOINTS.interview.start);
+      console.log('Full URL:', `${import.meta.env.VITE_API_BASE_URL}${API_ENDPOINTS.interview.start}`);
       console.log('Student ID:', user?.id);
 
       // Start interview session
