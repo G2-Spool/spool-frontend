@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/atoms/Button';
 import { Card } from '../components/atoms/Card';
@@ -7,29 +7,17 @@ import HeroGeometric from '../components/ui/hero-geometric';
 import { SpoolPlayer } from '../components/remotion/SpoolPlayer';
 import { 
   ArrowRight, 
-  Sparkles, 
-  Brain, 
-  Target, 
-  TrendingUp, 
-  Users, 
   BookOpen, 
   Zap,
   ChevronDown,
-  Play,
-  Star,
   Heart,
   Lightbulb,
   Code
 } from 'lucide-react';
 
 export const LandingPage: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(false);
   const [isDemoLoading, setIsDemoLoading] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
 
   const scrollToFeatures = () => {
     const featuresSection = document.getElementById('features-section');
@@ -86,35 +74,31 @@ export const LandingPage: React.FC = () => {
             <Button 
               variant="ghost" 
               onClick={scrollToAbout}
-              className="text-obsidian dark:text-gray-100 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
             >
               About
             </Button>
             <Button 
               variant="ghost" 
               onClick={scrollToFeatures}
-              className="text-obsidian dark:text-gray-100 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
             >
               Features
             </Button>
             <Button 
               variant="ghost" 
               onClick={scrollToDemo}
-              className="text-obsidian dark:text-gray-100 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
             >
               Demo
             </Button>
             <Button 
               variant="outline"
               onClick={handleDemoLogin}
-              className="hover:shadow-md transition-all duration-300 gap-2 border-gray-300 dark:border-gray-600"
+              leftIcon={<Code className="w-4 h-4" />}
             >
-              <Code className="w-4 h-4" />
               {isDemoLoading ? "Loading..." : "Sign In"}
             </Button>
             <Button 
+              variant="primary"
               onClick={handleGetStarted}
-              className="hover:shadow-lg transition-all duration-300 bg-teal-500 hover:bg-teal-600"
             >
               Get Started
             </Button>
@@ -131,22 +115,15 @@ export const LandingPage: React.FC = () => {
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30">
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={scrollToDemo}
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800/20 transition-all duration-200 cursor-pointer"
-          style={{
-            animation: 'bounce 1.5s infinite',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.animation = 'none';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.animation = 'bounce 1.5s infinite';
-          }}
+          className="animate-bounce hover:animate-none"
           aria-label="Scroll to demo"
         >
-          <ChevronDown className="w-6 h-6 text-gray-500 dark:text-gray-400" />
-        </button>
+          <ChevronDown className="w-6 h-6" />
+        </Button>
       </div>
 
       {/* Spool Demo Animation Section */}
@@ -286,18 +263,17 @@ export const LandingPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               onClick={handleGetStarted}
+              variant="primary"
               size="lg" 
-              className="text-lg px-12 py-6 group hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700"
+              rightIcon={<ArrowRight className="w-5 h-5" />}
             >
               Start Your Journey
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
             
             <Link to="/login">
               <Button 
                 variant="outline" 
-                size="lg" 
-                className="text-lg px-12 py-6 hover:shadow-lg transition-all duration-300 border-2 border-gray-300 dark:border-gray-600 hover:border-teal-500 dark:hover:border-teal-400"
+                size="lg"
               >
                 Learn More
               </Button>

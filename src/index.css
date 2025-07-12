@@ -111,46 +111,143 @@
     @apply text-xs leading-normal text-gray-600 dark:text-gray-500 tracking-wide;
   }
 
-  /* Button Base */
+  /* Button Base - Following Design System */
   .btn {
+    /* Base Structure */
     @apply inline-flex items-center justify-center gap-2 
-           font-sans font-medium leading-none
-           px-4 py-2.5 
+           px-3 py-3
+           
+           /* Typography */
+           font-sans font-medium text-base leading-none
+           
+           /* Visual */
            border border-transparent rounded-lg
-           cursor-pointer transition-all duration-normal
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2
-           disabled:opacity-50 disabled:cursor-not-allowed;
+           cursor-pointer relative overflow-hidden
+           transition-all duration-200;
+    
+    /* Focus State */
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.5);
+    }
+    
+    /* Disabled State */
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+  
+  /* Thread Animation Effect */
+  .btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(79, 209, 197, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 600ms, height 600ms;
+    pointer-events: none;
+  }
+  
+  .btn:active::after {
+    width: 300px;
+    height: 300px;
   }
 
-  /* Button Variants */
+  /* Primary Button */
   .btn-primary {
-    @apply bg-teal-500 text-white hover:bg-teal-600 active:bg-teal-700;
+    @apply bg-teal-500 text-white shadow-sm;
+  }
+  
+  .btn-primary:hover:not(:disabled) {
+    @apply -translate-y-0.5 bg-teal-600 shadow-md;
+  }
+  
+  .btn-primary:active:not(:disabled) {
+    @apply translate-y-0;
+  }
+  
+  /* Dark mode adjustments for primary */
+  .dark .btn-primary {
+    @apply text-gray-900;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 
+                0 1px 2px rgba(0, 0, 0, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
+  /* Secondary Button */
   .btn-secondary {
-    @apply bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600;
+    @apply bg-white text-gray-800 border-gray-200;
+  }
+  
+  .btn-secondary:hover:not(:disabled) {
+    @apply bg-gray-50 border-gray-300;
+  }
+  
+  /* Dark mode adjustments for secondary */
+  .dark .btn-secondary {
+    @apply bg-gray-700 text-gray-200 border-gray-600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 
+                0 1px 2px rgba(0, 0, 0, 0.06),
+                inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  }
+  
+  .dark .btn-secondary:hover:not(:disabled) {
+    @apply bg-gray-600 border-gray-500;
   }
 
-  .btn-outline {
-    @apply bg-transparent border-gray-400 dark:border-gray-600 text-gray-700 dark:text-gray-300
-           hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400;
-  }
-
+  /* Ghost Button */
   .btn-ghost {
-    @apply bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800;
+    @apply bg-transparent text-gray-600;
+  }
+  
+  .btn-ghost:hover:not(:disabled) {
+    @apply bg-gray-100 text-gray-800;
+  }
+  
+  /* Dark mode adjustments for ghost */
+  .dark .btn-ghost {
+    @apply text-gray-400;
+  }
+  
+  .dark .btn-ghost:hover:not(:disabled) {
+    @apply bg-gray-800 text-gray-200;
   }
 
-  /* Button Sizes */
+  /* Outline Button */
+  .btn-outline {
+    @apply bg-transparent border-gray-300 text-gray-700;
+  }
+  
+  .btn-outline:hover:not(:disabled) {
+    @apply border-teal-500 text-teal-600;
+  }
+  
+  /* Dark mode adjustments for outline */
+  .dark .btn-outline {
+    @apply border-gray-600 text-gray-300;
+  }
+  
+  .dark .btn-outline:hover:not(:disabled) {
+    @apply border-teal-400 text-teal-400;
+  }
+
+  /* Icon Button */
+  .btn-icon {
+    @apply w-10 h-10 p-0 rounded-full;
+  }
+
+  /* Size Variants */
   .btn-sm {
-    @apply text-sm px-3 py-1.5;
+    @apply text-sm px-2 py-2;
   }
 
   .btn-lg {
-    @apply text-lg px-6 py-3;
-  }
-
-  .btn-icon {
-    @apply p-2 w-9 h-9;
+    @apply text-lg px-4 py-4;
   }
 
   /* Input Base */
