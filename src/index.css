@@ -892,3 +892,101 @@
     top: var(--space-2);
   }
 }
+
+/* Sidebar hover zones and animations */
+.sidebar-hover-zone {
+  position: fixed;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  z-index: 50;
+  background: transparent;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.sidebar-hover-zone.left {
+  left: 0;
+}
+
+.sidebar-hover-zone.right {
+  right: 0;
+}
+
+.sidebar-hover-zone:hover {
+  background: rgba(79, 209, 197, 0.3);
+  width: 4px;
+}
+
+/* Enhanced sidebar transitions */
+.sidebar-hidden {
+  transform: translateX(-100%);
+}
+
+.sidebar-visible {
+  transform: translateX(0);
+}
+
+.sidebar-transition {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar edge indicators when hidden */
+.sidebar-edge-indicator {
+  position: fixed;
+  width: 4px;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, rgba(79, 209, 197, 0.8), transparent);
+  border-radius: 0 4px 4px 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out, width 0.2s ease-in-out;
+  z-index: 40;
+  animation: pulse 2s infinite;
+}
+
+.sidebar-edge-indicator.left {
+  left: 0;
+}
+
+.sidebar-edge-indicator.right {
+  right: 0;
+  border-radius: 4px 0 0 4px;
+}
+
+.sidebar-edge-indicator.show {
+  opacity: 1;
+}
+
+.sidebar-edge-indicator:hover {
+  width: 8px;
+  background: linear-gradient(to bottom, transparent, rgba(79, 209, 197, 1), transparent);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Focus mode improvements */
+.focus-mode {
+  position: relative;
+}
+
+.focus-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.02);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.focus-mode.active::before {
+  opacity: 1;
+}

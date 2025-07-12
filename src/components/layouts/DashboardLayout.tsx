@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSidebar } from '../../contexts/SidebarContext';
 import {
   Home,
   User,
@@ -17,6 +18,7 @@ import { SidebarNav } from '../molecules/SidebarNav';
 
 export const DashboardLayout: React.FC = () => {
   const { user, studentProfile, logout } = useAuth();
+  const { isLeftSidebarVisible } = useSidebar();
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,8 +43,12 @@ export const DashboardLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex" style={{ background: 'var(--surface-ground)' }}>
       {/* Sidebar Navigation */}
-      <div className="hidden lg:block">
-        <div className="fixed h-full">
+      <div 
+        className={`hidden lg:block fixed h-full z-30 transition-transform duration-300 ease-in-out ${
+          isLeftSidebarVisible ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="h-full">
           <SidebarNav
             currentStreak={studentProfile?.currentStreakDays}
             totalPoints={studentProfile?.totalPoints}
@@ -52,7 +58,11 @@ export const DashboardLayout: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-64">
+      <div 
+        className={`flex-1 transition-all duration-300 ease-in-out ${
+          isLeftSidebarVisible ? 'lg:ml-64' : 'lg:ml-0'
+        }`}
+      >
         {/* Top Bar */}
         <header className="nav-header">
           <div className="px-4 sm:px-6 lg:px-8">

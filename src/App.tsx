@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { SidebarProvider } from './contexts/SidebarContext';
 import { QueryProvider } from './providers/QueryProvider';
 import { Toaster } from 'react-hot-toast';
 import { ErrorBoundary } from './components/organisms/ErrorBoundary';
@@ -30,7 +31,8 @@ function App() {
     <ErrorBoundary>
       <QueryProvider>
         <AuthProvider>
-          <Router>
+          <SidebarProvider>
+            <Router>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
@@ -97,6 +99,7 @@ function App() {
               },
             }}
           />
+          </SidebarProvider>
         </AuthProvider>
       </QueryProvider>
     </ErrorBoundary>

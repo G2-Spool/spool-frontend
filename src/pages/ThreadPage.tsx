@@ -20,6 +20,7 @@ import {
   Award
 } from 'lucide-react';
 import { useThread } from '../hooks/useThread';
+import { useSidebar } from '../contexts/SidebarContext';
 import { ThreadSectionsSidebar } from '../components/organisms/ThreadSectionsSidebar';
 import { ChatBasedExercise } from '../components/organisms/ChatBasedExercise';
 import { cn } from '../utils/cn';
@@ -34,6 +35,7 @@ const mockStudentProfile = {
 export const ThreadPage: React.FC = () => {
   const { threadId } = useParams<{ threadId: string }>();
   const navigate = useNavigate();
+  const { isRightSidebarVisible, hideAllSidebars, isLeftSidebarVisible } = useSidebar();
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [showExercise, setShowExercise] = useState(false);
@@ -56,7 +58,7 @@ export const ThreadPage: React.FC = () => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       const shouldShow = scrollPosition > 800 && !showExercise && selectedSection && sectionProgress[selectedSection] !== 'completed';
-      setShowFloatingCTA(shouldShow);
+      setShowFloatingCTA(Boolean(shouldShow));
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -87,6 +89,11 @@ export const ThreadPage: React.FC = () => {
 
   const handleStartExercise = () => {
     if (selectedSection) {
+      // Hide sidebars if they are currently visible to provide focus mode
+      if (isLeftSidebarVisible || isRightSidebarVisible) {
+        hideAllSidebars();
+      }
+      
       setSectionProgress(prev => ({ ...prev, [selectedSection]: 'exercising' }));
       setShowExercise(true);
     }
@@ -161,7 +168,11 @@ export const ThreadPage: React.FC = () => {
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto">
+      <div 
+        className={`flex-1 overflow-y-auto transition-all duration-300 ease-in-out ${
+          isRightSidebarVisible ? 'mr-80' : 'mr-0'
+        }`}
+      >
         <div className="max-w-4xl mx-auto p-8">
           {/* Header */}
           <div className="mb-8">
@@ -502,18 +513,22 @@ export const ThreadPage: React.FC = () => {
       </div>
       
       {/* Right Sidebar - Sections */}
-      <ThreadSectionsSidebar
-        sections={thread.sections}
-        selectedSection={selectedSection}
-        onSelectSection={(sectionId) => {
-          setSelectedSection(sectionId);
-          setShowExercise(false);
-        }}
-        expandedSections={expandedSections}
-        onToggleExpanded={toggleSectionExpanded}
-        completedSections={completedSections}
-        sectionProgress={sectionProgress}
-      />
+      <div 
+        className={`fixed right-0 top-0 h-full w-80 z-20 transition-transform duration-300 ease-in-out ${
+          isRightSidebarVisible ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <ThreadSectionsSidebar
+          sections={thread.sections}
+          selectedSection={selectedSection}
+          onSelectSection={(sectionId) => {
+            setSelectedSection(sectionId);
+            setShowExercise(false);
+          }}
+          expandedSections={expandedSections}
+          onToggleExpanded={toggleSectionExpanded}
+        />
+      </div>
 
       {/* Floating Exercise CTA */}
       {showFloatingCTA && (
