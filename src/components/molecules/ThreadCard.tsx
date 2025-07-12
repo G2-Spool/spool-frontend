@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '../atoms/Card';
 import { Badge } from '../atoms/Badge';
@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Sparkles
 } from 'lucide-react';
+import ThreadGraph from './ThreadGraph';
 
 interface ThreadCardProps {
   threadId: string;
@@ -31,6 +32,11 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   createdAt,
   estimatedReadTime = 15
 }) => {
+  const [isGraphVisible, setIsGraphVisible] = useState(false);
+  const [graphPosition, setGraphPosition] = useState({ x: 0, y: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -41,14 +47,56 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
     if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
     return date.toLocaleDateString();
   };
+
+  const handleMouseEnter = () => {
+    // Clear any existing timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    // Calculate position for ThreadGraph
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (rect) {
+      setGraphPosition({
+        x: rect.right + 10, // Position to the right of the card
+        y: rect.top
+      });
+    }
+
+    // Set timeout to show graph after 300ms to prevent accidental triggers
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsGraphVisible(true);
+    }, 300);
+  };
+
+  const handleMouseLeave = () => {
+    // Clear timeout if user leaves before graph appears
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    
+    // Hide graph immediately
+    setIsGraphVisible(false);
+  };
+
+  const handleGraphClose = () => {
+    setIsGraphVisible(false);
+  };
   
   return (
-    <Link
-      to={`/thread/${threadId}`}
-      className="block hover:scale-[1.02] transition-transform"
-    >
-      <Card className="h-full hover:shadow-md transition-shadow border-l-4 border-l-personal">
-        <div className="p-5">
+    <>
+      <Link
+        to={`/thread/${threadId}`}
+        className="block hover:scale-[1.02] transition-transform"
+      >
+        <Card 
+          ref={cardRef}
+          className="h-full hover:shadow-md transition-shadow border-l-4 border-l-personal"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div className="p-5">
           {/* Header */}
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -110,8 +158,17 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
             </div>
             <ArrowRight className="h-4 w-4 text-personal" />
           </div>
-        </div>
-      </Card>
-    </Link>
+          </div>
+        </Card>
+      </Link>
+
+      {/* ThreadGraph overlay */}
+      <ThreadGraph
+        threadId={threadId}
+        isVisible={isGraphVisible}
+        position={graphPosition}
+        onClose={handleGraphClose}
+      />
+    </>
   );
 };

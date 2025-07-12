@@ -11,7 +11,9 @@
       "Bash(git commit:*)",
       "Bash(npm:*)",
       "Bash(rm:*)",
-      "Bash(aws:*)"
+      "Bash(aws:*)",
+      "Bash(ls:*)",
+      "mcp__playwright__browser_install"
     ],
     "deny": []
   }

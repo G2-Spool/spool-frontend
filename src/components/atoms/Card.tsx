@@ -7,15 +7,20 @@ export interface CardProps {
   onClick?: () => void;
   hover?: boolean;
   padding?: 'none' | 'sm' | 'md' | 'lg';
+  onMouseEnter?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-export const Card: React.FC<CardProps> = ({
+export const Card = React.forwardRef<HTMLDivElement, CardProps>(({
   children,
   className,
   onClick,
   hover = false,
   padding = 'md',
-}) => {
+  onMouseEnter,
+  onMouseLeave,
+  ...props
+}, ref) => {
   const paddingClasses = {
     none: '',
     sm: 'p-4',
@@ -25,6 +30,7 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <div
+      ref={ref}
       className={cn(
         'card',
         paddingClasses[padding],
@@ -33,8 +39,13 @@ export const Card: React.FC<CardProps> = ({
         className
       )}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      {...props}
     >
       {children}
     </div>
   );
-};
+});
+
+Card.displayName = 'Card';
