@@ -13,7 +13,8 @@
       "Bash(rm:*)",
       "Bash(aws:*)",
       "Bash(ls:*)",
-      "mcp__playwright__browser_install"
+      "mcp__playwright__browser_install",
+      "Bash(find:*)"
     ],
     "deny": []
   }
