@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, Loader2, Mic, MicOff, Phone } from 'lucide-react';
+import { X, Send, Loader2 } from 'lucide-react';
 import { Button } from '../atoms/Button';
 import { Card } from '../atoms/Card';
 import { cn } from '../../utils/cn';
@@ -37,9 +37,9 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
-  const [isConnectingVoice, setIsConnectingVoice] = useState(false);
-  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [, ] = useState(false);
+  const [, ] = useState(false);
+  const [, ] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Initialize the interview when modal opens
@@ -71,8 +71,6 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
       console.log('🎯 Starting interview...');
       console.log('🔧 Environment:', {
         API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
-        WEBRTC_SIGNAL_SERVER: import.meta.env.VITE_WEBRTC_SIGNAL_SERVER,
-        ENABLE_VOICE_INTERVIEW: import.meta.env.VITE_ENABLE_VOICE_INTERVIEW,
         MODE: import.meta.env.MODE
       });
       console.log('📍 Interview endpoint:', API_ENDPOINTS.interview.start);
@@ -218,7 +216,7 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
   const saveInterests = async (interests: Array<{ interest: string; category: string; strength: number }>) => {
     try {
       // Save interests to student profile via API
-      await api.put(API_ENDPOINTS.studentProfile.interests, {
+      await api.put(`${API_ENDPOINTS.studentProfile.update}/interests`, {
         interests,
       });
 
@@ -237,12 +235,6 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
       e.preventDefault();
       sendMessage();
     }
-  };
-
-  const handleVoiceClick = () => {
-    console.log('🎙️ Voice button clicked - navigating to voice interview');
-    onClose();
-    navigate('/interview');
   };
 
   if (!isOpen) return null;
@@ -327,16 +319,6 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
         {/* Input */}
         <div className="p-6 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleVoiceClick}
-              className="flex items-center gap-2 text-teal-600 hover:text-teal-700 hover:bg-teal-50 dark:text-teal-400 dark:hover:text-teal-300 dark:hover:bg-teal-900/20"
-              title="Switch to voice conversation"
-            >
-              <Phone className="h-4 w-4" />
-              Rather talk?
-            </Button>
             <input
               type="text"
               value={inputValue}

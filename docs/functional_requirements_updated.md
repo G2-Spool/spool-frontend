@@ -56,16 +56,16 @@ This Functional Requirements Document (FRD) translates the high-level business n
 | FR-023 | The system **shall** show concept relevance scores (80-100%) for transparency. |
 | FR-024 | The system **shall** categorize concepts as Core (>90%), Supporting (80-90%), or Optional (70-80%). |
 
-### 2.4 Voice Interview System (Enhanced for Threads)
+### 2.4 Text-Based Interview System (Enhanced for Threads)
 
-**User Story:** As a new student, I want to have a natural conversation about what I want to learn, so that the system can create my first Learning Thread.
+**User Story:** As a new student, I want to have a natural text conversation about what I want to learn, so that the system can create my first Learning Thread.
 
 | ID | Requirement Description |
 | :---- | :---- |
-| FR-025 | The system **shall** establish a WebRTC connection using FastRTC within 3 seconds. |
-| FR-026 | The system **shall** stream audio via FastRTC's built-in WebRTC handling. |
-| FR-027 | The system **shall** use FastRTC's ReplyOnPause handler for natural turn-taking. |
-| FR-028 | The system **shall** display real-time transcript using FastRTC's transcription output. |
+| FR-025 | The system **shall** provide a clean chat interface with message bubbles and typing indicators. |
+| FR-026 | The system **shall** respond to messages within 2 seconds using AI-generated responses. |
+| FR-027 | The system **shall** maintain conversation context for natural dialogue flow. |
+| FR-028 | The system **shall** display the full conversation history in the chat interface. |
 | FR-029 | The system **shall** conduct a 5-7 minute adaptive conversation about learning goals. |
 | FR-030 | The system **shall** extract both interests AND specific learning objectives from the conversation. |
 | FR-031 | The system **shall** generate an initial Thread proposal at interview completion. |
@@ -181,14 +181,14 @@ This Functional Requirements Document (FRD) translates the high-level business n
 
 | ID | Requirement Description |
 | :---- | :---- |
-| FR-081 | The system **shall** implement Thread Discovery Service using FastAPI for learning goal extraction. |
-| FR-082 | The system **shall** implement Thread Generation Service using FastAPI for LLM-powered concept mapping. |
-| FR-083 | The system **shall** implement Content Assembly Service using FastAPI for vector search and curation. |
-| FR-084 | The system **shall** implement Voice Interview Service using FastAPI with FastRTC integration. |
-| FR-085 | The system **shall** implement Exercise Generation Service using FastAPI for AI personalization. |
-| FR-086 | The system **shall** implement Progress Tracking Service using FastAPI for analytics. |
-| FR-087 | The system **shall** route all services through AWS API Gateway for scaling and auth. |
-| FR-088 | The system **shall** deploy services as containers on AWS ECS. |
+| FR-081 | The system **shall** implement Thread Discovery Service using Supabase Edge Functions for learning goal extraction. |
+| FR-082 | The system **shall** implement Thread Generation Service using Supabase Edge Functions for LLM-powered concept mapping. |
+| FR-083 | The system **shall** implement Content Assembly Service using Supabase Edge Functions for vector search and curation. |
+| FR-084 | The system **shall** implement Text Interview Service using Supabase Edge Functions with chat interface. |
+| FR-085 | The system **shall** implement Exercise Generation Service using Supabase Edge Functions for AI personalization. |
+| FR-086 | The system **shall** implement Progress Tracking Service using Supabase Edge Functions for analytics. |
+| FR-087 | The system **shall** use Supabase Auth and Edge Functions for authentication and request routing. |
+| FR-088 | The system **shall** deploy Edge Functions on Supabase's global edge network. |
 
 ### 2.14 Data Storage & Integration
 
@@ -196,7 +196,7 @@ This Functional Requirements Document (FRD) translates the high-level business n
 
 | ID | Requirement Description |
 | :---- | :---- |
-| FR-089 | The system **shall** use PostgreSQL for user profiles, Threads, and system configuration. |
+| FR-089 | The system **shall** use Supabase PostgreSQL for user profiles, Threads, and system configuration. |
 | FR-090 | The system **shall** use Pinecone for semantic content indexing with 80% relevance threshold. |
 | FR-091 | The system **shall** use Neo4j for Thread graphs and cross-curricular relationships. |
 | FR-092 | The system **shall** implement caching strategies for frequently accessed Thread paths. |
@@ -216,49 +216,45 @@ This Functional Requirements Document (FRD) translates the high-level business n
 | FR-099 | The system **shall** implement fallback strategies for LLM failures. |
 | FR-100 | The system **shall** cache common Thread patterns for performance. |
 
-## 3. AWS Infrastructure Requirements
+## 3. Supabase Infrastructure Architecture
 
-### 3.1 Current Infrastructure Mapping
+### 3.1 Infrastructure Components
 
-**Compute Services:**
-- **AWS Lambda Functions:**
-  - `CognitoAutoConfirmUser`: Auto-confirmation for user registration (Node.js 18.x, 128MB, 30s timeout)
-  - `spool-create-thread`: Thread generation orchestration (Node.js 18.x, 256MB, 60s timeout)
-  - `pinecone-rds-migration`: Data migration utilities (Python 3.9, 512MB, 900s timeout)
-  - `textbook-migration-runner`: Content processing pipeline (Python 3.9, 512MB, 300s timeout)
+**Edge Functions (Replacing Lambda & ECS Services):**
+- **Thread Discovery Function**: Learning goal extraction from text chat interviews
+- **Thread Generation Function**: LLM-powered concept mapping and Thread assembly
+- **Content Assembly Function**: Vector search and content curation
+- **Text Interview Function**: Chat-based conversation handling
+- **Exercise Generation Function**: AI-powered exercise personalization
+- **Progress Tracking Function**: Analytics and gamification tracking
+- **Thread Visualization Function**: D3.js data preparation
+- **Thread Community Function**: Social features and sharing
 
-**Container Services:**
-- **ECS Cluster:** `spool-mvp`
-  - `spool-exercise-service`: Exercise generation and evaluation (FastAPI)
-  - `spool-interview-service`: Voice interview with FastRTC (FastAPI)
-  - `spool-content-service`: Content transformation and delivery (FastAPI)
-  - `spool-progress-service`: Analytics and progress tracking (FastAPI)
+**Database Services:**
+- **Supabase PostgreSQL**: Core application database with all Thread management tables
+- **Supabase Realtime**: WebSocket connections for live Thread collaboration
+- **Supabase Storage**: Audio recordings, portfolio submissions, and media files
 
-**Storage Services:**
-- **RDS PostgreSQL:** `database-1` (db.t4g.micro, 20GB) for core application data
-- **ECR Repositories:** Container images for all microservices
-- **S3 Buckets:** Static assets and processed content storage (to be configured)
+**External Services:**
+- **Pinecone**: Vector database for semantic search (80% threshold enforcement)
+- **Neo4j AuraDB**: Graph database for Thread relationships and prerequisites
+- **OpenAI API**: GPT-4 for Thread generation and concept mapping
 
-**Networking & API:**
-- **API Gateway:** REST API routing to microservices (configuration pending)
-- **Application Load Balancer:** Internal routing for ECS services
-- **CloudFront:** CDN for static content delivery (to be configured)
+**Authentication & Security:**
+- **Supabase Auth**: User authentication and session management
+- **Row Level Security**: Fine-grained access control on all tables
+- **Edge Function Auth**: JWT validation on all function calls
 
-**Additional Required Services:**
-- **AWS Amplify:** Frontend hosting and CI/CD
-- **AWS CodeBuild:** Container build pipeline
-- **Amazon Neptune or Self-hosted Neo4j:** Graph database for Thread relationships
-- **AWS Secrets Manager:** API keys and connection strings
-- **AWS CloudWatch:** Logging and monitoring
+### 3.2 Edge Function Scaling
 
-### 3.2 Infrastructure Scaling Requirements
-
-| Service | Initial Capacity | Auto-scaling Triggers | Max Capacity |
+| Function | Memory | Timeout | Concurrency |
 | :---- | :---- | :---- | :---- |
-| ECS Services | 2 tasks each | CPU > 70% or Memory > 80% | 10 tasks |
-| RDS PostgreSQL | db.t4g.micro | Manual scaling | db.r6g.xlarge |
-| API Gateway | 1000 req/s | Automatic | 10000 req/s |
-| Lambda Functions | Concurrent: 100 | Automatic | 1000 |
+| Thread Discovery | 512 MB | 60s | Unlimited |
+| Thread Generation | 1 GB | 120s | Unlimited |
+| Content Assembly | 512 MB | 30s | Unlimited |
+| Text Interview | 256 MB | 60s | Unlimited |
+| Exercise Generation | 512 MB | 60s | Unlimited |
+| Progress Tracking | 256 MB | 30s | Unlimited |
 
 ## 4. Thread Generation Process Flow
 
@@ -384,7 +380,7 @@ Identified Concepts (across subjects):
 | FR-001 to FR-010 | Curiosity-driven learning | Thread Discovery & Generation |
 | FR-011 to FR-018 | Visual learning paths | Thread Visualization |
 | FR-019 to FR-024 | Cross-curricular integration | Thread-Based Architecture |
-| FR-025 to FR-032 | Natural conversation interface | Voice Interview (FastRTC) |
+| FR-025 to FR-032 | Natural conversation interface | Text Interview (Chat) |
 | FR-033 to FR-038 | Persistent personalization | Thread-Enhanced Profiles |
 | FR-039 to FR-045 | Intelligent content assembly | Vector Search & Knowledge Graphs |
 | FR-046 to FR-051 | Contextual learning | Thread-Aware Display |

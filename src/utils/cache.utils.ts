@@ -42,20 +42,23 @@ export const optimisticUpdates = {
   enrollCourse: (queryClient: QueryClient, courseId: string) => {
     // Update the course detail to show enrolled status
     queryClient.setQueryData(cacheKeys.courses.detail(courseId), (old: unknown) => {
-      if (!old) return old;
+      if (!old || typeof old !== 'object') return old;
+      const oldData = old as Record<string, any>;
       return {
-        ...old,
+        ...oldData,
         enrolled: true,
-        students: (old.students || 0) + 1,
+        students: (oldData.students || 0) + 1,
       };
     });
 
     // Update the courses list
     queryClient.setQueryData(cacheKeys.courses.lists(), (old: unknown) => {
-      if (!old?.data) return old;
+      if (!old || typeof old !== 'object') return old;
+      const oldData = old as Record<string, any>;
+      if (!oldData.data || !Array.isArray(oldData.data)) return old;
       return {
-        ...old,
-        data: old.data.map((course: Record<string, unknown>) =>
+        ...oldData,
+        data: oldData.data.map((course: Record<string, any>) =>
           course.id === courseId
             ? { ...course, enrolled: true, students: (course.students || 0) + 1 }
             : course
@@ -77,12 +80,14 @@ export const optimisticUpdates = {
       const updated = JSON.parse(JSON.stringify(old));
       
       // Find and update the concept
-      updated.sections?.forEach((section: Record<string, unknown>) => {
-        section.concepts?.forEach((concept: Record<string, unknown>) => {
-          if (concept.id === conceptId) {
-            concept.progress = { ...concept.progress, ...progress };
-          }
-        });
+      updated.sections?.forEach((section: Record<string, any>) => {
+        if (Array.isArray(section.concepts)) {
+          section.concepts.forEach((concept: Record<string, any>) => {
+            if (concept.id === conceptId) {
+              concept.progress = { ...(concept.progress || {}), ...progress };
+            }
+          });
+        }
       });
       
       return updated;
@@ -140,11 +145,13 @@ export const persistCache = {
       if (!saved) return;
       
       const cache = JSON.parse(saved);
-      cache.forEach((item: Record<string, unknown>) => {
-        if (item.state?.data) {
-          queryClient.setQueryData(item.queryKey, item.state.data);
-        }
-      });
+      if (Array.isArray(cache)) {
+        cache.forEach((item: any) => {
+          if (item?.state?.data && Array.isArray(item.queryKey)) {
+            queryClient.setQueryData(item.queryKey as readonly unknown[], item.state.data);
+          }
+        });
+      }
     } catch (error) {
       console.error('Failed to restore cache:', error);
     }

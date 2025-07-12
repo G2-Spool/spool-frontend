@@ -1,8 +1,8 @@
-# Spool - Thread-Based Learning Data Flow Diagram
+# Spool - Thread-Based Learning Data Flow Diagram (Supabase Architecture)
 
 ## 1. Introduction
 
-This Data Flow Diagram (DFD) illustrates how data moves through the Spool Thread-based learning platform. The diagram shows the revolutionary flow where students articulate learning goals through conversation, and the system dynamically assembles personalized Learning Threads by connecting relevant academic concepts from across all subjects. This document uses the Gane & Sarson notation to represent the system's data flows, processes, data stores, and external entities, with special emphasis on cross-curricular content discovery and the 80% relevance threshold that ensures quality.
+This Data Flow Diagram (DFD) illustrates how data moves through the Spool Thread-based learning platform built on Supabase infrastructure. The diagram shows the revolutionary flow where students articulate learning goals through conversation, and the system dynamically assembles personalized Learning Threads by connecting relevant academic concepts from across all subjects. This document uses the Gane & Sarson notation to represent the system's data flows, processes, data stores, and external entities, with special emphasis on cross-curricular content discovery, the 80% relevance threshold that ensures quality, and Supabase Edge Functions that power all processing.
 
 ## 2. Key Components (Gane & Sarson Notation)
 
@@ -123,7 +123,7 @@ graph TB
     Student[Student]
     
     %% Sub-processes - Thread Discovery
-    P1_1((1.1<br/>Conduct<br/>Voice<br/>Interview))
+    P1_1((1.1<br/>Conduct<br/>Text<br/>Interview))
     P1_2((1.2<br/>Extract<br/>Learning<br/>Objectives))
     P1_3((1.3<br/>Analyze<br/>Goal<br/>Scope))
     P1_4((1.4<br/>Identify<br/>Cross-Curricular<br/>Needs))

@@ -192,7 +192,7 @@ export function ProfileSetup({ onNext, onUpdate, data }: ProfileSetupProps) {
 
         <div className="flex justify-end">
           <Button type="submit" size="lg">
-            Continue to Voice Interview
+            Continue to Interest Discovery
           </Button>
         </div>
       </form>

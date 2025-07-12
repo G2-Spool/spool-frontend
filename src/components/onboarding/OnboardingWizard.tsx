@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, Mic, BookOpen, Trophy, Users } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, BookOpen, Trophy, Users } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { OnboardingWelcome } from './OnboardingWelcome';
 import { InterestDiscovery } from './InterestDiscovery';
-import { VoiceInterviewIntro } from './VoiceInterviewIntro';
 import { ProfileSetup } from './ProfileSetup';
 import { ProductTour } from './ProductTour';
 import { Button } from '../atoms/Button';
@@ -23,7 +22,6 @@ interface OnboardingStep {
 const steps: OnboardingStep[] = [
   { id: 'welcome', title: 'Welcome', component: OnboardingWelcome, icon: BookOpen },
   { id: 'profile', title: 'Profile Setup', component: ProfileSetup, icon: Users },
-  { id: 'voice-intro', title: 'Voice Interview', component: VoiceInterviewIntro, icon: Mic },
   { id: 'interests', title: 'Interest Discovery', component: InterestDiscovery, icon: Check },
   { id: 'tour', title: 'Product Tour', component: ProductTour, icon: Trophy },
 ];
@@ -34,7 +32,6 @@ export function OnboardingWizard() {
   const [currentStep, setCurrentStep] = useState(0);
   const [onboardingData, setOnboardingData] = useState({
     profileData: {},
-    voiceInterviewCompleted: false,
     interests: [],
     tourCompleted: false,
   });
@@ -94,7 +91,6 @@ export function OnboardingWizard() {
       await api.post('/api/onboarding/complete', {
         completedAt: new Date().toISOString(),
         milestones: {
-          voiceInterview: onboardingData.voiceInterviewCompleted,
           profileSetup: true,
           interestDiscovery: true,
           productTour: onboardingData.tourCompleted,

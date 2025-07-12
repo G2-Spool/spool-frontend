@@ -15,6 +15,7 @@ export const SignUpPage: React.FC = () => {
     confirmPassword: '',
     firstName: '',
     lastName: '',
+    role: 'student',
   });
   
   const [error, setError] = useState('');
@@ -69,7 +70,7 @@ export const SignUpPage: React.FC = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,

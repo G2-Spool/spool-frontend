@@ -25,37 +25,6 @@ interface TourSegment {
 
 const tourSegments: TourSegment[] = [
   {
-    id: 'voice-interview',
-    title: 'Voice Interview Demo',
-    description: 'Experience how we discover your interests through natural conversation',
-    icon: Mic,
-    demo: (
-      <div className="bg-gray-900 rounded-lg p-4 text-white font-mono text-sm">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-          <span className="text-gray-400">Recording...</span>
-        </div>
-        <div className="space-y-2">
-          <div className="bg-blue-600 rounded-lg p-2 max-w-[80%]">
-            AI: "What do you love doing when you have free time?"
-          </div>
-          <div className="bg-green-600 rounded-lg p-2 max-w-[80%] ml-auto">
-            You: "I love playing Minecraft and building automated farms!"
-          </div>
-          <div className="bg-blue-600 rounded-lg p-2 max-w-[80%]">
-            AI: "That's awesome! What do you enjoy most about it?"
-          </div>
-        </div>
-      </div>
-    ),
-    features: [
-      'Natural conversation, not boring forms',
-      'AI understands context and asks follow-ups',
-      'Real-time transcript for transparency',
-      '5-7 minute friendly chat',
-    ],
-  },
-  {
     id: 'concept-display',
     title: 'Concept Display Preview',
     description: 'See how every lesson connects to your personal interests',
@@ -290,7 +259,6 @@ export function ProductTour({ onNext, onUpdate }: ProductTourProps) {
             <div className="mt-6 p-4 bg-teal-50 rounded-lg">
               <p className="text-sm text-teal-800">
                 <strong>💡 Pro Tip:</strong> {
-                  segment.id === 'voice-interview' ? 'The more you share, the better we can personalize!' :
                   segment.id === 'concept-display' ? 'Every lesson starts with YOUR interests!' :
                   segment.id === 'exercise-system' ? 'Focus on explaining your thinking process!' :
                   segment.id === 'progress-tracking' ? 'Small daily sessions build lasting knowledge!' :

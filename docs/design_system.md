@@ -1246,10 +1246,10 @@
 
 ## 5. Spool-Specific Components
 
-### 5.1 Voice Interview Interface
+### 5.1 Text Interview Interface
 
 ```css
-.voice-interview {
+.text-interview {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-8);
@@ -1998,7 +1998,7 @@
     padding: var(--space-4);
   }
   
-  .voice-interview {
+  .text-interview {
     grid-template-columns: 1fr;
     
     .visual-panel {
@@ -2073,7 +2073,7 @@
   <div class="progress-fill" style="width: 75%"></div>
 </div>
 
-<!-- Voice Interview Status -->
+<!-- Text Interview Status -->
 <div class="chat-status" role="status" aria-live="polite">
   <span class="status-dot recording" aria-hidden="true"></span>
   <span class="status-text">Recording your response...</span>
@@ -2089,7 +2089,7 @@
 </nav>
 
 <!-- Icon Button -->
-<button class="btn-icon" aria-label="Start voice interview">
+<button class="btn-icon" aria-label="Start text interview">
   <svg aria-hidden="true"><!-- Mic icon --></svg>
 </button>
 ```
@@ -2161,7 +2161,7 @@ All text colors meet WCAG AA standards:
 - Progress components
 
 **Phase 3 - Learning Interface**
-- Voice Interview interface
+- Text Interview interface
 - Exercise components
 - Concept display
 

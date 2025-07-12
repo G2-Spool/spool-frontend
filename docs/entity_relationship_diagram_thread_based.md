@@ -1,30 +1,30 @@
-# Spool - Thread-Based Learning Entity Relationship Diagram
+# Spool - Thread-Based Learning Entity Relationship Diagram (Supabase)
 
 ## Overview
-This ERD defines the complete database schema for Spool's revolutionary Thread-based learning platform. Unlike traditional subject-based systems, Spool creates dynamic "Learning Threads" where students follow their curiosity across all subjects. The design separates data across three storage systems:
-- **AWS RDS PostgreSQL**: Thread management, user data, progress tracking, and system operations
+This ERD defines the complete database schema for Spool's revolutionary Thread-based learning platform built on Supabase. Unlike traditional subject-based systems, Spool creates dynamic "Learning Threads" where students follow their curiosity across all subjects. The design leverages three storage systems:
+- **Supabase PostgreSQL**: Thread management, user data, progress tracking, and system operations with Row Level Security
 - **Neo4j AuraDB**: Thread graphs, cross-curricular relationships, and concept networks
 - **Pinecone**: Vector embeddings for 80% relevance threshold enforcement and semantic search
 
-All databases support the core Thread architecture where learning paths are dynamically assembled based on student curiosity.
+All databases support the core Thread architecture where learning paths are dynamically assembled based on student curiosity, with Supabase Edge Functions providing the compute layer.
 
 ## Infrastructure Architecture
 
 ```mermaid
 graph TB
-    subgraph "AWS ECS Cluster - Thread Services"
-        A[Thread Discovery Service]
-        B[Thread Generation Service]
-        C[Voice Interview Service]
-        D[Content Assembly Service]
-        E[Exercise Generation Service]
-        F[Progress Tracking Service]
-        G[Thread Visualization Service]
-        H[Thread Community Service]
+    subgraph "Supabase Edge Functions - Thread Services"
+        A[Thread Discovery<br/>Edge Function]
+        B[Thread Generation<br/>Edge Function]
+        C[Text Interview<br/>Edge Function]
+        D[Content Assembly<br/>Edge Function]
+        E[Exercise Generation<br/>Edge Function]
+        F[Progress Tracking<br/>Edge Function]
+        G[Thread Visualization<br/>Edge Function]
+        H[Thread Community<br/>Edge Function]
     end
     
     subgraph "Data Stores"
-        I[(AWS RDS<br/>PostgreSQL<br/>Thread Management)]
+        I[(Supabase<br/>PostgreSQL<br/>Thread Management)]
         J[(Neo4j<br/>Thread Graphs<br/>80% Relevance)]
         K[(Pinecone<br/>Vector Search<br/>Cross-Curricular)]
     end
