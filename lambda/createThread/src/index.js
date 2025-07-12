@@ -3,13 +3,25 @@ const { getThreadHandler } = require('./handlers/getThread');
 const { listThreadsHandler } = require('./handlers/listThreads');
 const { updateThreadHandler } = require('./handlers/updateThread');
 
-// Complete CORS headers
+// CORS headers that work with Cognito and API Gateway
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGIN || '*',
   'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent',
   'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
   'Access-Control-Allow-Credentials': 'true',
   'Content-Type': 'application/json'
+};
+
+// Helper function to ensure all responses have CORS headers
+const createResponse = (statusCode, body, additionalHeaders = {}) => {
+  return {
+    statusCode,
+    headers: {
+      ...corsHeaders,
+      ...additionalHeaders
+    },
+    body: typeof body === 'string' ? body : JSON.stringify(body)
+  };
 };
 
 exports.handler = async (event) => {
@@ -17,74 +29,83 @@ exports.handler = async (event) => {
 
   // Handle CORS preflight OPTIONS requests
   if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: corsHeaders,
-      body: ''
-    };
+    return createResponse(200, '');
   }
 
   try {
-    const { httpMethod, path, pathParameters } = event;
+    const { httpMethod, path, pathParameters, resource } = event;
     
-    // Extract path after /api/thread
-    const basePath = path.replace(/^\/api\/thread\/?/, '');
+    // Use resource path for routing (more reliable than path)
+    const resourcePath = resource || path;
     
     let response;
     
-    // Route to appropriate handler
-    if (httpMethod === 'POST' && (basePath === '' || basePath === 'create')) {
-      response = await createThreadHandler(event);
-    } else if (httpMethod === 'GET' && basePath === 'list') {
-      response = await listThreadsHandler(event);
-    } else if (httpMethod === 'GET' && pathParameters?.threadId) {
-      response = await getThreadHandler(event);
-    } else if (httpMethod === 'PUT' && pathParameters?.threadId) {
-      response = await updateThreadHandler(event);
-    } else if (httpMethod === 'GET' && basePath === 'connection/test') {
-      // Connection test endpoint
-      response = {
-        statusCode: 200,
-        body: JSON.stringify({
+    // Route to appropriate handler based on resource path
+    switch (true) {
+      case httpMethod === 'POST' && resourcePath === '/api/thread':
+        response = await createThreadHandler(event);
+        break;
+        
+      case httpMethod === 'GET' && resourcePath === '/api/thread':
+        response = await listThreadsHandler(event);
+        break;
+        
+      case httpMethod === 'GET' && resourcePath === '/api/thread/list':
+        response = await listThreadsHandler(event);
+        break;
+        
+      case httpMethod === 'GET' && resourcePath === '/api/thread/{threadId}':
+        response = await getThreadHandler(event);
+        break;
+        
+      case httpMethod === 'PUT' && resourcePath === '/api/thread/{threadId}':
+        response = await updateThreadHandler(event);
+        break;
+        
+      case httpMethod === 'GET' && resourcePath === '/api/thread/connection/test':
+        response = createResponse(200, {
           message: 'Thread API connection successful',
           timestamp: new Date().toISOString()
-        })
-      };
-    } else {
-      response = {
-        statusCode: 400,
-        body: JSON.stringify({
+        });
+        break;
+        
+      default:
+        response = createResponse(400, {
           error: 'Invalid request',
-          message: `Unsupported method ${httpMethod} for path ${path}`,
+          message: `Unsupported method ${httpMethod} for resource ${resourcePath}`,
+          debug: { path, resource: resourcePath, httpMethod },
           availableEndpoints: [
             'POST /api/thread',
-            'GET /api/thread/list',
+            'GET /api/thread',
+            'GET /api/thread/list', 
             'GET /api/thread/{threadId}',
             'PUT /api/thread/{threadId}',
             'GET /api/thread/connection/test'
           ]
-        })
-      };
+        });
     }
     
-    // Ensure all responses have CORS headers
-    return {
-      ...response,
-      headers: {
-        ...corsHeaders,
-        ...(response.headers || {})
-      }
+    // Ensure response has CORS headers even if handler didn't include them
+    if (!response.headers) {
+      response.headers = {};
+    }
+    
+    // Merge CORS headers with any existing headers
+    response.headers = {
+      ...corsHeaders,
+      ...response.headers
     };
+    
+    return response;
     
   } catch (error) {
     console.error('Lambda error:', error);
-    return {
-      statusCode: 500,
-      headers: corsHeaders,
-      body: JSON.stringify({
-        error: 'Internal server error',
-        message: error.message
-      })
-    };
+    console.error('Stack trace:', error.stack);
+    
+    return createResponse(500, {
+      error: 'Internal server error',
+      message: error.message,
+      requestId: event.requestContext?.requestId
+    });
   }
 }; 
