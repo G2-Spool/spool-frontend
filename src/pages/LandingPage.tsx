@@ -1,122 +1,166 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/atoms/Button';
-import { BookOpen, Sparkles, Users, BarChart3, ArrowRight } from 'lucide-react';
+import { Card } from '../components/atoms/Card';
+import { Badge } from '../components/atoms/Badge';
+import HeroGeometric from '../components/ui/hero-geometric';
 import { SpoolPlayer } from '../components/remotion/SpoolPlayer';
+import { 
+  ArrowRight, 
+  Sparkles, 
+  Brain, 
+  Target, 
+  TrendingUp, 
+  Users, 
+  BookOpen, 
+  Zap,
+  ChevronDown,
+  Play,
+  Star,
+  Heart,
+  Lightbulb,
+  Code
+} from 'lucide-react';
 
 export const LandingPage: React.FC = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  const scrollToFeatures = () => {
+    const featuresSection = document.getElementById('features-section');
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const scrollToDemo = () => {
+    const demoSection = document.getElementById('demo-section');
+    if (demoSection) {
+      demoSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const scrollToAbout = () => {
+    const aboutSection = document.getElementById('about-section');
+    if (aboutSection) {
+      aboutSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleGetStarted = () => {
+    navigate('/signup');
+  };
+
+  const handleDemoLogin = async () => {
+    setIsDemoLoading(true);
+    try {
+      // For now, just navigate to login - can implement demo login later
+      navigate('/login');
+    } catch (error) {
+      console.error("Demo navigation failed:", error);
+    } finally {
+      setIsDemoLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-white via-white to-teal-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-teal-900/10 overflow-hidden">
+      {/* Header */}
+      <header className="absolute top-0 left-0 right-0 z-20 p-6">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-4 cursor-pointer" onClick={scrollToTop}>
+            <BookOpen className="h-12 w-12 text-teal-500" />
+            <span className="text-4xl font-bold text-obsidian dark:text-gray-100">Spool</span>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="ghost" 
+              onClick={scrollToAbout}
+              className="text-obsidian dark:text-gray-100 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+            >
+              About
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={scrollToFeatures}
+              className="text-obsidian dark:text-gray-100 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+            >
+              Features
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={scrollToDemo}
+              className="text-obsidian dark:text-gray-100 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+            >
+              Demo
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={handleDemoLogin}
+              className="hover:shadow-md transition-all duration-300 gap-2 border-gray-300 dark:border-gray-600"
+            >
+              <Code className="w-4 h-4" />
+              {isDemoLoading ? "Loading..." : "Sign In"}
+            </Button>
+            <Button 
+              onClick={handleGetStarted}
+              className="hover:shadow-lg transition-all duration-300 bg-teal-500 hover:bg-teal-600"
+            >
+              Get Started
+            </Button>
+          </div>
+        </div>
+      </header>
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="container mx-auto px-4 py-16 lg:py-24">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl lg:text-6xl font-bold text-obsidian mb-6">
-              Learning That <span className="text-gradient">Adapts to You</span>
-            </h1>
-            <p className="text-xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-              Spool transforms textbook content into personalized educational journeys. 
-              Through AI-powered voice interviews, we discover what excites each student 
-              and make every lesson personally relevant.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/signup">
-                <Button size="lg" className="w-full sm:w-auto">
-                  Start Free Trial
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  Sign In
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
+      <HeroGeometric 
+        title1="Learn Through"
+        title2="Your Passions"
+        onGetStarted={handleGetStarted}
+      />
 
-        {/* Background decoration */}
-        <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-teal-50 dark:bg-teal-900/20 rounded-full opacity-50 blur-3xl" />
-        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-96 h-96 bg-teal-100 dark:bg-teal-900/20 rounded-full opacity-30 blur-3xl" />
-      </section>
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30">
+        <button
+          onClick={scrollToDemo}
+          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800/20 transition-all duration-200 cursor-pointer"
+          style={{
+            animation: 'bounce 1.5s infinite',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.animation = 'none';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.animation = 'bounce 1.5s infinite';
+          }}
+          aria-label="Scroll to demo"
+        >
+          <ChevronDown className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+        </button>
+      </div>
 
-      {/* Features Section */}
-      <section className="py-16 lg:py-24 bg-gray-50 dark:bg-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-obsidian dark:text-gray-100 mb-4">
-              Education Reimagined
+      {/* Spool Demo Animation Section */}
+      <section id="demo-section" className="py-24 px-6 bg-gradient-to-r from-teal-50/30 to-purple-50/20 dark:from-teal-900/10 dark:to-purple-900/5">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center space-y-4 mb-16">
+            <Badge variant="primary" className="mb-4">
+              ✨ See Our Vision
+            </Badge>
+            <h2 className="text-4xl lg:text-5xl font-bold text-obsidian dark:text-gray-100">
+              Watch <span className="text-gradient bg-gradient-to-r from-teal-500 to-purple-500 bg-clip-text text-transparent">Spool</span> in Action
             </h2>
-            <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
-              Every student is unique. Their education should be too.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900/30 rounded-lg flex items-center justify-center mb-4">
-                <Sparkles className="h-6 w-6 text-teal-600 dark:text-teal-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                AI Voice Interview
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Natural conversation discovers student interests and learning style in just 5-7 minutes.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-personal/10 dark:bg-personal/20 rounded-lg flex items-center justify-center mb-4">
-                <BookOpen className="h-6 w-6 text-personal" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                4 Life Categories
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Content connects to personal, social, career, and philanthropic aspects of life.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-social/10 dark:bg-social/20 rounded-lg flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-social" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                Articulation-Based
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Students explain their thinking process, ensuring true understanding.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-career/10 dark:bg-career/20 rounded-lg flex items-center justify-center mb-4">
-                <BarChart3 className="h-6 w-6 text-career" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                Progress Tracking
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Detailed analytics and gamification keep students motivated and parents informed.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Spool Demo Animation */}
-      <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-obsidian dark:text-gray-100 mb-4">
-              See Spool in Action
-            </h2>
-            <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
-              Watch how we transform traditional linear education into connected, meaningful learning
+            <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
+              See how we transform traditional linear education into connected, meaningful learning experiences
             </p>
           </div>
 
@@ -124,38 +168,147 @@ export const LandingPage: React.FC = () => {
             <SpoolPlayer className="mb-8" />
             
             {/* Brief explanation below the demo */}
-            <div className="text-center mt-8">
-              <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            <div className="text-center mt-8 space-y-4">
+              <p className="text-gray-600 dark:text-gray-400 max-w-4xl mx-auto text-lg leading-relaxed">
                 Traditional education treats learning as a straight line from start to finish. 
                 But real life is messy and interconnected. Spool organizes this complexity 
                 into clear, personalized academic lessons that connect to what matters most to each student.
               </p>
+              
+              <div className="flex flex-wrap justify-center gap-3 pt-4">
+                <Badge variant="teal">🎯 Personalized</Badge>
+                <Badge variant="success">🔗 Connected</Badge>
+                <Badge variant="primary">✨ Engaging</Badge>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features-section" className="py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center space-y-4 mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-obsidian dark:text-gray-100">
+              Why Students Love <span className="text-gradient bg-gradient-to-r from-teal-500 to-purple-500 bg-clip-text text-transparent">Spool</span>
+            </h2>
+            <p className="text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
+              Experience learning like never before with our revolutionary approach to education
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-0 bg-gradient-to-br from-white to-teal-50/50 dark:from-gray-800 dark:to-teal-900/20" hover>
+              <div className="space-y-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Heart className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-obsidian dark:text-gray-100">Personalized Learning</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  AI adapts every lesson to your interests, learning style, and pace. No more one-size-fits-all education.
+                </p>
+              </div>
+            </Card>
+
+            {/* Feature 2 */}
+            <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-0 bg-gradient-to-br from-white to-purple-50/50 dark:from-gray-800 dark:to-purple-900/20" hover>
+              <div className="space-y-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Lightbulb className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-obsidian dark:text-gray-100">Real-World Connections</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  See how physics applies to your guitar, how math powers your favorite games, and how history shapes your world.
+                </p>
+              </div>
+            </Card>
+
+            {/* Feature 3 */}
+            <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-0 bg-gradient-to-br from-white to-pink-50/50 dark:from-gray-800 dark:to-pink-900/20" hover>
+              <div className="space-y-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-pink-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-obsidian dark:text-gray-100">Instant Engagement</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  From day one, learning feels exciting and relevant. Watch your motivation soar as subjects come alive.
+                </p>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section id="about-section" className="py-24 px-6 bg-gradient-to-r from-teal-50/50 to-purple-50/30 dark:from-teal-900/10 dark:to-purple-900/5">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-obsidian dark:text-gray-100 mb-4">
+              Trusted by Students Everywhere
+            </h2>
+            <p className="text-lg text-gray-700 dark:text-gray-300">
+              Join the learning revolution
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-4 gap-8 text-center">
+            <div className="space-y-2">
+              <div className="text-4xl font-bold text-teal-500">98%</div>
+              <div className="text-gray-600 dark:text-gray-400">Student Satisfaction</div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-4xl font-bold text-teal-500">5+</div>
+              <div className="text-gray-600 dark:text-gray-400">Active Learners</div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-4xl font-bold text-teal-500">7+</div>
+              <div className="text-gray-600 dark:text-gray-400">Subject Areas</div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-4xl font-bold text-teal-500">24/7</div>
+              <div className="text-gray-600 dark:text-gray-400">AI Support</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 lg:py-24 bg-teal-50 dark:bg-gray-800">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-obsidian dark:text-gray-100 mb-4">
-            Ready to Transform Learning?
+      <section className="py-24 px-6">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          <h2 className="text-4xl lg:text-5xl font-bold text-obsidian dark:text-gray-100">
+            Ready to Transform Your Learning?
           </h2>
-          <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join thousands of students discovering the joy of personalized education.
+          <p className="text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
+            Join thousands of students who've discovered the joy of learning through their passions
           </p>
-          <Link to="/signup">
-            <Button size="lg">
-              Start Your Free Trial
-              <ArrowRight className="ml-2 h-5 w-5" />
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              onClick={handleGetStarted}
+              size="lg" 
+              className="text-lg px-12 py-6 group hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700"
+            >
+              Start Your Journey
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
-          </Link>
+            
+            <Link to="/login">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="text-lg px-12 py-6 hover:shadow-lg transition-all duration-300 border-2 border-gray-300 dark:border-gray-600 hover:border-teal-500 dark:hover:border-teal-400"
+              >
+                Learn More
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
               <BookOpen className="h-8 w-8 text-teal-400" />
