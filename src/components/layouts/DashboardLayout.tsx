@@ -2,12 +2,9 @@ import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-  Home,
-  User,
   LogOut,
   Menu,
   X,
-  MessageCircle,
 } from 'lucide-react';
 import { Button } from '../atoms/Button';
 import { SidebarNav } from '../molecules/SidebarNav';
@@ -31,7 +28,7 @@ export const DashboardLayout: React.FC = () => {
   // Navigation items available for future use
   // const navigation = [
   //   { name: 'Home', href: '/dashboard', icon: Home },
-  //   { name: 'Voice Interview', href: '/interview', icon: MessageCircle },
+  //   { name: 'Text Interview', href: '/interview', icon: MessageCircle },
   //   { name: 'Profile', href: '/profile', icon: User },
   // ];
 

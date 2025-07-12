@@ -9,7 +9,6 @@ import {
   ArrowRight,
   Lightbulb,
   Target,
-  MessageSquare,
   RotateCcw,
   Sparkles,
   TrendingUp,
@@ -30,7 +29,7 @@ interface TwoStageExerciseProps {
 }
 
 type ExerciseStage = 'initial' | 'advanced' | 'complete';
-type ExerciseStatus = 'ready' | 'loading' | 'answering' | 'evaluating' | 'remediation';
+type ExerciseStatus = 'ready' | 'loading' | 'answering' | 'remediation' | 'evaluating';
 
 const lifeCategoryColors = {
   personal: 'bg-personal/10 border-personal/30 text-personal',
@@ -289,7 +288,7 @@ export const TwoStageExercise: React.FC<TwoStageExerciseProps> = ({
                 onChange={(e) => setResponse(e.target.value)}
                 placeholder="Walk through your complete thought process step by step..."
                 className="w-full min-h-[200px] p-4 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg resize-y focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                disabled={status === 'evaluating'}
+                disabled={(status as string) === 'loading' || (status as string) === 'evaluating'}
               />
               <div className="flex justify-between items-center">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -298,7 +297,7 @@ export const TwoStageExercise: React.FC<TwoStageExerciseProps> = ({
                 <Button
                   variant="primary"
                   onClick={evaluateResponse}
-                  disabled={response.length < 50 || status === 'evaluating'}
+                  disabled={response.length < 50 || (status as string) === 'loading' || (status as string) === 'evaluating'}
                 >
                   Submit Response
                   <ArrowRight className="h-4 w-4 ml-2" />

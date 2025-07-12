@@ -1,52 +1,54 @@
-# Spool System Architecture - Thread-Based Learning Platform
+# Spool System Architecture - Thread-Based Learning Platform on Supabase
 
-**Version:** 2.0  
+**Version:** 3.0  
 **Date:** January 2025  
-**Status:** Current State & Target Architecture
+**Status:** Supabase Migration Architecture
 
 ## 1. Executive Summary
 
-Spool has evolved from a personalized content delivery system to a revolutionary Thread-based learning platform where students follow their curiosity across all subjects. This document describes both the current infrastructure and the target architecture needed to fully realize the Thread-based learning vision.
+Spool has evolved from a personalized content delivery system to a revolutionary Thread-based learning platform where students follow their curiosity across all subjects. This document describes the complete migration from AWS infrastructure to Supabase, leveraging Edge Functions for serverless compute and Supabase's integrated PostgreSQL database for all data management needs.
 
 ## 2. Architecture Evolution
 
-### 2.1 Current State vs Target State
+### 2.1 Migration from AWS to Supabase
 
-| Aspect | Current State | Target State |
-|--------|--------------|--------------|
-| **Learning Model** | Subject-based with personalization | Thread-based cross-curricular journeys |
-| **Content Discovery** | Interest matching within subjects | 80% relevance threshold across all content |
-| **Architecture** | 4 core microservices | 8+ specialized services for Thread orchestration |
-| **Databases** | RDS + Pinecone (active) + Neo4j (configured) | Full integration with Thread graphs in Neo4j |
-| **User Experience** | Linear concept progression | Dynamic Thread visualization with branching |
+| Component | AWS Implementation | Supabase Implementation |
+|-----------|-------------------|------------------------|
+| **Learning Model** | Thread-based cross-curricular journeys | Same - Thread-based cross-curricular journeys |
+| **Database** | AWS RDS PostgreSQL | Supabase PostgreSQL with RLS |
+| **Compute** | Lambda Functions & ECS Services | Supabase Edge Functions |
+| **Authentication** | AWS Cognito | Supabase Auth |
+| **API Gateway** | AWS API Gateway | Edge Function routing |
+| **Storage** | S3 Buckets | Supabase Storage |
+| **Realtime** | Custom WebSockets | Supabase Realtime |
+| **External Services** | Pinecone + Neo4j | Pinecone + Neo4j (unchanged) |
 
 ## 3. Thread-Based Architecture Overview
 
 ```mermaid
 graph TB
     subgraph "Frontend Layer"
-        A[React + TypeScript<br/>Thread Visualization] --> B[AWS Amplify<br/>Hosting]
-        B --> C[AWS Cognito<br/>Authentication]
+        A[React + TypeScript<br/>Thread Visualization] --> B[Vercel/Netlify<br/>Hosting]
+        B --> C[Supabase Auth<br/>Authentication]
     end
     
-    subgraph "API Layer"
-        C --> D[AWS API Gateway<br/>https://alj6xppcj6.execute-api.us-east-1.amazonaws.com/prod/]
-        D --> E[Cognito<br/>Authorizer]
+    subgraph "Edge Function Layer"
+        C --> D[Supabase Edge Functions<br/>Global Edge Network]
+        D --> E[JWT<br/>Validation]
     end
     
-    subgraph "Thread Orchestration Layer - NEW"
-        E --> TO[Thread Orchestrator<br/>Load Balancer]
-        TO --> TD[Thread Discovery<br/>Service]
-        TO --> TG[Thread Generation<br/>Service]
-        TO --> TV[Thread Visualization<br/>Service]
+    subgraph "Thread Services - Edge Functions"
+        E --> TD[Thread Discovery<br/>Edge Function]
+        E --> TG[Thread Generation<br/>Edge Function]
+        E --> TV[Thread Visualization<br/>Edge Function]
+        E --> TC[Thread Community<br/>Edge Function]
     end
     
-    subgraph "Core Services Layer - CURRENT"
-        E --> ALB[Application<br/>Load Balancer]
-        ALB --> F[Voice Interview<br/>Service<br/>(FastRTC)]
-        ALB --> G[Content Service<br/>(FastAPI)]
-        ALB --> H[Exercise Service<br/>(FastAPI)]
-        ALB --> I[Progress Service<br/>(FastAPI)]
+    subgraph "Core Services - Edge Functions"
+        E --> F[Text Interview<br/>Edge Function<br/>(Chat)]
+        E --> G[Content Assembly<br/>Edge Function]
+        E --> H[Exercise Generation<br/>Edge Function]
+        E --> I[Progress Tracking<br/>Edge Function]
     end
     
     subgraph "AI Orchestration"
@@ -57,17 +59,18 @@ graph TB
         H --> J
     end
     
-    subgraph "Data Layer - ACTIVE"
-        J --> K[RDS PostgreSQL<br/>database-1]
+    subgraph "Data Layer"
+        J --> K[Supabase PostgreSQL<br/>Thread Management DB]
         J --> L[Neo4j Cloud<br/>neo4j+s://9d61bfe9.databases.neo4j.io]
         J --> M[Pinecone<br/>spool-textbook-embeddings<br/>us-east-1-aws]
-        J --> N[Parameter Store<br/>Configuration & Secrets]
+        J --> N[Supabase Vault<br/>Secrets Management]
     end
     
     style TD fill:#f96,stroke:#333,stroke-width:4px
     style TG fill:#f96,stroke:#333,stroke-width:4px
     style L fill:#9f9,stroke:#333,stroke-width:4px
     style M fill:#9f9,stroke:#333,stroke-width:4px
+    style K fill:#9ff,stroke:#333,stroke-width:4px
 ```
 
 ## 4. Current Infrastructure Status
@@ -77,7 +80,7 @@ graph TB
 #### Container Services (ECS Cluster: spool-mvp)
 | Service | Status | Technology | Purpose |
 |---------|--------|------------|---------|
-| spool-interview-service | ✅ Active | FastAPI + FastRTC | Voice interviews |
+| spool-interview-service | ✅ Active | FastAPI | Text chat interviews |
 | spool-content-service | ✅ Active | FastAPI | Content delivery |
 | spool-exercise-service | ✅ Active | FastAPI | Exercise generation |
 | spool-progress-service | ✅ Active | FastAPI | Analytics tracking |
@@ -144,7 +147,7 @@ class ThreadDiscoveryService:
 ```
 
 **Integration Points:**
-- Receives transcripts from Voice Interview Service
+- Receives conversation history from Text Interview Service
 - Sends proposals to Thread Generation Service
 - Stores goals in PostgreSQL
 
@@ -221,15 +224,15 @@ class ThreadVisualizer {
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant VI as Voice Interview
+    participant TI as Text Interview
     participant TD as Thread Discovery
     participant TG as Thread Generation
     participant P as Pinecone
     participant N as Neo4j
     participant DB as PostgreSQL
     
-    U->>VI: "I want to learn game development"
-    VI->>TD: Transcript + Context
+    U->>TI: "I want to learn game development"
+    TI->>TD: Conversation history + Context
     TD->>TD: Extract learning objectives
     TD->>TG: Learning Goal
     TG->>TG: Map cross-curricular concepts
@@ -265,11 +268,11 @@ graph LR
 
 ## 7. Enhanced Service Specifications
 
-### 7.1 Voice Interview Service Enhancement
+### 7.1 Text Interview Service Enhancement
 
 **Current Capabilities:**
-- WebRTC audio streaming via FastRTC
-- Real-time transcription
+- Text-based chat interface
+- Real-time message processing
 - Interest extraction
 
 **Thread-Based Enhancements:**
@@ -429,7 +432,7 @@ CREATE (c1)-[:PREREQUISITE_FOR]->(c2)
 ```yaml
 Base URL: https://alj6xppcj6.execute-api.us-east-1.amazonaws.com/prod/
 
-/api/interview/*    # Voice interview endpoints
+/api/interview/*    # Text chat interview endpoints
 /api/content/*      # Content delivery
 /api/exercise/*     # Exercise generation
 /api/progress/*     # Progress tracking

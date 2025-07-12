@@ -15,7 +15,7 @@ interface ThreadGraphEdge {
   strength: number;
 }
 
-interface ThreadGraphData {
+export interface ThreadGraphData {
   nodes: ThreadGraphNode[];
   edges: ThreadGraphEdge[];
   metadata: {
@@ -37,7 +37,7 @@ export const useThreadGraphD3 = (threadId: string, enabled: boolean = true) => {
     queryFn: () => threadGraphService.getThreadGraph(threadId),
     enabled: enabled && !!threadId,
     staleTime: 10 * 60 * 1000, // 10 minutes
-    cacheTime: 30 * 60 * 1000, // 30 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
     retry: 2,
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
     refetchOnWindowFocus: false,

@@ -11,7 +11,7 @@ import { Scene3SpoolOrganizes } from './scenes/Scene3SpoolOrganizes';
 
 export const SpoolEducationDemo: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { } = useVideoConfig();
 
   // Scene timing (30fps)
   const scene1Duration = 90; // 0-3 seconds

@@ -1,4 +1,3 @@
-import { API_BASE_URL } from '../config/api';
 
 export interface ExerciseGenerationRequest {
   conceptId: string;
