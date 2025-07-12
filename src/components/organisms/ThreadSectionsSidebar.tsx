@@ -55,7 +55,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
   };
   
   return (
-    <div className="w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 overflow-y-auto">
+    <div className="w-80 bg-white dark:bg-gray-900 overflow-y-auto hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors duration-300">
       <div className="p-4">
         <h2 className="text-lg font-semibold text-obsidian dark:text-gray-100 mb-4">
           Thread Sections
@@ -70,10 +70,10 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
               <Card
                 key={section.id}
                 className={cn(
-                  "cursor-pointer transition-all",
+                  "cursor-pointer transition-all duration-200 transform hover:scale-[1.02]",
                   isSelected 
                     ? "border-teal-500 shadow-md bg-teal-50 dark:bg-teal-900/20" 
-                    : "hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm"
+                    : "hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-lg hover:bg-gray-50 dark:hover:bg-gray-800/50"
                 )}
               >
                 <div 
@@ -97,7 +97,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                         e.stopPropagation();
                         onToggleExpanded(section.id);
                       }}
-                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200 hover:scale-110"
                     >
                       {isExpanded ? (
                         <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />
@@ -154,7 +154,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
         </div>
         
         {/* Summary Stats */}
-        <div className="mt-6 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <div className="mt-6 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 hover:shadow-md">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Thread Summary
           </h3>

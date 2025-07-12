@@ -44,6 +44,20 @@ export const ThreadPage: React.FC = () => {
   // Fetch thread data
   const { data: thread, isLoading, error } = useThread(threadId || '');
   
+  // Get difficulty color to match sidebar
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty?.toLowerCase()) {
+      case 'beginner':
+        return 'text-green-600 dark:text-green-400';
+      case 'intermediate':
+        return 'text-yellow-600 dark:text-yellow-400';
+      case 'advanced':
+        return 'text-red-600 dark:text-red-400';
+      default:
+        return 'text-gray-600 dark:text-gray-400';
+    }
+  };
+  
   // Set initial selected section
   useEffect(() => {
     if (thread?.sections && thread.sections.length > 0 && !selectedSection) {
@@ -135,7 +149,7 @@ export const ThreadPage: React.FC = () => {
             We couldn't find the thread you're looking for.
           </p>
           <Button onClick={() => navigate('/threads')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="w-6 h-3 mr-2" />
             Back to Courses
           </Button>
         </Card>
@@ -150,20 +164,19 @@ export const ThreadPage: React.FC = () => {
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto p-8">
+        <div className="max-w-4xl mx-auto p-8 rounded-lg">
           {/* Header */}
           <div className="mb-8">
             <Button
               variant="ghost"
-              size="sm"
+              size="md"
               onClick={() => navigate('/threads')}
-              className="mb-4"
+              className="mb-4 rounded-lg px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-2 -ml-2"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Courses
+              <ArrowLeft className="w-8 h-5" />
             </Button>
             
-            <h1 className="text-3xl font-bold text-obsidian dark:text-gray-100 mb-2">
+            <h1 className="text-4xl font-bold text-obsidian dark:text-gray-100 mb-6 text-center">
               Learning Thread
             </h1>
 
@@ -253,8 +266,8 @@ export const ThreadPage: React.FC = () => {
               <div className="flex items-start gap-3">
                 <Brain className="h-5 w-5 text-teal-600 dark:text-teal-400 mt-1" />
                 <div>
-                  <h3 className="font-semibold text-teal-900 dark:text-teal-200 mb-1">Your Learning Focus</h3>
-                  <p className="text-teal-800 dark:text-teal-300 text-sm">{thread.analysis.summary}</p>
+                  <h3 className="text-lg font-semibold text-teal-900 dark:text-teal-200 mb-1">Your Learning Focus</h3>
+                  <p className="text-teal-800 dark:text-teal-300 text-base">{thread.analysis.summary}</p>
                   <div className="flex flex-wrap gap-2 mt-3">
                     {thread.analysis.subjects.map((subject: string, idx: number) => (
                       <Badge key={idx} variant="primary" size="sm">
@@ -289,7 +302,7 @@ export const ThreadPage: React.FC = () => {
                 />
               ) : (
                 <>
-                  <Card className="p-6">
+                  <Card className="p-6 bg-gray-50 dark:bg-gray-800/80">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
@@ -303,7 +316,7 @@ export const ThreadPage: React.FC = () => {
                             </Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-4 text-base text-gray-600">
                           <div className="flex items-center gap-1">
                             <Target className="h-4 w-4" />
                             <span>{Math.round(currentSection.relevanceScore * 100)}% relevant</span>
@@ -315,9 +328,12 @@ export const ThreadPage: React.FC = () => {
                             </div>
                           )}
                           {currentSection.difficulty && (
-                            <Badge variant="default" size="sm">
+                            <span className={cn(
+                              "text-sm font-medium px-2 py-1 rounded-full",
+                              getDifficultyColor(currentSection.difficulty)
+                            )}>
                               {currentSection.difficulty}
-                            </Badge>
+                            </span>
                           )}
                         </div>
                       </div>
@@ -331,12 +347,12 @@ export const ThreadPage: React.FC = () => {
                     </div>
                     
                     {/* Learning Tips */}
-                    <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                    <div className="mt-6 p-4 bg-yellow-200 dark:bg-yellow-900/20 border border-yellow-400 dark:border-yellow-600 rounded-lg">
                       <div className="flex items-start gap-2">
                         <Lightbulb className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
                         <div>
                           <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-1">Learning Tip</h4>
-                          <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
                             This section connects to key concepts in {thread.analysis.subjects.join(' and ')}. 
                             Try to relate this material to what you already know about these subjects.
                           </p>
