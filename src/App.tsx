@@ -9,7 +9,7 @@ import { ErrorBoundary } from './components/organisms/ErrorBoundary';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignUpPage } from './pages/SignUpPage';
-import { StudentDashboard } from './pages/StudentDashboard';
+import { HomePage } from './pages/HomePage';
 import { LearningPathDetail } from './pages/LearningPathDetail';
 import { ConceptPage } from './pages/ConceptPage';
 import { ExercisePage } from './pages/ExercisePage';
@@ -60,7 +60,8 @@ function App() {
                   </ProtectedRoute>
                 }
               >
-                <Route path="/dashboard" element={<StudentDashboard />} />
+                <Route path="/home" element={<HomePage />} />
+                <Route path="/dashboard" element={<Navigate to="/home" replace />} />
                 <Route path="/threads" element={<ThreadsPage />} />
                 <Route path="/progress" element={<ProgressPage />} />
                 <Route path="/learning-path/:id" element={<LearningPathDetail />} />

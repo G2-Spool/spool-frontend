@@ -34,7 +34,7 @@ export const DashboardLayout: React.FC = () => {
 
 
   const navigation = [
-    { name: 'Home', href: '/dashboard', icon: Home },
+    { name: 'Home', href: '/home', icon: Home },
     { name: 'Profile', href: '/profile', icon: User },
   ];
 
@@ -83,7 +83,7 @@ export const DashboardLayout: React.FC = () => {
               {/* Page Title or Search can go here */}
               <div className="hidden lg:block">
                 <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  {location.pathname === '/dashboard' && 'Home'}
+                  {(location.pathname === '/home' || location.pathname === '/dashboard') && 'Home'}
                   {location.pathname.startsWith('/learning-path') && 'Learning Path'}
                   {location.pathname === '/threads' && 'Threads'}
                   {location.pathname === '/progress' && 'My Progress'}

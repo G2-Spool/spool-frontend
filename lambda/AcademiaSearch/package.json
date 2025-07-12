@@ -1,0 +1,24 @@
+{
+  "name": "academia-search-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function for academic topic analysis and vector search",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "package": "npm run build && zip -r academia-search.zip dist/ node_modules/",
+    "deploy": "aws lambda update-function-code --function-name AcademiaSearch --zip-file fileb://academia-search.zip"
+  },
+  "dependencies": {
+    "@pinecone-database/pinecone": "^2.0.0",
+    "openai": "^4.26.0",
+    "aws-sdk": "^2.1529.0",
+    "pg": "^8.11.3",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@types/pg": "^8.10.9",
+    "@types/uuid": "^9.0.7",
+    "typescript": "^5.3.3"
+  }
+}

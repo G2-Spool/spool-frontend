@@ -17,7 +17,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Home', href: '/dashboard', icon: Home },
+  { name: 'Home', href: '/home', icon: Home },
   { name: 'Threads', href: '/threads', icon: AudioWaveform },
   { name: 'Progress', href: '/progress', icon: TrendingUp },
 ];
@@ -36,7 +36,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   const location = useLocation();
 
   const isActive = (path: string) => {
-    if (path === '/dashboard' && location.pathname === '/dashboard') {
+    if (path === '/home' && (location.pathname === '/home' || location.pathname === '/dashboard')) {
       return true;
     }
     if (path === '/threads' && (location.pathname.startsWith('/threads') || location.pathname.startsWith('/learning-path') || location.pathname.startsWith('/thread'))) {
@@ -48,7 +48,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   return (
     <aside className="nav-sidebar">
       {/* Logo */}
-      <Link to="/dashboard" className="nav-logo">
+      <Link to="/home" className="nav-logo">
         <Spool className="logo-mark" />
         <span>Spool</span>
       </Link>

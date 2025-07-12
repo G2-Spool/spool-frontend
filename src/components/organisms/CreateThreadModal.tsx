@@ -13,6 +13,7 @@ interface CreateThreadModalProps {
   isOpen: boolean;
   onClose: () => void;
   onThreadCreated?: (threadId: string) => void;
+  initialQuestion?: string;
 }
 
 interface Interest {
@@ -25,6 +26,7 @@ export const CreateThreadModal: React.FC<CreateThreadModalProps> = ({
   isOpen,
   onClose,
   onThreadCreated,
+  initialQuestion,
 }) => {
   const { user, studentProfile } = useAuth();
   const navigate = useNavigate();
@@ -32,12 +34,17 @@ export const CreateThreadModal: React.FC<CreateThreadModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [userInterests, setUserInterests] = useState<Interest[]>([]);
 
-  // Load user interests when modal opens
+  // Load user interests and initial question when modal opens
   useEffect(() => {
-    if (isOpen && studentProfile?.interests) {
-      setUserInterests(studentProfile.interests || []);
+    if (isOpen) {
+      if (studentProfile?.interests) {
+        setUserInterests(studentProfile.interests || []);
+      }
+      if (initialQuestion) {
+        setInputValue(initialQuestion);
+      }
     }
-  }, [isOpen, studentProfile]);
+  }, [isOpen, studentProfile, initialQuestion]);
 
   const handleSubmit = async () => {
     if (!inputValue.trim() || isLoading) return;

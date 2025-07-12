@@ -53,7 +53,7 @@ export function OnboardingWizard() {
       const data = await api.get<{profile: any}>('/api/student-profile');
       if (data.profile && data.profile.interests && data.profile.interests.length > 0) {
         // User has completed onboarding
-        navigate('/dashboard');
+        navigate('/home');
       }
     } catch (error) {
       // Profile doesn't exist yet, continue with onboarding
@@ -103,7 +103,7 @@ export function OnboardingWizard() {
 
       toast.success('Welcome to Spool! Your personalized learning journey begins now.');
       await refreshUser();
-      navigate('/dashboard');
+      navigate('/home');
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast.error('Failed to complete onboarding. Please try again.');

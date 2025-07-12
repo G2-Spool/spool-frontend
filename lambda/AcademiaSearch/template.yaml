@@ -1,0 +1,138 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'AcademiaSearch Lambda function for academic topic analysis and vector search'
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: nodejs18.x
+    Environment:
+      Variables:
+        NODE_ENV: production
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues: [dev, staging, prod]
+    Description: Deployment environment
+
+Resources:
+  AcademiaSearchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'AcademiaSearch-${Environment}'
+      CodeUri: dist/
+      Handler: index.handler
+      Description: 'Lambda function for academic topic analysis and Pinecone vector search'
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          LOG_LEVEL: INFO
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+                - ssm:GetParameters
+              Resource: 
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/spool/*'
+            - Effect: Allow
+              Action:
+                - rds:DescribeDBInstances
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        AcademiaSearchApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref AcademiaSearchApi
+            Path: /api/academia-search/create-thread
+            Method: POST
+            Auth:
+              ApiKeyRequired: false
+
+  AcademiaSearchApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub 'academia-search-api-${Environment}'
+      StageName: !Ref Environment
+      Cors:
+        AllowMethods: "'POST, OPTIONS'"
+        AllowHeaders: "'Content-Type, Authorization, X-Requested-With'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+      GatewayResponses:
+        DEFAULT_4XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'Content-Type, Authorization, X-Requested-With'"
+        DEFAULT_5XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'Content-Type, Authorization, X-Requested-With'"
+
+  # CloudWatch Log Group for the Lambda function
+  AcademiaSearchLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/AcademiaSearch-${Environment}'
+      RetentionInDays: 14
+
+  # IAM Role for enhanced permissions (if needed)
+  AcademiaSearchExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'AcademiaSearchExecutionRole-${Environment}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: AcademiaSearchPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                Resource: 
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/spool/*'
+              - Effect: Allow
+                Action:
+                  - rds:DescribeDBInstances
+                Resource: '*'
+
+Outputs:
+  AcademiaSearchApi:
+    Description: 'API Gateway endpoint URL for AcademiaSearch function'
+    Value: !Sub 'https://${AcademiaSearchApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/api/academia-search/create-thread'
+    Export:
+      Name: !Sub 'AcademiaSearchApiUrl-${Environment}'
+
+  AcademiaSearchFunction:
+    Description: 'AcademiaSearch Lambda Function ARN'
+    Value: !GetAtt AcademiaSearchFunction.Arn
+    Export:
+      Name: !Sub 'AcademiaSearchFunctionArn-${Environment}'
+
+  AcademiaSearchApiId:
+    Description: 'API Gateway ID'
+    Value: !Ref AcademiaSearchApi
+    Export:
+      Name: !Sub 'AcademiaSearchApiId-${Environment}'
