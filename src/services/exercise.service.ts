@@ -114,6 +114,14 @@ class ExerciseService {
         difficulty: 'basic',
       };
 
+      console.log('🌐 Making API call to generate exercise:', {
+        conceptId: request.conceptId,
+        exerciseType: request.exerciseType,
+        url: `${this.baseUrl}/generate`,
+        stack: new Error().stack?.split('\n').slice(1,4),
+        timestamp: new Date().toISOString()
+      });
+
       const response = await fetch(`${this.baseUrl}/generate`, {
         method: 'POST',
         headers: {

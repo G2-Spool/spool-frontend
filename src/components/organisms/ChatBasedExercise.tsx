@@ -58,6 +58,15 @@ export const ChatBasedExercise: React.FC<ChatBasedExerciseProps> = ({
   studentProfile,
   onComplete,
 }: ChatBasedExerciseProps) => {
+  const componentId = useRef(`component-${Date.now()}-${Math.random()}`);
+  
+  console.log('🏗️ ChatBasedExercise render:', {
+    componentId: componentId.current,
+    conceptId,
+    conceptName,
+    timestamp: new Date().toISOString()
+  });
+
   const [stage, setStage] = useState<ExerciseStage>('initial');
   const [status, setStatus] = useState<ExerciseStatus>('ready');
   const [currentExercise, setCurrentExercise] = useState<LegacyExerciseGenerationResponse | null>(null);
@@ -67,8 +76,29 @@ export const ChatBasedExercise: React.FC<ChatBasedExerciseProps> = ({
   const [remediationAttempts, setRemediationAttempts] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [hintsUsed, setHintsUsed] = useState(0);
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const isGeneratingRef = useRef(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Component mount/unmount logging
+  useEffect(() => {
+    console.log('🚀 ChatBasedExercise component mounted:', {
+      componentId: componentId.current,
+      conceptId,
+      conceptName,
+      timestamp: new Date().toISOString()
+    });
+    
+    return () => {
+      console.log('💀 ChatBasedExercise component unmounted:', {
+        componentId: componentId.current,
+        conceptId,
+        conceptName,
+        timestamp: new Date().toISOString()
+      });
+    };
+  }, [conceptId, conceptName]);
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
@@ -77,7 +107,22 @@ export const ChatBasedExercise: React.FC<ChatBasedExerciseProps> = ({
 
   // Auto-start exercise when component mounts (only once)
   useEffect(() => {
-    if (!currentExercise && status === 'ready') {
+    console.log('🔄 useEffect triggered:', {
+      componentId: componentId.current,
+      hasInitialized,
+      currentExercise: !!currentExercise,
+      status,
+      isGenerating: isGeneratingRef.current,
+      timestamp: new Date().toISOString()
+    });
+    
+    if (!hasInitialized && !currentExercise && status === 'ready' && !isGeneratingRef.current) {
+      console.log('✅ Starting exercise generation from useEffect:', {
+        componentId: componentId.current,
+        conceptId,
+        timestamp: new Date().toISOString()
+      });
+      setHasInitialized(true);
       generateExercise('initial');
     }
   }, []); // Empty dependency array - only run once on mount
@@ -133,8 +178,28 @@ export const ChatBasedExercise: React.FC<ChatBasedExerciseProps> = ({
 
   const generateExercise = async (exerciseType: 'initial' | 'advanced') => {
     // Prevent multiple concurrent calls
-    if (status === 'loading') return;
+    if (status === 'loading' || isGeneratingRef.current) {
+      console.log('🚫 Blocked duplicate generateExercise call:', {
+        componentId: componentId.current,
+        exerciseType,
+        status,
+        isGenerating: isGeneratingRef.current,
+        timestamp: new Date().toISOString()
+      });
+      return;
+    }
     
+    console.log('🎯 generateExercise called:', {
+      componentId: componentId.current,
+      exerciseType,
+      conceptId,
+      status,
+      hasInitialized,
+      currentExercise: !!currentExercise,
+      timestamp: new Date().toISOString()
+    });
+    
+    isGeneratingRef.current = true;
     setStatus('loading');
     try {
       const exercise = await exerciseService.generateExercise({
@@ -170,6 +235,9 @@ Take your time to think through this step-by-step. You can submit individual ste
     } catch (error) {
       console.error('Failed to generate exercise:', error);
       setStatus('error');
+    } finally {
+      // Always reset the generating flag
+      isGeneratingRef.current = false;
     }
   };
 
@@ -203,6 +271,9 @@ Take your time to think through this step-by-step. You can submit individual ste
 
   const getHint = async () => {
     if (!currentExercise) return;
+    
+    // Prevent multiple concurrent calls
+    if (status === 'thinking') return;
 
     setStatus('thinking');
     
@@ -235,6 +306,9 @@ Try applying this guidance to move forward with your solution.`);
 
   const submitAnswer = async () => {
     if (!currentExercise || !currentInput.trim()) return;
+    
+    // Prevent multiple concurrent calls
+    if (status === 'evaluating') return;
 
     // Add student's complete answer to chat
     addMessage({
@@ -580,6 +654,7 @@ I'll guide you through this step by step. Take it slow and think out loud - shar
             setCompletedSteps([]);
             setHintsUsed(0);
             setRemediationAttempts(0);
+            setHasInitialized(false);
           }}
         >
           <RotateCcw className="h-5 w-5 mr-2" />

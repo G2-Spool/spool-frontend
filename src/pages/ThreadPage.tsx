@@ -62,6 +62,18 @@ export const ThreadPage: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [showExercise, selectedSection, sectionProgress]);
+
+  // Log when ChatBasedExercise is about to be rendered
+  useEffect(() => {
+    if (showExercise && selectedSection && sectionProgress[selectedSection] === 'exercising') {
+      console.log('🎪 ThreadPage about to render ChatBasedExercise:', {
+        selectedSection,
+        showExercise,
+        sectionStatus: sectionProgress[selectedSection],
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, [showExercise, selectedSection, sectionProgress]);
   
   const toggleSectionExpanded = (sectionId: string) => {
     const newExpanded = new Set(expandedSections);
