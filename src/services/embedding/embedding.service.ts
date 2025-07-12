@@ -20,7 +20,7 @@ export class EmbeddingService {
     apiKey?: string,
     model: string = 'text-embedding-ada-002'
   ) {
-    this.apiKey = apiKey || process.env.OPENAI_API_KEY || '';
+    this.apiKey = apiKey || import.meta.env.VITE_OPENAI_API_KEY || '';
     this.model = model;
     this.apiUrl = 'https://api.openai.com/v1/embeddings';
   }

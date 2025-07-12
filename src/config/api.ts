@@ -21,11 +21,11 @@ export const THREAD_ENDPOINTS = {
 // ===== SPOOL-GITHUB MICROSERVICE ENDPOINTS =====
 // API Service URLs (migrated from Spool-GitHub)
 export const API_SERVICES = {
-  AUTH: process.env.VITE_AUTH_SERVICE_URL || 'http://localhost:3001',
-  CONTENT: process.env.VITE_CONTENT_SERVICE_URL || 'http://localhost:3002',
-  EXERCISE: process.env.VITE_EXERCISE_SERVICE_URL || 'http://localhost:3003',
-  PROGRESS: process.env.VITE_PROGRESS_SERVICE_URL || 'http://localhost:3004',
-  INTERVIEW: process.env.VITE_INTERVIEW_SERVICE_URL || 'http://localhost:8080',
+  AUTH: import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:3001',
+  CONTENT: import.meta.env.VITE_CONTENT_SERVICE_URL || 'http://localhost:3002',
+  EXERCISE: import.meta.env.VITE_EXERCISE_SERVICE_URL || 'http://localhost:3003',
+  PROGRESS: import.meta.env.VITE_PROGRESS_SERVICE_URL || 'http://localhost:3004',
+  INTERVIEW: import.meta.env.VITE_INTERVIEW_SERVICE_URL || 'http://localhost:8080',
 } as const;
 
 // Microservice API Endpoints
