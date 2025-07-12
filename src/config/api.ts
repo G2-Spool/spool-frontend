@@ -77,4 +77,9 @@ export const API_ENDPOINTS = {
     all: '/api/content/books',
     byId: '/api/content/books/:id',
   },
+  
+  // Academia Search
+  academiaSearch: {
+    createThread: '/api/academia-search/create-thread',
+  },
 };

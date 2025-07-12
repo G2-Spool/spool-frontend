@@ -46,15 +46,22 @@ export const CreateThreadModal: React.FC<CreateThreadModalProps> = ({
     setIsLoading(true);
 
     try {
-      console.log('🚀 Creating thread with question:', question);
+      console.log('🚀 Creating thread with AcademiaSearch:', question);
 
-      // Create thread directly via threads endpoint
+      // Call AcademiaSearch lambda to create thread
       const response = await api.post<{
         threadId: string;
         message: string;
-      }>('/threads', {
-        userInput: question,
+        topic?: string;
+        category?: string;
+      }>(API_ENDPOINTS.academiaSearch.createThread, {
+        question: question,
         studentId: user?.id,
+        studentProfile: {
+          interests: userInterests,
+          firstName: studentProfile?.firstName,
+          grade: studentProfile?.grade,
+        },
       });
 
       console.log('Thread created successfully:', response);
@@ -74,43 +81,9 @@ export const CreateThreadModal: React.FC<CreateThreadModalProps> = ({
     } catch (error: any) {
       console.error('Failed to create thread:', error);
       
-      // Fallback to interview endpoint if threads endpoint fails
-      try {
-        console.log('Trying interview endpoint as fallback...');
-        
-        // Start interview session
-        const sessionResponse = await api.post<{ sessionId: string }>(
-          API_ENDPOINTS.interview.start,
-          {
-            studentId: user?.id,
-            type: 'text',
-            mode: 'thread',
-            purpose: 'create_learning_thread',
-          }
-        );
-
-        // Send the question
-        const messageResponse = await api.post<{
-          threadId?: string;
-          threadCreated?: boolean;
-        }>(`/api/interview/${sessionResponse.sessionId}/message`, {
-          message: question,
-          mode: 'thread',
-        });
-
-        if (messageResponse.threadCreated && messageResponse.threadId) {
-          toast.success('Learning thread created successfully!');
-          onThreadCreated?.(messageResponse.threadId);
-          
-          setTimeout(() => {
-            navigate(`/thread/${messageResponse.threadId}`);
-            onClose();
-          }, 500);
-        }
-      } catch (fallbackError) {
-        console.error('Fallback also failed:', fallbackError);
-        toast.error('Failed to create thread. Please try again.');
-      }
+      // Show user-friendly error message
+      const errorMessage = error.response?.data?.message || 'Failed to create thread. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
