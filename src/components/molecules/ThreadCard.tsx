@@ -7,7 +7,8 @@ import {
   Brain, 
   Clock,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  BookOpen
 } from 'lucide-react';
 
 interface ThreadCardProps {
@@ -29,7 +30,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   analysis,
   sectionCount,
   createdAt,
-  estimatedReadTime = 15
+  estimatedReadTime
 }) => {
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -42,73 +43,77 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
     return date.toLocaleDateString();
   };
   
+  // Calculate actual read time from sections if not provided
+  const readTime = estimatedReadTime || sectionCount * 8;
+  
   return (
     <Link
       to={`/thread/${threadId}`}
       className="block hover:scale-[1.02] transition-transform"
     >
       <Card className="h-full hover:shadow-md transition-shadow border-l-4 border-l-personal">
-        <div className="p-5">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-personal" />
-              <span className="text-sm font-medium text-personal">Learning Thread</span>
+        <div className="p-4 sm:p-6 space-y-4">
+          {/* User Question */}
+          <div className="space-y-2">
+            <div className="flex items-start gap-2">
+              <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+              <h3 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-2">
+                {userInput}
+              </h3>
             </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">{formatTimeAgo(createdAt)}</span>
-          </div>
-          
-          {/* User Query */}
-          <div className="mb-3">
-            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2 italic">
-              "{userInput}"
-            </p>
           </div>
           
           {/* AI Analysis Summary */}
-          <div className="mb-3 p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg">
+          <div className="space-y-2">
             <div className="flex items-start gap-2">
-              <Brain className="h-4 w-4 text-teal-600 dark:text-teal-400 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-xs text-teal-800 dark:text-teal-300 line-clamp-2">
-                  {analysis.summary}
-                </p>
-              </div>
+              <Brain className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                {analysis.summary}
+              </p>
             </div>
           </div>
           
-          {/* Subject Tags */}
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {analysis.subjects.slice(0, 2).map((subject, idx) => (
-              <Badge key={idx} variant="primary" size="sm">
-                {subject}
-              </Badge>
-            ))}
-            {analysis.topics.slice(0, 2).map((topic, idx) => (
-              <Badge key={idx} variant="default" size="sm">
-                {topic}
-              </Badge>
-            ))}
-            {analysis.subjects.length + analysis.topics.length > 4 && (
-              <Badge variant="default" size="sm">
-                +{analysis.subjects.length + analysis.topics.length - 4}
-              </Badge>
-            )}
-          </div>
+          {/* Subject Badges */}
+          {analysis.subjects.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {analysis.subjects.slice(0, 3).map((subject, index) => (
+                <Badge 
+                  key={index} 
+                  variant="outline" 
+                  className="text-xs"
+                >
+                  {subject}
+                </Badge>
+              ))}
+              {analysis.subjects.length > 3 && (
+                <Badge variant="outline" className="text-xs">
+                  +{analysis.subjects.length - 3}
+                </Badge>
+              )}
+            </div>
+          )}
           
-          {/* Footer */}
-          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+          {/* Thread Metadata */}
+          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1">
-                <Sparkles className="h-4 w-4" />
-                <span>{sectionCount} sections</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>{estimatedReadTime} min</span>
-              </div>
+              <span className="flex items-center gap-1">
+                <BookOpen className="w-3 h-3" />
+                {sectionCount} sections
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {readTime} min
+              </span>
             </div>
-            <ArrowRight className="h-4 w-4 text-personal" />
+            <div className="flex items-center gap-1">
+              <Sparkles className="w-3 h-3" />
+              <span>{formatTimeAgo(createdAt)}</span>
+            </div>
+          </div>
+          
+          {/* Hover Indicator */}
+          <div className="flex justify-end pt-2">
+            <ArrowRight className="w-4 h-4 text-personal opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
       </Card>

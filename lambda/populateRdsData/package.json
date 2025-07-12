@@ -1,0 +1,10 @@
+{
+  "name": "populate-rds-data",
+  "version": "1.0.0",
+  "description": "Lambda function to populate RDS with thread data",
+  "main": "index.js",
+  "dependencies": {
+    "pg": "^8.11.3",
+    "aws-sdk": "^2.1450.0"
+  }
+}
