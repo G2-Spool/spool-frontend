@@ -18,7 +18,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { exerciseService } from '../../services/exercise.service';
-import type { ExerciseGenerationResponse, ExerciseEvaluationResponse } from '../../services/exercise.service';
+import type { LegacyExerciseGenerationResponse, ExerciseEvaluationResponse } from '../../services/exercise.service';
 import { cn } from '../../utils/cn';
 
 interface ChatBasedExerciseProps {
@@ -34,7 +34,7 @@ interface ChatBasedExerciseProps {
 }
 
 type ExerciseStage = 'initial' | 'advanced' | 'complete';
-type ExerciseStatus = 'ready' | 'loading' | 'answering' | 'evaluating' | 'remediation' | 'thinking';
+type ExerciseStatus = 'ready' | 'loading' | 'answering' | 'evaluating' | 'remediation' | 'thinking' | 'error';
 
 interface ChatMessage {
   id: string;
@@ -60,7 +60,7 @@ export const ChatBasedExercise: React.FC<ChatBasedExerciseProps> = ({
 }: ChatBasedExerciseProps) => {
   const [stage, setStage] = useState<ExerciseStage>('initial');
   const [status, setStatus] = useState<ExerciseStatus>('ready');
-  const [currentExercise, setCurrentExercise] = useState<ExerciseGenerationResponse | null>(null);
+  const [currentExercise, setCurrentExercise] = useState<LegacyExerciseGenerationResponse | null>(null);
   const [evaluation, setEvaluation] = useState<ExerciseEvaluationResponse | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [currentInput, setCurrentInput] = useState('');
@@ -74,6 +74,13 @@ export const ChatBasedExercise: React.FC<ChatBasedExerciseProps> = ({
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
+
+  // Auto-start exercise when component mounts (only once)
+  useEffect(() => {
+    if (!currentExercise && status === 'ready') {
+      generateExercise('initial');
+    }
+  }, []); // Empty dependency array - only run once on mount
 
   const addMessage = (message: Omit<ChatMessage, 'id' | 'timestamp'>) => {
     setChatMessages((prev: ChatMessage[]) => [...prev, {
@@ -125,6 +132,9 @@ export const ChatBasedExercise: React.FC<ChatBasedExerciseProps> = ({
   };
 
   const generateExercise = async (exerciseType: 'initial' | 'advanced') => {
+    // Prevent multiple concurrent calls
+    if (status === 'loading') return;
+    
     setStatus('loading');
     try {
       const exercise = await exerciseService.generateExercise({
@@ -136,7 +146,6 @@ export const ChatBasedExercise: React.FC<ChatBasedExerciseProps> = ({
       });
       
       setCurrentExercise(exercise);
-      setStatus('answering');
       setCurrentInput('');
       setEvaluation(null);
       setHintsUsed(0);
@@ -155,13 +164,12 @@ Take your time to think through this step-by-step. You can submit individual ste
         content: exerciseMessage,
       });
 
+      // Set to answering after everything is ready
+      setStatus('answering');
+
     } catch (error) {
       console.error('Failed to generate exercise:', error);
-      setStatus('ready');
-      addMessage({
-        type: 'system',
-        content: 'Sorry, I encountered an error generating the exercise. Please try again.',
-      });
+      setStatus('error');
     }
   };
 
@@ -199,32 +207,10 @@ Take your time to think through this step-by-step. You can submit individual ste
     setStatus('thinking');
     
     try {
-      // Get chat context for more targeted hints
-      const chatContext = chatMessages
-        .filter(msg => msg.type === 'student' || msg.type === 'step')
-        .map(msg => msg.content);
-
-      const hintResponse = await exerciseService.getHint(
-        currentExercise.exerciseId,
-        hintsUsed,
-        chatContext
-      );
-
-      setHintsUsed((prev: number) => prev + 1);
-
-      await simulateThinking(`💡 **Hint ${hintsUsed + 1}**
-
-${hintResponse.hint}
-
-Try applying this guidance to move forward with your solution.`);
-      
-      setStatus('answering');
-    } catch (error) {
-      console.error('Failed to get hint:', error);
-      
-      // Fallback to exercise hints
-      const hintIndex = Math.min(hintsUsed, (currentExercise.expectedSteps || []).length - 1);
-      const hint = currentExercise.expectedSteps?.[hintIndex] || "Think about breaking the problem into smaller parts.";
+      // Use hints from the exercise response
+      const availableHints = currentExercise.hints || [];
+      const hintIndex = Math.min(hintsUsed, availableHints.length - 1);
+      const hint = availableHints[hintIndex] || "Think about breaking the problem into smaller parts and check your constraints.";
 
       setHintsUsed((prev: number) => prev + 1);
 
@@ -233,6 +219,15 @@ Try applying this guidance to move forward with your solution.`);
 ${hint}
 
 Try applying this guidance to move forward with your solution.`);
+      
+      setStatus('answering');
+    } catch (error) {
+      console.error('Failed to get hint:', error);
+      
+      addMessage({
+        type: 'assistant',
+        content: 'Sorry, I had trouble getting a hint right now. Try continuing with your solution or ask for help in a different way.',
+      });
       
       setStatus('answering');
     }
@@ -404,16 +399,22 @@ I'll guide you through this step by step. Take it slow and think out loud - shar
         <div ref={chatEndRef} />
       </div>
 
-      {/* Input Area */}
-      {status === 'answering' && (
+      {/* Input Area - Always visible when exercise exists */}
+      {currentExercise && (
         <div className="border-t p-4 bg-gray-50 dark:bg-gray-800">
           <div className="flex flex-col space-y-3">
             <textarea
               value={currentInput}
               onChange={(e) => setCurrentInput(e.target.value)}
-              placeholder="Type your response, ask a question, or work through the problem step by step..."
+              placeholder={
+                status === 'thinking' ? "Processing your previous input..." :
+                status === 'loading' ? "Generating exercise..." :
+                status === 'evaluating' ? "Evaluating your response..." :
+                "Type your response, ask a question, or work through the problem step by step..."
+              }
               className="w-full p-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg resize-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               rows={3}
+              disabled={status === 'thinking' || status === 'loading' || status === 'evaluating'}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && e.shiftKey) {
                   // Allow new line with Shift+Enter
@@ -425,7 +426,7 @@ I'll guide you through this step by step. Take it slow and think out loud - shar
               }}
             />
             
-            {/* Three Button System */}
+            {/* Three Button System - Always visible */}
             <div className="flex justify-between items-center">
               {/* Get Hint - Bottom Left */}
               <Button
@@ -433,7 +434,7 @@ I'll guide you through this step by step. Take it slow and think out loud - shar
                 size="sm"
                 onClick={getHint}
                 className="flex items-center gap-2"
-                disabled={!currentExercise}
+                disabled={!currentExercise || status === 'thinking' || status === 'loading' || status === 'evaluating'}
               >
                 <Lightbulb className="h-4 w-4" />
                 Get Hint
@@ -445,7 +446,7 @@ I'll guide you through this step by step. Take it slow and think out loud - shar
                   variant="outline"
                   size="sm"
                   onClick={submitStep}
-                  disabled={!currentInput.trim()}
+                  disabled={!currentInput.trim() || status === 'thinking' || status === 'loading' || status === 'evaluating'}
                   className="flex items-center gap-2"
                 >
                   <PlusCircle className="h-4 w-4" />
@@ -455,7 +456,7 @@ I'll guide you through this step by step. Take it slow and think out loud - shar
                   variant="primary"
                   size="sm"
                   onClick={submitAnswer}
-                  disabled={!currentInput.trim()}
+                  disabled={!currentInput.trim() || status === 'thinking' || status === 'loading' || status === 'evaluating'}
                   className="flex items-center gap-2"
                 >
                   <Send className="h-4 w-4" />
@@ -463,6 +464,16 @@ I'll guide you through this step by step. Take it slow and think out loud - shar
                 </Button>
               </div>
             </div>
+
+            {/* Status indicator */}
+            {(status === 'thinking' || status === 'loading' || status === 'evaluating') && (
+              <div className="flex items-center justify-center py-2 text-sm text-gray-500">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-500 mr-2" />
+                {status === 'thinking' && 'Thinking...'}
+                {status === 'loading' && 'Loading...'}
+                {status === 'evaluating' && 'Evaluating your response...'}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -616,26 +627,37 @@ I'll guide you through this step by step. Take it slow and think out loud - shar
             {renderChatInterface()}
           </Card>
 
-          {/* Start Exercise Button */}
-          {!currentExercise && status === 'ready' && (
+          {/* Loading state while generating exercise */}
+          {!currentExercise && status === 'loading' && (
             <div className="text-center py-12">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => generateExercise(stage === 'initial' ? 'initial' : 'advanced')}
-                disabled={status === 'loading'}
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400">
+                Generating your personalized {stage === 'initial' ? 'initial' : 'advanced'} exercise...
+              </p>
+            </div>
+          )}
+
+          {/* Error state */}
+          {!currentExercise && status === 'error' && (
+            <div className="text-center py-12">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full mb-4">
+                <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                Exercise Generation Failed
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                We encountered an issue creating your exercise. This might be a temporary problem.
+              </p>
+              <Button 
+                variant="primary" 
+                onClick={() => {
+                  setStatus('ready');
+                  generateExercise(stage === 'initial' ? 'initial' : 'advanced');
+                }}
               >
-                {status === 'loading' ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                    Generating Exercise...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-5 w-5 mr-2" />
-                    Start {stage === 'initial' ? 'Initial' : 'Advanced'} Exercise
-                  </>
-                )}
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Try Again
               </Button>
             </div>
           )}
