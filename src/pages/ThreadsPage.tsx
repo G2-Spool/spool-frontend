@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card } from '../components/atoms/Card';
 import { Badge } from '../components/atoms/Badge';
 import { ProgressBar } from '../components/molecules/ProgressBar';
 import { Button } from '../components/atoms/Button';
-import { TextbookCard } from '../components/molecules/TextbookCard';
 import { 
   Clock, 
   Trophy, 
@@ -17,10 +16,10 @@ import {
 } from 'lucide-react';
 import type { LifeCategory } from '../types';
 import { useCourses, useCourseSearch } from '../hooks/useCourses';
-import { useTextbooks } from '../hooks/useTextbooks';
 import { useUserThreads } from '../hooks/useThread';
 import { ThreadCard } from '../components/molecules/ThreadCard';
 import { InterviewModal } from '../components/organisms/InterviewModal';
+import { SubjectCarousel } from '../components/organisms/SubjectCarousel';
 import type { FilterMetadata } from '../services/pinecone/types';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -58,6 +57,7 @@ export const ThreadsPage: React.FC = () => {
   // Get current user
   const { user } = useAuth();
   const userId = user?.id || 'anonymous';
+  const navigate = useNavigate();
   
   // Debounce search query
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -80,12 +80,7 @@ export const ThreadsPage: React.FC = () => {
     debouncedSearchQuery.length > 2
   );
   
-  // Fetch textbooks
-  const { 
-    data: textbooks, 
-    isLoading: isLoadingTextbooks,
-    error: textbooksError 
-  } = useTextbooks();
+
   
   // Fetch user threads
   const { 
@@ -112,6 +107,97 @@ export const ThreadsPage: React.FC = () => {
       </div>
     </Card>
   );
+
+  // Subjects data for core subjects section
+  const subjectsData = [
+    {
+      title: "Mathematics",
+      color: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      topics: [
+        {
+          id: "college-algebra",
+          title: "College Algebra",
+          description: "Master algebraic concepts and problem-solving techniques",
+          sections: 9,
+          concepts: 57,
+          progress: 12
+        },
+        {
+          id: "statistics",
+          title: "Introductory Statistics",
+          description: "Learn statistical analysis and data interpretation",
+          sections: 13,
+          concepts: 80,
+          progress: 0
+        }
+      ]
+    },
+    {
+      title: "Humanities",
+      color: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+      topics: [
+        {
+          id: "writing",
+          title: "Writing Guide",
+          description: "Develop your writing skills and communication abilities",
+          sections: 20,
+          concepts: 163,
+          progress: 0
+        },
+        {
+          id: "philosophy",
+          title: "Introduction to Philosophy",
+          description: "Explore fundamental questions about existence and knowledge",
+          sections: 12,
+          concepts: 53,
+          progress: 0
+        },
+        {
+          id: "world-history",
+          title: "World History, Volume 2: from 1400",
+          description: "Journey through major events and civilizations",
+          sections: 15,
+          concepts: 60,
+          progress: 0
+        }
+      ]
+    },
+    {
+      title: "Science",
+      color: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+      topics: [
+        {
+          id: "biology",
+          title: "Biology",
+          description: "Study living organisms and their interactions with the environment",
+          sections: 10,
+          concepts: 45,
+          progress: 0
+        },
+        {
+          id: "anatomy",
+          title: "Anatomy and Physiology",
+          description: "Learn about the structure and organization of the human body",
+          sections: 12,
+          concepts: 58,
+          progress: 0
+        }
+      ]
+    }
+  ];
+
+  // Handlers for topic interactions
+  const handleTopicClick = (topicId: string) => {
+    console.log('Topic clicked:', topicId);
+    // Navigate to topic overview
+    navigate(`/topic/${topicId}`);
+  };
+
+  const handlePlayClick = (topicId: string) => {
+    console.log('Play clicked:', topicId);
+    // Navigate to learning page for the topic
+    navigate(`/learn/${topicId}`);
+  };
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -364,41 +450,27 @@ export const ThreadsPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Core Subjects (Textbooks) */}
-      <section>
-        <h2 className="text-xl font-semibold text-obsidian mb-6">Explore Core Subjects</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {isLoadingTextbooks ? (
-            // Loading skeletons
-            Array.from({ length: 8 }).map((_, index) => (
-              <CourseCardSkeleton key={index} />
-            ))
-          ) : textbooksError ? (
-            // Error state
-            <div className="col-span-full text-center py-12">
-              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <p className="text-gray-600">Failed to load textbooks.</p>
-              <p className="text-gray-400 text-sm mt-1">Please try again later.</p>
-            </div>
-          ) : !textbooks || !Array.isArray(textbooks) || textbooks.length === 0 ? (
-            // Empty state
-            <div className="col-span-full text-center py-12">
-              <p className="text-gray-500">No textbooks available yet.</p>
-              <p className="text-gray-400 text-sm mt-1">Check back soon for core subjects.</p>
-            </div>
-          ) : (
-            // Textbook cards
-            textbooks.map((textbook) => (
-              <TextbookCard
-                key={textbook.id}
-                textbook={textbook}
-                onClick={() => {
-                  // Navigate to learning path or create course from textbook
-                  console.log('Selected textbook:', textbook.id);
-                }}
-              />
-            ))
-          )}
+      {/* Core Subjects (My Classes) */}
+      <section className="space-y-12">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-obsidian dark:text-gray-100">Explore Core Subjects</h2>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">Browse subjects and track your learning progress</p>
+          </div>
+        </div>
+        
+        {/* Subject Carousels */}
+        <div className="space-y-16">
+          {subjectsData.map((subject) => (
+            <SubjectCarousel
+              key={subject.title}
+              title={subject.title}
+              topics={subject.topics}
+              color={subject.color}
+              onTopicClick={handleTopicClick}
+              onPlayClick={handlePlayClick}
+            />
+          ))}
         </div>
         
         {/* Pagination */}
