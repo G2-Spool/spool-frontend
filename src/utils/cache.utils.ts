@@ -5,7 +5,7 @@ export const cacheKeys = {
   courses: {
     all: ['courses'] as const,
     lists: () => [...cacheKeys.courses.all, 'list'] as const,
-    list: (filters: any) => [...cacheKeys.courses.lists(), filters] as const,
+    list: (filters: Record<string, unknown>) => [...cacheKeys.courses.lists(), filters] as const,
     details: () => [...cacheKeys.courses.all, 'detail'] as const,
     detail: (id: string) => [...cacheKeys.courses.details(), id] as const,
     search: (query: string) => [...cacheKeys.courses.all, 'search', query] as const,
@@ -14,7 +14,7 @@ export const cacheKeys = {
   learningPaths: {
     all: ['learning-paths'] as const,
     lists: () => [...cacheKeys.learningPaths.all, 'list'] as const,
-    list: (filters: any) => [...cacheKeys.learningPaths.lists(), filters] as const,
+    list: (filters: Record<string, unknown>) => [...cacheKeys.learningPaths.lists(), filters] as const,
     details: () => [...cacheKeys.learningPaths.all, 'detail'] as const,
     detail: (id: string) => [...cacheKeys.learningPaths.details(), id] as const,
     search: (query: string) => [...cacheKeys.learningPaths.all, 'search', query] as const,
@@ -41,7 +41,7 @@ export const invalidateQueries = {
 export const optimisticUpdates = {
   enrollCourse: (queryClient: QueryClient, courseId: string) => {
     // Update the course detail to show enrolled status
-    queryClient.setQueryData(cacheKeys.courses.detail(courseId), (old: any) => {
+    queryClient.setQueryData(cacheKeys.courses.detail(courseId), (old: unknown) => {
       if (!old) return old;
       return {
         ...old,
@@ -51,11 +51,11 @@ export const optimisticUpdates = {
     });
 
     // Update the courses list
-    queryClient.setQueryData(cacheKeys.courses.lists(), (old: any) => {
+    queryClient.setQueryData(cacheKeys.courses.lists(), (old: unknown) => {
       if (!old?.data) return old;
       return {
         ...old,
-        data: old.data.map((course: any) =>
+        data: old.data.map((course: Record<string, unknown>) =>
           course.id === courseId
             ? { ...course, enrolled: true, students: (course.students || 0) + 1 }
             : course
@@ -68,17 +68,17 @@ export const optimisticUpdates = {
     queryClient: QueryClient,
     pathId: string,
     conceptId: string,
-    progress: any
+    progress: Record<string, unknown>
   ) => {
-    queryClient.setQueryData(cacheKeys.learningPaths.detail(pathId), (old: any) => {
+    queryClient.setQueryData(cacheKeys.learningPaths.detail(pathId), (old: unknown) => {
       if (!old) return old;
       
       // Deep clone and update the specific concept progress
       const updated = JSON.parse(JSON.stringify(old));
       
       // Find and update the concept
-      updated.sections?.forEach((section: any) => {
-        section.concepts?.forEach((concept: any) => {
+      updated.sections?.forEach((section: Record<string, unknown>) => {
+        section.concepts?.forEach((concept: Record<string, unknown>) => {
           if (concept.id === conceptId) {
             concept.progress = { ...concept.progress, ...progress };
           }
@@ -140,7 +140,7 @@ export const persistCache = {
       if (!saved) return;
       
       const cache = JSON.parse(saved);
-      cache.forEach((item: any) => {
+      cache.forEach((item: Record<string, unknown>) => {
         if (item.state?.data) {
           queryClient.setQueryData(item.queryKey, item.state.data);
         }

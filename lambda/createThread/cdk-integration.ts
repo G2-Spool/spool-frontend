@@ -3,7 +3,7 @@
 
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
-import * as iam from 'aws-cdk-lib/aws-iam';
+// Removed unused import: import * as iam from 'aws-cdk-lib/aws-iam';
 
 export function addThreadEndpoints(
   api: apigateway.RestApi,

@@ -14,13 +14,13 @@ export type ErrorType = typeof ErrorType[keyof typeof ErrorType];
 export interface AppError extends Error {
   type: ErrorType;
   statusCode?: number;
-  details?: any;
+  details?: Record<string, unknown>;
   retryable?: boolean;
 }
 
 // Error factory for creating typed errors
 export class ErrorFactory {
-  static create(error: any): AppError {
+  static create(error: unknown): AppError {
     const appError = new Error() as AppError;
     
     // Handle axios errors

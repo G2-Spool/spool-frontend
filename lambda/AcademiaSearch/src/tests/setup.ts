@@ -1,5 +1,5 @@
 // Test setup file
-import { logger } from '../utils/Logger';
+// Removed unused import: import { logger } from '../utils/Logger';
 
 // Mock console methods to reduce noise during tests
 global.console = {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   Home,
@@ -7,17 +7,13 @@ import {
   LogOut,
   Menu,
   X,
-  // Flame, // TODO: Uncomment when student features are enabled
-  // Trophy, // TODO: Uncomment when student features are enabled
   MessageCircle,
-  BarChart3,
-  Spool,
 } from 'lucide-react';
 import { Button } from '../atoms/Button';
 import { SidebarNav } from '../molecules/SidebarNav';
 
 export const DashboardLayout: React.FC = () => {
-  const { user, studentProfile, logout } = useAuth();
+  const { studentProfile, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -32,13 +28,15 @@ export const DashboardLayout: React.FC = () => {
   };
 
 
-  const navigation = [
-    { name: 'Home', href: '/dashboard', icon: Home },
-    { name: 'Voice Interview', href: '/interview', icon: MessageCircle },
-    { name: 'Profile', href: '/profile', icon: User },
-  ];
+  // Navigation items available for future use
+  // const navigation = [
+  //   { name: 'Home', href: '/dashboard', icon: Home },
+  //   { name: 'Voice Interview', href: '/interview', icon: MessageCircle },
+  //   { name: 'Profile', href: '/profile', icon: User },
+  // ];
 
-  const isActive = (path: string) => location.pathname === path;
+  // Helper function available for future use
+  // const isActive = (path: string) => location.pathname === path;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-obsidian flex">

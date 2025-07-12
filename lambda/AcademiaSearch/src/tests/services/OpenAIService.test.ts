@@ -5,10 +5,10 @@ jest.mock('openai');
 
 describe('OpenAIService', () => {
   let service: OpenAIService;
-  let mockOpenAI: any;
+  let mockOpenAI: Record<string, unknown>;
 
   beforeEach(() => {
-    const OpenAI = require('openai');
+    import('openai');
     mockOpenAI = {
       chat: {
         completions: {

@@ -7,8 +7,8 @@ import toast from 'react-hot-toast';
 
 interface InterestDiscoveryProps {
   onNext: () => void;
-  onUpdate: (data: any) => void;
-  data: any;
+  onUpdate: (data: Record<string, unknown>) => void;
+  data: Record<string, unknown>;
 }
 
 interface Interest {
