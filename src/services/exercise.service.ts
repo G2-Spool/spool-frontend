@@ -174,20 +174,44 @@ class ExerciseService {
 
   async evaluateExercise(request: ExerciseEvaluationRequest): Promise<ExerciseEvaluationResponse> {
     try {
+      // Transform to backend API format
+      const backendRequest = {
+        exercise_id: request.exerciseId,
+        student_id: 'student_123', // TODO: Get from auth context
+        response_text: request.studentResponse,
+      };
+
       const response = await fetch(`${this.baseUrl}/evaluate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('idToken')}`,
         },
-        body: JSON.stringify(request),
+        body: JSON.stringify(backendRequest),
       });
 
       if (!response.ok) {
         throw new Error(`Failed to evaluate exercise: ${response.statusText}`);
       }
 
-      return await response.json();
+      const backendResponse = await response.json();
+      
+      // Transform backend response to frontend format
+      const evaluation = backendResponse.evaluation;
+      const competencyMap = evaluation.competency_map;
+      
+      return {
+        evaluationId: evaluation.evaluation_id,
+        identifiedSteps: competencyMap.correct_steps,
+        missingSteps: competencyMap.missing_steps,
+        incorrectSteps: competencyMap.incorrect_steps,
+        stepsCorrect: competencyMap.correct_steps.length,
+        stepsTotal: competencyMap.correct_steps.length + competencyMap.missing_steps.length,
+        competencyScore: evaluation.understanding_score,
+        feedback: evaluation.feedback,
+        remediationNeeded: evaluation.needs_remediation,
+        remediationFocus: evaluation.first_gap,
+      };
     } catch (error) {
       console.error('Error evaluating exercise:', error);
       throw error;
