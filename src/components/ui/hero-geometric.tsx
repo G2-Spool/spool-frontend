@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button } from '../atoms/Button';
 import { ArrowRight } from 'lucide-react';
 

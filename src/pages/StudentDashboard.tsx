@@ -10,7 +10,6 @@ import { ExpandableStatsCard } from '../components/molecules/ExpandableStatsCard
 import { StreakDisplay } from '../components/molecules/StreakDisplay';
 import { InterestBubble } from '../components/molecules/InterestBubble';
 import { LearningPathSkeleton } from '../components/LoadingStates/LearningPathSkeleton';
-import { CreateThreadModal } from '../components/organisms/CreateThreadModal';
 import { InterviewModal } from '../components/organisms/InterviewModal';
 import { 
   BookOpen, 
@@ -28,7 +27,7 @@ export const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { studentProfile, user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<LifeCategory | 'all'>('all');
-  const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
+  const [, ] = useState(false);
   const [showInterviewModal, setShowInterviewModal] = useState(false);
   
   // Fetch real data from API

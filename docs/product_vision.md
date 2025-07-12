@@ -18,20 +18,20 @@ Spool is an AI-powered personalized learning platform that transforms how studen
 
 ### Core Stack:
 - **Frontend:** React 18 with TypeScript for robust, maintainable user interfaces
-- **API Gateway:** AWS API Gateway (managed service) for routing, authentication, and scalability
-- **Backend Framework:** FastAPI (Python) for all microservices - delivering high-performance, type-safe APIs
-- **Backend Services Architecture:** Microservices pattern with specialized FastAPI services:
-  - Thread Discovery Service (Voice interviews and learning goal extraction)
+- **Backend Platform:** Supabase for authentication, database, and edge functions
+- **API Layer:** Supabase Edge Functions for serverless compute
+- **Backend Services Architecture:** Microservices pattern with specialized Edge Functions:
+  - Thread Discovery Service (Interest discovery and learning goal extraction)
   - Thread Generation Service (LLM-powered concept mapping and relevance scoring)
   - Content Assembly Service (Vector search and content curation)
   - Exercise Generation Service (AI-powered personalization)
   - Progress Tracking Service (Analytics and gamification)
-- **Real-time Voice:** FastRTC library for WebRTC-based voice streaming
+- **Real-time Chat:** Text-based conversation interface for student interaction
 - **Vector Storage:** Pinecone for semantic content indexing and cross-curricular search
 - **Knowledge Graphs:** Neo4j for mapping concept relationships across subjects
 - **LLM Integration:** OpenAI GPT-4 for Thread generation and concept mapping
-- **Database:** PostgreSQL for user profiles, Threads, and system configuration
-- **Container Orchestration:** AWS ECS for scalable microservices deployment
+- **Database:** Supabase PostgreSQL for user profiles, Threads, and system configuration
+- **Edge Computing:** Supabase Edge Functions for scalable serverless execution
 
 ### Thread Generation Architecture:
 The Thread Generation system is the heart of Spool's innovation:
@@ -336,11 +336,11 @@ In Spool's vision, education becomes an exciting journey of discovery where stud
 - **API Gateway:** AWS API Gateway (managed service) for routing, authentication, and scalability - no custom gateway code needed
 - **Backend Framework:** FastAPI (Python) for all microservices - delivering high-performance, type-safe APIs with automatic documentation
 - **Backend Services Architecture:** Microservices pattern with four specialized FastAPI services:
-  - Voice Interview Service (WebRTC via FastRTC and transcription)
+  - Interview Service (Text-based chat and interest discovery)
   - Content Processing Service (NLP and content transformation)
   - Exercise Generation Service (AI-powered personalization)
   - Progress Tracking Service (analytics and gamification)
-- **Real-time Voice:** FastRTC library for WebRTC-based voice streaming with built-in voice activity detection
+- **Real-time Chat:** Text-based conversation interface for student interaction
 - **Vector Storage:** Pinecone for semantic content indexing and retrieval
 - **Knowledge Graphs:** Neo4j for mapping learning paths, prerequisites, and concept relationships
 - **LLM Integration:** OpenAI GPT-4 for dynamic content personalization and assessment evaluation
@@ -354,15 +354,7 @@ AWS API Gateway was chosen over a custom API gateway service for several compell
 - **Cognito Integration:** Native AWS Cognito authorizers for seamless authentication
 - **Cost Effective:** Pay-per-request pricing (~$3.50 per million requests) vs maintaining a custom service
 - **Simple Routing:** Our straightforward routing needs (path-based to services) don't require custom logic
-- **REST Support:** FastRTC's WebRTC signaling works perfectly with REST endpoints, no WebSockets needed
-
-### FastRTC Voice Architecture:
-The voice interview system leverages FastRTC, a Python library that simplifies real-time communication:
-- **Voice Activity Detection:** Built-in VAD with automatic turn-taking detection
-- **WebRTC Abstraction:** Handles all WebRTC complexity through simple REST endpoints
-- **Streaming Pipeline:** Audio → Speech-to-Text → LLM → Text-to-Speech → Audio
-- **Low Latency:** Progressive audio playback for natural conversation flow
-- **Production Ready:** Mounts directly on FastAPI with `stream.mount(app)`
+- **REST Support:** Standard REST endpoints for all services
 
 ### Why FastAPI:
 FastAPI was chosen as our backend framework for several compelling reasons:
@@ -375,14 +367,11 @@ FastAPI was chosen as our backend framework for several compelling reasons:
 
 ### Key Libraries:
 - **D3.js:** Interactive learning path visualization
-- **FastRTC:** Real-time voice communication with automatic voice detection
 - **LangGraph:** Structuring the inputs, outputs, state management, and prompts of our LLM calls
 - **SQLAlchemy:** Async ORM for PostgreSQL interactions
 - **Pydantic:** Data validation and settings management
 - **httpx:** Async HTTP client for inter-service communication
 - **uvicorn:** ASGI server for running FastAPI applications
-- **Moonshine STT:** Efficient speech-to-text for voice transcription
-- **Kokoro TTS:** Natural text-to-speech for AI responses
 
 **Architecture Principle:** Modular microservices design with FastAPI enables rapid development while maintaining high performance and type safety across all backend services.
 
@@ -396,10 +385,10 @@ Student, parent, or educator seeks personalized education that adapts to individ
 
 ### Core Flow
 
-1. **Interest Discovery Through Voice Interview**
-   - Student engages in 5-7 minute conversational interview via WebRTC
-   - AI voice agent asks natural questions about interests, activities, and aspirations
-   - Real-time chat interface shows transcript for transparency
+1. **Interest Discovery Through Text Chat**
+   - Student engages in 5-7 minute text-based conversation
+   - AI asks natural questions about interests, activities, and aspirations
+   - Clean chat interface with message bubbles
    - System extracts interests across personal, social, career, and philanthropic dimensions
     #### AI-Powered Voice Interview System
 
@@ -536,305 +525,187 @@ WebRTC Audio: Peer-to-peer after signaling
 ## AI-Powered Voice Interview System
 
 ### Overview
-Spool's onboarding begins with an innovative voice-based interview that feels more like a friendly conversation than a traditional assessment. Using WebRTC technology and an AI voice agent, we create a natural, engaging experience where students share their interests, passions, and curiosities through spoken dialogue.
+Spool's onboarding begins with an innovative voice-based interview that feels more like a friendly conversation than a traditional assessment. Using WebRTC technology and an AI voice agent, we create a natural, engaging experience where students share their interests, passions, and curiosities through spoken dialogue. This conversational approach captures authentic insights that written surveys often miss, while the real-time chat interface provides transparency and comfort.
 
 ### Technical Architecture
+
+**Core Components:**
 - **WebRTC Connection**: Real-time, low-latency voice communication
 - **Python Backend**: Manages WebRTC signaling and audio streaming
 - **AI Voice Agent**: Natural language processing with voice synthesis
 - **Chat Interface**: Dual-mode display showing both voice and text
 
-### Interview Experience
-- 5-7 minute natural conversation
-- Adaptive questioning based on responses
-- Real-time transcript in chat interface
-- Interest extraction across four life categories
-- Graceful conclusion with interest summary
+**Communication Flow:**
+```
+Student Browser ←WebRTC→ Python Server ←→ AI Voice Agent
+       ↓                        ↓
+   Chat Interface        Transcript Processing
+```
 
-## Dynamic Concept Content Generation
+### Interview Experience Design
 
-### Three-Component System
+**1. Initial Connection**
+- Student clicks "Start Interview" button
+- Browser requests microphone permissions
+- WebRTC connection established with Python backend
+- Friendly AI voice greets student: "Hi! I'm here to learn about what makes you excited so we can make your learning experience amazing. This will just be a casual chat about your interests."
 
-#### 1. The 'Hook & Relevance' Component 🎣
-**Purpose**: Create immediate emotional investment by connecting the concept to the student's future aspirations and values.
+**2. Conversational Interface**
+- **Split-screen design**:
+  - Left side: Live chat transcript
+  - Right side: Visual indicators (speaking/listening states)
+- **Real-time transcription**: Student sees their words appear as they speak
+- **System messages**: AI's questions and responses shown in chat
+- **Color coding**: 
+  - Blue bubbles: AI voice agent
+  - Green bubbles: Student responses
+  - Gray italics: System status messages
 
-**Content Structure**:
-- Personal Life Hook (universal scenario)
-- Social Life Hook (interpersonal applications)
-- Career Life Hook (dynamically selected based on career interests)
-- Philanthropic Hook (dynamically selected based on cause interests)
+**3. Natural Conversation Flow**
+The AI voice agent conducts a warm, adaptive conversation rather than a rigid questionnaire:
 
-#### 2. The 'Show Me' (Examples) Component 💡
-**Purpose**: Make abstract concepts concrete through personally relevant scenarios.
+**Opening Questions:**
+- "What do you love doing when you have free time?"
+- "Tell me about something you did recently that was really fun"
+- "What activities make you lose track of time?"
 
-**Implementation**:
-- Dynamic example library with interest-based tagging
-- 3-4 examples selected matching student's top interests
-- Visual enhancements and optional interactions
-- Diverse difficulty levels and life categories
+**Deepening Understanding:**
+- "That sounds awesome! What is it about [activity] that you enjoy most?"
+- "When did you first get interested in [interest]?"
+- "Have you ever thought about turning [interest] into something bigger?"
 
-#### 3. The 'What & How' (Core Explanation) Component 🧠
-**Purpose**: Deliver structured, comprehensive understanding of the concept.
+**Exploration Questions:**
+- "What kinds of trips or vacations do you dream about taking?"
+- "If you could learn about anything in the world, what would it be?"
+- "What questions do you find yourself wondering about?"
 
-**Four Mandatory Sections**:
-1. Key Vocabulary with visual cards
-2. Mental Model with interactive diagram
-3. Core Principles/Rules in clear hierarchy
-4. Process/Workflow with step-by-step visualization
+**Life Context Questions:**
+- "Do you like doing things on your own or with friends and family?"
+- "Have you ever helped someone using your [skill/interest]?"
+- "What would your dream job look like?"
 
-## Comprehensive Exercise & Mastery System
+### Adaptive Conversation Intelligence
 
-### Two-Stage Assessment Design
+**Dynamic Response Paths:**
+- AI adjusts follow-up questions based on student responses
+- Enthusiasm detection triggers deeper exploration
+- Natural transitions between topics
+- Age-appropriate language adaptation
 
-#### Initial Exercise
-- Dynamically generated using student interests
-- Incorporates one of four life categories
-- Requires complete thought process explanation
-- AI evaluates each logical step
+**Interest Signal Detection:**
+- Emotional tone analysis for genuine excitement
+- Keyword extraction for specific interests
+- Pattern recognition for learning preferences
+- Social context understanding
 
-#### Adaptive Remediation
-- Identifies first incorrect step
-- Generates targeted mini-lesson
-- Creates focused practice exercise
-- Iterates until step is mastered
+**Example Adaptive Flow:**
+```
+Student: "I love playing Minecraft with my friends"
+AI: "That's fantastic! Are you more of a builder or an explorer in Minecraft?"
+Student: "I love building huge castles and redstone machines"
+AI: "Wow, redstone machines - that's like programming with blocks! 
+     Do you enjoy figuring out how to make things work?"
+Student: "Yeah! I spent weeks making an automatic farm system"
+AI: "That shows amazing problem-solving skills! What was the trickiest part?"
+```
 
-#### Advanced Exercise
-- Same concept with added complexity
-- Tests transfer and synthesis abilities
-- Maintains interest-based personalization
-- Required for concept mastery
+### Chat Interface Features
 
-### Mastery Requirements
-1. ✓ Initial exercise with all steps explained
-2. ✓ Remediation exercises if needed
-3. ✓ Advanced exercise completion
-4. ✓ Minimum engagement time met
+**Visual Design:**
+- Clean, modern chat interface similar to familiar messaging apps
+- Animated typing indicators when AI is "thinking"
+- Smooth auto-scroll as conversation progresses
+- Ability to scroll back and review earlier parts
 
-## Phase-Based Development Plan
+**Interactive Elements:**
+- "Pause" button for bathroom breaks or interruptions
+- "I didn't catch that" button for audio issues
+- Volume adjustment for AI voice
+- Text input fallback option if voice fails
 
-### Phase 1: Core Foundation (Months 1-3)
-**Goal:** Deliver personalized learning that transforms textbook content based on student interests
+**Accessibility Features:**
+- High contrast mode option
+- Adjustable font sizes
+- Screen reader compatibility
+- Keyboard navigation support
 
-**Deliverables:**
-- Voice interview system with interest extraction
-- Content transformation engine for Math and Biology
-- Three-component concept display system
-- Two-stage exercise system with remediation
-- Basic gamification (points, streaks, badges)
-- Parent visibility dashboard
+### Data Processing Pipeline
 
-**Success Criteria (E2E Testing Requirements):** 
-- Voice interview system captures and categorizes interests into all 4 life categories
-- Concept display correctly personalizes hooks based on test student profiles
-- Exercise generation produces contextually relevant problems using student interests
-- Step evaluation correctly identifies missing/incorrect logical steps in test responses
-- Remediation system generates targeted exercises for identified knowledge gaps
-- System correctly prevents progression until both exercises completed successfully
+**Real-time Processing:**
+1. **Audio Streaming**: Continuous 16kHz audio stream via WebRTC
+2. **Speech-to-Text**: Immediate transcription using Whisper API
+3. **Intent Analysis**: Real-time understanding of student responses
+4. **Response Generation**: AI formulates contextual follow-ups
+5. **Text-to-Speech**: Natural voice synthesis for AI responses
+6. **Transcript Update**: Chat interface updates simultaneously
 
-### Phase 2: Enhanced Experience (Months 4-6)
-**Goal:** Expand subject coverage and deepen personalization capabilities
+**Post-Interview Analysis:**
+1. **Interest Extraction**: NLP identifies key themes and passions
+2. **Category Mapping**: Interests mapped to life categories
+3. **Learning Style Indicators**: Communication patterns analyzed
+4. **Profile Generation**: Comprehensive interest profile created
 
-**Deliverables:**
-- Complete core subject library (all 8 subjects)
-- Advanced personalization algorithms
-- Enhanced gamification with achievements
-- Microschool management interface
-- Detailed analytics and reporting
-- Mobile-responsive design
+### Interview Completion & Transition
 
-**Success Criteria (E2E Testing Requirements):** 
-- All 8 subjects load with properly structured content hierarchies
-- Personalization engine handles 100+ concurrent test sessions without degradation
-- Analytics dashboard accurately tracks and displays all learning events
-- Microschool admin can successfully manage 20 test student accounts
-- Achievement system triggers correctly based on defined criteria
-- System maintains <500ms response time under load testing
+**Graceful Conclusion:**
+- AI naturally wraps up after 5-7 minutes or 6-8 topic areas
+- "This has been such a great conversation! I've learned so much about what excites you."
+- Summary of key interests displayed in chat
+- "Ready to start your personalized learning journey?"
 
-### Phase 3: Advanced Capabilities (Months 7-9)
-**Goal:** Enable sophisticated multi-path learning and institutional features
+**Profile Confirmation:**
+- Visual summary of discovered interests
+- Opportunity to add anything missed
+- Preview of how interests will personalize learning
+- Seamless transition to subject selection
 
-**Deliverables:**
-- Concurrent multi-subject learning paths
-- Cross-subject concept connections
-- Advanced educator tools and controls
-- API for external content integration
-- Native mobile applications
-- White-label capabilities
+### Privacy & Safety Considerations
 
-**Success Criteria (E2E Testing Requirements):** 
-- Multi-subject learning paths maintain proper prerequisite enforcement
-- Cross-subject concept connections display correctly in knowledge graph
-- API endpoints pass all integration tests with mock external systems
-- Mobile applications pass all responsive design breakpoint tests
-- White-label configuration properly applies custom branding
-- System correctly handles 50 simultaneous WebRTC connections
+**Data Handling:**
+- Audio streams processed in real-time, not stored
+- Only transcripts and extracted interests saved
+- Clear privacy notice before interview starts
+- Parental consent workflow for younger students
 
-### Phase 4: Scale & Polish (Months 10-12)
-**Goal:** Prepare platform for widespread adoption and customization
+**Safety Features:**
+- Inappropriate content detection
+- Automatic session termination for safety concerns
+- Report functionality for parents
+- Conversation logs available for review
 
-**Deliverables:**
-- Performance optimization for 10,000+ concurrent users
-- Content marketplace for educators
-- Advanced AI content generation
-- Multi-language support
-- Enterprise features and integrations
+### Success Metrics
 
-**Success Criteria (E2E Testing Requirements):** 
-- Load testing validates 10,000+ concurrent users with <200ms response times
-- Content marketplace APIs successfully handle CRUD operations
-- AI content generation produces valid exercises meeting quality criteria
-- Multi-language support correctly displays all UI elements in 5 test languages
-- Enterprise SSO integration passes authentication flow tests
-- Backup and recovery procedures complete within defined RTO/RPO
+**Engagement Metrics:**
+- Average conversation duration (target: 6-8 minutes)
+- Response depth (average words per answer)
+- Topic coverage (interests discovered per session)
+- Completion rate (target: 95%+)
 
-## Feature Prioritization
+**Quality Metrics:**
+- Interest profile accuracy (parent validation)
+- Transcription accuracy rate
+- Voice interaction success rate
+- Fallback to text percentage (target: <5%)
 
-### Phase 1 Features (Foundational):
-1. Voice interview system
-2. Interest profile generation
-3. Three-component concept display
-4. Two-stage exercise system
-5. Adaptive remediation engine
-6. Basic gamification elements
-7. Parent dashboard
-8. Math & Biology content
+### Implementation Considerations
 
-### Phase 2 Features (Enhancement):
-1. Full subject library
-2. Achievement system
-3. Learning analytics
-4. Microschool tools
-5. Advanced personalization
-6. Social features (optional)
-7. Progress certificates
-8. Mobile optimization
+**Python WebRTC Stack:**
+```python
+# Core components
+- aiortc: WebRTC implementation
+- asyncio: Asynchronous audio streaming
+- websockets: Signaling server
+- pydub: Audio processing
+- edge-tts: Voice synthesis
+```
 
-### Phase 3+ Features (Expansion):
-1. API access
-2. Content creation tools
-3. Cross-curricular connections
-4. White-label options
-5. Advanced reporting
-6. Mobile apps
-7. Collaborative features
-8. AI content generation
+**Scalability Design:**
+- Containerized Python services
+- Horizontal scaling for concurrent interviews
+- Redis for session management
+- CloudFront for media streaming
 
-**Prioritization Rule:** Features must directly enable personalized learning or authentic competency validation to be included in early phases.
-
-## Key Design Decisions
-
-### Decision: Voice-First Onboarding
-We chose conversational voice interviews over traditional forms because authentic interest discovery requires natural dialogue, not checkboxes.
-This enables deeper insight capture and creates an engaging first impression.
-
-### Decision: Three-Component Concept Display
-We chose to structure every concept with hooks, examples, and formal explanation because learning requires both emotional connection and structured understanding.
-This enables immediate engagement while maintaining educational rigor.
-
-### Decision: Two-Stage Exercise System
-We chose dual exercises with articulation requirements because single assessments cannot validate both understanding and transfer ability.
-This enables comprehensive mastery verification and targeted support.
-
-### Decision: Life Category Framework
-We chose four life categories (personal, social, career, philanthropic) because learning becomes meaningful when connected to real-world applications.
-This enables content to resonate across all aspects of student life.
-
-### Decision: Step-by-Step Evaluation
-We chose to evaluate logical steps rather than just answers because understanding process matters more than memorized solutions.
-This enables precise identification of misconceptions for targeted remediation.
-
-### Decision: Gamification Integration
-We chose subtle gamification over heavy game mechanics because engagement should enhance, not distract from learning.
-This enables sustained motivation without compromising educational focus.
-
-## Success Criteria by Phase
-
-### Phase 1 Criteria (E2E Testing Requirements):
-- Voice interview system successfully extracts 5+ interests from test scripts
-- Interest profile correctly maps to all 4 life categories
-- Concept displays retrieve and display correct personalized content for test profiles  
-- Exercise evaluation correctly identifies all logical steps in reference solutions
-- Remediation flow triggers appropriately for incorrect step submissions
-- Parent dashboard displays accurate progress data from test student sessions
-- System completes full learning cycle from interview to concept mastery
-
-### Phase 2 Criteria (E2E Testing Requirements):
-- All 8 subjects load with complete content hierarchies and no broken references
-- System handles 100 concurrent test users with stable performance
-- Analytics correctly aggregate data across multiple test sessions
-- Microschool admin interface successfully manages batch operations
-- Achievement system awards correct badges based on test scenarios
-- Load testing confirms <500ms response times at 1000 concurrent users
-
-### Phase 3+ Criteria (E2E Testing Requirements):
-- API integration tests pass for all documented endpoints
-- Mobile applications pass automated UI tests on iOS/Android
-- White-label configuration correctly applies to all UI components
-- Cross-curricular connections display properly in knowledge graph
-- System maintains data integrity during failover scenarios
-- Performance testing validates 10,000 concurrent user capacity
-
-
-
-## Metrics & Analytics
-
-### System Performance Metrics (Testing Requirements):
-- Page load times <2 seconds for all components
-- API response times <200ms for 95th percentile
-- WebRTC connection establishment <3 seconds
-- Database query performance <100ms for complex joins
-- Concurrent user capacity meets defined thresholds
-
-### Data Integrity Metrics:
-- Learning progress saves correctly across sessions
-- Interest profiles persist without data loss
-- Exercise responses maintain full audit trail
-- Analytics data matches source events 100%
-- Backup restoration completes successfully
-
-### Feature Functionality Metrics:
-- All UI components render correctly across browsers
-- Voice transcription processes without dropping audio
-- Content personalization selects appropriate materials
-- Exercise generation produces valid problems
-- Gamification triggers fire at correct thresholds
-
-### Integration Testing Metrics:
-- Neo4j queries return expected concept hierarchies
-- Pinecone searches retrieve relevant content chunks
-- PostgreSQL transactions maintain ACID compliance
-- WebRTC streams maintain stable connections
-- LLM API calls handle rate limiting gracefully
-
-## Risk Mitigation
-
-### Technical Risks:
-- **LLM Reliability**: Implement fallback models and caching
-- **Voice Recognition**: Provide text input alternatives
-- **Scaling Issues**: Design for horizontal scaling from day one
-- **Data Privacy**: COPPA compliance and encryption throughout
-
-### Market Risks:
-- **Adoption Barriers**: Free trials and migration support
-- **Competition**: Focus on unique personalization depth
-- **Pricing Sensitivity**: Flexible plans and discounts
-- **Regulatory Changes**: Maintain compliance team
-
-### Operational Risks:
-- **Content Creation**: Partner with educators early
-- **Support Scaling**: Build comprehensive self-service
-- **Quality Control**: Automated testing and reviews
-- **Team Growth**: Documented processes from start
-
-## Vision Statement
-
-Spool transforms how students experience education by making every lesson personally relevant through AI-powered content personalization. Through our innovative approach of understanding what excites each learner through natural conversation, adapting educational content to their interests across life categories, and validating mastery through articulated understanding, we enable genuine engagement with rigorous academic material. 
-
-Our three-component concept display ensures immediate connection, while our two-stage exercise system with adaptive remediation guarantees true comprehension. By connecting learning to personal interests, social applications, career aspirations, and philanthropic values, we create an educational experience where students don't just complete assignments—they discover how knowledge enriches every aspect of their lives.
-
-The platform's phased approach ensures immediate value through core subject personalization while building toward a comprehensive learning ecosystem. In this ecosystem, every student's unique interests and potential drive their educational journey, supported by engaging gamification, transparent progress tracking, and meaningful parent involvement. 
-
-Spool doesn't just teach—it transforms education into an exciting, personalized adventure where mastery is the natural outcome of genuine engagement. We're building the future where "one-size-fits-all" education becomes obsolete, replaced by learning experiences as unique as each student's dreams and aspirations.
+This conversational interview system transforms the typically mundane process of profile creation into an engaging experience that students actually enjoy. By using natural voice interaction with visual feedback, we capture authentic interests while building excitement for the personalized learning journey ahead.
 
 # Concept Display System Enhancement
 

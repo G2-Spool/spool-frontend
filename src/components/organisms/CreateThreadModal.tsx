@@ -175,7 +175,7 @@ export const CreateThreadModal: React.FC<CreateThreadModalProps> = ({
                   {userInterests.map((interest, index) => (
                     <Badge
                       key={index}
-                      variant="outline"
+                      variant="default"
                       className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                       onClick={() => handleInterestClick(interest.interest)}
                     >

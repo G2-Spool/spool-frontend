@@ -40,7 +40,7 @@ const interestSuggestions = {
 
 export function InterestDiscovery({ onNext, onUpdate, data }: InterestDiscoveryProps) {
   const [interests, setInterests] = useState<Interest[]>(
-    data.interests || []
+    (data.interests as Interest[]) || []
   );
   const [currentInput, setCurrentInput] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Interest['category']>('personal');
@@ -95,9 +95,7 @@ export function InterestDiscovery({ onNext, onUpdate, data }: InterestDiscoveryP
           Tell Us What You Love
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          {data.voiceInterviewCompleted 
-            ? "Great conversation! Here are the interests we discovered. Feel free to add more!"
-            : "Share your interests, hobbies, and passions. We'll use these to personalize every lesson."}
+          Share your interests, hobbies, and passions. We'll use these to personalize every lesson.
         </p>
       </div>
 

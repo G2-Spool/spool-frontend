@@ -1,16 +1,18 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { fetchAuthSession } from 'aws-amplify/auth';
-import { API_BASE_URL } from '../config/api';
+import { getApiBaseUrl } from '../config/api';
+import { supabase } from '../config/supabase';
 
 class ApiService {
   private axiosInstance: AxiosInstance;
 
   constructor() {
     this.axiosInstance = axios.create({
-      baseURL: API_BASE_URL,
+      baseURL: getApiBaseUrl(),
       headers: {
         'Content-Type': 'application/json',
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVidHd6ZmJ0ZmVrbWd2c3dsZnNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzNTcyODMsImV4cCI6MjA2NzkzMzI4M30.wLGaW0ZucC22cUJiFHrBgmXLCZuVmAg5SjZvb20Rf64',
       },
     });
 
@@ -18,12 +20,19 @@ class ApiService {
     this.axiosInstance.interceptors.request.use(
       async (config) => {
         try {
-          // Get the current auth session from Amplify
-          const session = await fetchAuthSession();
-          const idToken = session.tokens?.idToken?.toString();
+          // Try to get Supabase session first
+          const { data: { session: supabaseSession } } = await supabase.auth.getSession();
           
-          if (idToken) {
-            config.headers.Authorization = `Bearer ${idToken}`;
+          if (supabaseSession?.access_token) {
+            config.headers.Authorization = `Bearer ${supabaseSession.access_token}`;
+          } else {
+            // Fallback to Amplify auth
+            const session = await fetchAuthSession();
+            const idToken = session.tokens?.idToken?.toString();
+            
+            if (idToken) {
+              config.headers.Authorization = `Bearer ${idToken}`;
+            }
           }
           
           // Debug logging

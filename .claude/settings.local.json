@@ -14,7 +14,9 @@
       "Bash(aws:*)",
       "Bash(ls:*)",
       "mcp__playwright__browser_install",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": []
   }

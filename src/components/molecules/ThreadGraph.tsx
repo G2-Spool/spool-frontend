@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useThreadGraphD3 } from '../../hooks/useThreadGraph';
+import type { ThreadGraphData } from '../../hooks/useThreadGraph';
 
 interface ThreadGraphNode {
   id: string;
@@ -48,7 +49,11 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const [dimensions] = useState({ width: 500, height: 400 });
   
-  const { data: graphData, isLoading, error } = useThreadGraphD3(threadId, isVisible);
+  const { data: graphData, isLoading, error } = useThreadGraphD3(threadId, isVisible) as {
+    data: ThreadGraphData | undefined;
+    isLoading: boolean;
+    error: Error | null;
+  };
 
   useEffect(() => {
     if (!isVisible || !graphData || !svgRef.current) return;
@@ -59,8 +64,8 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
     const { width, height } = dimensions;
 
     // Create force simulation
-    const simulation = d3.forceSimulation<ThreadGraphNode>(graphData.nodes)
-      .force('link', d3.forceLink<ThreadGraphNode, ThreadGraphEdge>(graphData.edges)
+    const simulation = d3.forceSimulation<ThreadGraphNode>(graphData!.nodes)
+      .force('link', d3.forceLink<ThreadGraphNode, ThreadGraphEdge>(graphData!.edges)
         .id(d => d.id)
         .distance(d => 80 / (d.strength || 1))
       )
@@ -72,10 +77,10 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
     const links = svg.append('g')
       .attr('class', 'links')
       .selectAll('line')
-      .data(graphData.edges)
+      .data(graphData!.edges)
       .enter()
       .append('line')
-      .attr('stroke', (d: ThreadGraphEdge) => {
+      .attr('stroke', (d: any) => {
         switch (d.relationship_type) {
           case 'prerequisite': return '#3498db';
           case 'bridge': return '#e74c3c';
@@ -83,14 +88,14 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
           default: return '#95a5a6';
         }
       })
-      .attr('stroke-width', (d: ThreadGraphEdge) => Math.sqrt(d.strength * 5))
+      .attr('stroke-width', (d: any) => Math.sqrt(d.strength * 5))
       .attr('stroke-opacity', 0.6);
 
     // Create nodes
     const nodes = svg.append('g')
       .attr('class', 'nodes')
       .selectAll('g')
-      .data(graphData.nodes)
+      .data(graphData!.nodes)
       .enter()
       .append('g')
       .attr('class', 'node')
@@ -102,9 +107,9 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
 
     // Add circles to nodes
     nodes.append('circle')
-      .attr('r', (d: ThreadGraphNode) => d.progress_status === 'current' ? 15 : 12)
-      .attr('fill', (d: ThreadGraphNode) => SUBJECT_COLORS[d.subject as keyof typeof SUBJECT_COLORS] || SUBJECT_COLORS.default)
-      .attr('stroke', (d: ThreadGraphNode) => {
+      .attr('r', (d: any) => d.progress_status === 'current' ? 15 : 12)
+      .attr('fill', (d: any) => SUBJECT_COLORS[d.subject as keyof typeof SUBJECT_COLORS] || SUBJECT_COLORS.default)
+      .attr('stroke', (d: any) => {
         switch (d.progress_status) {
           case 'completed': return '#27ae60';
           case 'current': return '#f39c12';
@@ -113,11 +118,11 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
         }
       })
       .attr('stroke-width', 3)
-      .attr('opacity', (d: ThreadGraphNode) => d.progress_status === 'upcoming' ? 0.6 : 1);
+      .attr('opacity', (d: any) => d.progress_status === 'upcoming' ? 0.6 : 1);
 
     // Add labels to nodes
     nodes.append('text')
-      .text((d: ThreadGraphNode) => d.name.length > 15 ? d.name.substring(0, 15) + '...' : d.name)
+      .text((d: any) => d.name.length > 15 ? d.name.substring(0, 15) + '...' : d.name)
       .attr('text-anchor', 'middle')
       .attr('dy', 4)
       .attr('font-size', '10px')
@@ -138,7 +143,7 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
       .style('pointer-events', 'none')
       .style('z-index', 1000);
 
-    nodes.on('mouseover', (event: MouseEvent, d: ThreadGraphNode) => {
+    nodes.on('mouseover', (event: any, d: any) => {
       tooltip.transition().duration(200).style('opacity', 1);
       tooltip.html(`
         <strong>${d.name}</strong><br/>
@@ -155,12 +160,12 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
     // Update positions on tick
     simulation.on('tick', () => {
       links
-        .attr('x1', d => (d.source as ThreadGraphNode).x!)
-        .attr('y1', d => (d.source as ThreadGraphNode).y!)
-        .attr('x2', d => (d.target as ThreadGraphNode).x!)
-        .attr('y2', d => (d.target as ThreadGraphNode).y!);
+        .attr('x1', (d: any) => d.source.x)
+        .attr('y1', (d: any) => d.source.y)
+        .attr('x2', (d: any) => d.target.x)
+        .attr('y2', (d: any) => d.target.y);
 
-      nodes.attr('transform', (d: ThreadGraphNode) => `translate(${d.x},${d.y})`);
+      nodes.attr('transform', (d: any) => `translate(${d.x},${d.y})`);
     });
 
     // Drag functions
@@ -284,12 +289,12 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
           </div>
 
           {/* Footer with metadata */}
-          {graphData?.metadata && (
+          {graphData && 'metadata' in graphData && graphData.metadata && (
             <div className="px-4 pb-4 text-xs text-gray-500">
-              {graphData.metadata.crossSubjectBridges.length > 0 && (
+              {graphData.metadata.crossSubjectBridges?.length > 0 && (
                 <p>🌉 {graphData.metadata.crossSubjectBridges.length} cross-subject bridges</p>
               )}
-              {graphData.metadata.branchingOpportunities.length > 0 && (
+              {graphData.metadata.branchingOpportunities?.length > 0 && (
                 <p>🌿 {graphData.metadata.branchingOpportunities.length} branching opportunities</p>
               )}
             </div>

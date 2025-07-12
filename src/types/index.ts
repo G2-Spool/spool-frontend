@@ -22,6 +22,7 @@ export interface StudentProfile {
   preferredName?: string;
   birthday?: Date;
   gradeLevel?: string;
+  grade?: string; // Alias for gradeLevel
   
   // Interest Discovery
   interests: Interest[];
@@ -303,13 +304,12 @@ export interface StepEvaluation {
 
 export type AssessmentStatus = 'in_progress' | 'completed' | 'evaluated' | 'abandoned';
 
-// Voice Interview Types
+// Interview Types
 export interface InterviewSession {
   id: string;
   studentProfileId: string;
   status: InterviewStatus;
   type: 'initial' | 'update' | 'supplemental';
-  webrtcSessionId?: string;
   connectionQuality?: 'excellent' | 'good' | 'poor';
   questions: InterviewQuestion[];
   responses: InterviewResponse[];

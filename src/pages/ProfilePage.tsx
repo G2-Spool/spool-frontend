@@ -7,7 +7,7 @@ import { StatsCard } from '../components/molecules/StatsCard';
 import { StreakDisplay } from '../components/molecules/StreakDisplay';
 import { InterestBubble } from '../components/molecules/InterestBubble';
 import { 
-  User, 
+ 
   Trophy, 
   Target, 
   BookOpen, 
@@ -52,7 +52,7 @@ export const ProfilePage: React.FC = () => {
 
   // Calculate level progress (assuming 1000 XP per level)
   const currentLevelXP = studentProfile.experiencePoints % 1000;
-  const levelProgress = (currentLevelXP / 1000) * 100;
+  // const _levelProgress = (currentLevelXP / 1000) * 100;
 
   // Mock data for achievements (in real app, this would come from studentProfile.badgesEarned)
   const achievements = [
