@@ -7,6 +7,32 @@
 @layer base {
   :root {
     --color-teal-focus: rgba(49, 151, 149, 0.5);
+    
+    /* CSS Variables for migrated Spool-GitHub components */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 173 58% 39%; /* Teal-600 equivalent */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 173 58% 39%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 173 58% 39%;
+    --radius: 0.5rem;
+    --success: 142 71% 45%;
+    --warning: 45 93% 47%;
+    --error: 0 84% 60%;
+    --info: 221 83% 53%;
   }
 
   /* Dark mode color scheme based on design system */
@@ -30,6 +56,31 @@
     --color-teal-500: #38B2AC;
     --color-teal-600: #319795;
     --color-teal-700: #2C7A7B;
+    
+    /* Dark mode CSS Variables for migrated components */
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 173 58% 39%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 217 11% 65%;
+    --accent: 215 28% 17%;
+    --accent-foreground: 213 31% 91%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 213 31% 91%;
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 173 58% 39%;
+    --success: 142 71% 45%;
+    --warning: 45 93% 47%;
+    --error: 0 84% 60%;
+    --info: 221 83% 53%;
   }
 
   * {
