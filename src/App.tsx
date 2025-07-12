@@ -8,7 +8,6 @@ import { ErrorBoundary } from './components/organisms/ErrorBoundary';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignUpPage } from './pages/SignUpPage';
-import { VoiceInterviewPage } from './pages/VoiceInterviewPage';
 import { StudentDashboard } from './pages/StudentDashboard';
 import { LearningPathDetail } from './pages/LearningPathDetail';
 import { ConceptPage } from './pages/ConceptPage';
@@ -60,7 +59,6 @@ function App() {
                 }
               >
                 <Route path="/dashboard" element={<StudentDashboard />} />
-                <Route path="/interview" element={<VoiceInterviewPage />} />
                 <Route path="/threads" element={<ThreadsPage />} />
                 <Route path="/progress" element={<ProgressPage />} />
                 <Route path="/learning-path/:id" element={<LearningPathDetail />} />

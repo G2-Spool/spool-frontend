@@ -9,7 +9,6 @@ import {
   X,
   // Flame, // TODO: Uncomment when student features are enabled
   // Trophy, // TODO: Uncomment when student features are enabled
-  MessageCircle,
   BarChart3,
   Spool,
 } from 'lucide-react';
@@ -34,7 +33,6 @@ export const DashboardLayout: React.FC = () => {
 
   const navigation = [
     { name: 'Home', href: '/dashboard', icon: Home },
-    { name: 'Voice Interview', href: '/interview', icon: MessageCircle },
     { name: 'Profile', href: '/profile', icon: User },
   ];
 

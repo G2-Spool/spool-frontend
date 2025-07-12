@@ -10,7 +10,7 @@ import { ExpandableStatsCard } from '../components/molecules/ExpandableStatsCard
 import { StreakDisplay } from '../components/molecules/StreakDisplay';
 import { InterestBubble } from '../components/molecules/InterestBubble';
 import { LearningPathSkeleton } from '../components/LoadingStates/LearningPathSkeleton';
-import { InterviewModal } from '../components/organisms/InterviewModal';
+import { CreateThreadModal } from '../components/organisms/CreateThreadModal';
 import { 
   BookOpen, 
   Trophy, 
@@ -27,7 +27,7 @@ export const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { studentProfile, user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<LifeCategory | 'all'>('all');
-  const [showInterviewModal, setShowInterviewModal] = useState(false);
+  const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
   
   // Fetch real data from API
   const { data: learningPaths, isLoading: pathsLoading } = useLearningPaths();
@@ -58,8 +58,8 @@ export const StudentDashboard: React.FC = () => {
           variant="primary"
           size="lg"
           onClick={() => {
-            console.log('🎯 NEW THREAD BUTTON CLICKED - Opening interview modal');
-            setShowInterviewModal(true);
+            console.log('🎯 NEW THREAD BUTTON CLICKED - Opening create thread modal');
+            setShowCreateThreadModal(true);
           }}
           className="flex items-center gap-3 px-6 py-3"
         >
@@ -189,7 +189,7 @@ export const StudentDashboard: React.FC = () => {
               size="sm"
               onClick={() => {
                 console.log('🎯 DISCOVER MORE BUTTON CLICKED - Opening interview modal');
-                setShowInterviewModal(true);
+                setShowCreateThreadModal(true);
               }}
               className="rounded-full border-2 border-dashed"
             >
@@ -268,8 +268,8 @@ export const StudentDashboard: React.FC = () => {
                 <Button
                   variant="primary"
                   onClick={() => {
-                    console.log('🎯 EMPTY STATE BUTTON CLICKED - Opening interview modal');
-                    setShowInterviewModal(true);
+                    console.log('🎯 EMPTY STATE BUTTON CLICKED - Opening create thread modal');
+                    setShowCreateThreadModal(true);
                   }}
                 >
                   <Zap className="h-4 w-4 mr-2" />
@@ -281,14 +281,13 @@ export const StudentDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* Interview Modal */}
-      <InterviewModal
-        isOpen={showInterviewModal}
-        onClose={() => setShowInterviewModal(false)}
-        onInterestsExtracted={(interests) => {
-          console.log('Interests extracted:', interests);
-          // Update local state if needed
-          // TODO: Implement profile update functionality when available
+      {/* Create Thread Modal */}
+      <CreateThreadModal
+        isOpen={showCreateThreadModal}
+        onClose={() => setShowCreateThreadModal(false)}
+        onThreadCreated={(threadId) => {
+          console.log('Thread created from dashboard:', threadId);
+          // The modal will automatically navigate to the thread page
         }}
       />
     </div>
