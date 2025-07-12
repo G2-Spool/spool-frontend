@@ -1,6 +1,6 @@
 // API Configuration
 // Using API Gateway endpoint from AWS Parameter Store: /spool/api-gateway/url
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://alj6xppcj6.execute-api.us-east-1.amazonaws.com/prod';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://1nnruhxb5d.execute-api.us-east-1.amazonaws.com/prod';
 
 // Log the API configuration for debugging
 if (typeof window !== 'undefined') {
@@ -76,5 +76,10 @@ export const API_ENDPOINTS = {
   textbooks: {
     all: '/api/content/books',
     byId: '/api/content/books/:id',
+  },
+  
+  // Academia Search
+  academiaSearch: {
+    createThread: '/api/academia-search/create-thread',
   },
 };
