@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Plus,
   MessageSquare,
+  Book,
 } from 'lucide-react';
 import type { LifeCategory } from '../types';
 import { useCourses, useCourseSearch } from '../hooks/useCourses';
@@ -23,6 +24,8 @@ import { ThreadCard } from '../components/molecules/ThreadCard';
 import { InterviewModal } from '../components/organisms/InterviewModal';
 import type { FilterMetadata } from '../services/pinecone/types';
 import { useAuth } from '../contexts/AuthContext';
+import { useTraditionalThreads } from '../hooks/useTraditionalThreads';
+import { TraditionalThreadCard } from '../components/molecules/TraditionalThreadCard';
 
 // Create custom hook for debouncing
 const useDebounce = <T,>(value: T, delay: number): T => {
@@ -92,6 +95,13 @@ export const ThreadsPage: React.FC = () => {
     data: threads, 
     isLoading: isLoadingThreads 
   } = useUserThreads(userId, 5);
+  
+  // Fetch traditional threads (textbooks from Neo4j)
+  const {
+    data: traditionalThreads,
+    isLoading: isLoadingTraditional,
+    error: traditionalError
+  } = useTraditionalThreads();
   
   // Filter courses based on enrollment status
   const courses = searchResults || coursesData?.items || [];
@@ -425,6 +435,54 @@ export const ThreadsPage: React.FC = () => {
             </Button>
           </div>
         )}
+      </section>
+
+      {/* Traditional Threads (Textbooks from Neo4j) */}
+      <section className="mb-12">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-obsidian mb-2">Traditional Threads</h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Follow structured textbook curricula for comprehensive subject mastery
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {isLoadingTraditional ? (
+            // Loading skeletons
+            Array.from({ length: 8 }).map((_, index) => (
+              <CourseCardSkeleton key={index} />
+            ))
+          ) : traditionalError ? (
+            // Error state
+            <div className="col-span-full text-center py-12">
+              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <p className="text-gray-600">Failed to load traditional threads.</p>
+              <p className="text-gray-400 text-sm mt-1">Please try again later.</p>
+            </div>
+          ) : !traditionalThreads || traditionalThreads.length === 0 ? (
+            // Empty state
+            <div className="col-span-full text-center py-12">
+              <Book className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">No traditional textbooks available yet.</p>
+              <p className="text-gray-400 text-sm mt-1">Check back soon for structured curricula.</p>
+            </div>
+          ) : (
+            // Traditional thread cards
+            traditionalThreads.map((thread) => (
+              <TraditionalThreadCard
+                key={thread.id}
+                thread={thread}
+                onClick={() => {
+                  // Navigate to textbook reader or chapter listing
+                  console.log('Traditional thread selected:', thread.bookId);
+                  // TODO: Implement navigation to traditional thread view
+                  // For now, we can create a simple alert or navigate to a placeholder page
+                  alert(`Opening "${thread.bookTitle}" - This feature will display the textbook chapters and allow structured learning.`);
+                }}
+              />
+            ))
+          )}
+        </div>
       </section>
       
       {/* Interview Modal */}

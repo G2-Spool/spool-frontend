@@ -1,0 +1,17 @@
+{
+  "name": "neo4j-books-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function to fetch textbook data from Neo4j",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest",
+    "deploy": "sh scripts/deploy.sh"
+  },
+  "dependencies": {
+    "neo4j-driver": "^5.14.0",
+    "@aws-sdk/client-ssm": "^3.478.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
