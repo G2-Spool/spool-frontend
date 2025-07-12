@@ -1,7 +1,7 @@
-# Voice Interview Feature
+# Text Interview Feature
 
 ## Overview
-The Voice Interview Page provides a chat-based interface for discovering students' learning interests through conversational AI. This feature helps create personalized learning threads based on students' expressed interests and passions.
+The Text Interview Page provides a chat-based interface for discovering students' learning interests through conversational AI. This feature helps create personalized learning threads based on students' expressed interests and passions.
 
 ## Current Implementation
 
@@ -15,7 +15,7 @@ The Voice Interview Page provides a chat-based interface for discovering student
 ### Technical Details
 
 #### Frontend Components
-- `VoiceInterviewPage.tsx`: Main component handling the interview interface
+- `TextInterviewPage.tsx`: Main component handling the interview interface
 - Chat UI with send button and keyboard support (Enter to send)
 - Interest sidebar showing detected topics
 - Session management and polling for updates
@@ -47,7 +47,7 @@ This starts the Vite dev server on `http://localhost:5173`
 
 ### Access the Feature
 1. Navigate to the dashboard
-2. Click on "Discover Learning Threads" or go to `/voice-interview`
+2. Click on "Discover Learning Threads" or go to `/text-interview`
 3. Click "Start Interview" to begin
 4. Type messages about your interests
 5. Watch as interests are detected and displayed in real-time
@@ -60,19 +60,9 @@ The mock server provides contextual responses based on keywords:
 - Mentions of "science" trigger science exploration questions
 - Similar patterns for history, programming, art, music, languages, etc.
 
-### WebRTC Support (Future)
-The component includes WebRTC scaffolding for future voice support:
-- Peer connection setup
-- ICE candidate handling
-- Audio stream management
-- Mute/unmute functionality
-
-Currently, WebRTC is disabled in favor of the text chat interface for stability.
-
 ### Environment Variables
 - `VITE_API_BASE_URL`: Points to the API server (use `.env.local` for local development)
-- `VITE_ENABLE_VOICE_INTERVIEW`: Feature flag (currently always true)
-- `VITE_WEBRTC_SIGNAL_SERVER`: WebRTC signaling server URL (for future use)
+- `VITE_ENABLE_TEXT_INTERVIEW`: Feature flag (currently always true)
 
 ## Testing the Feature
 
@@ -91,11 +81,6 @@ Currently, WebRTC is disabled in favor of the text chat interface for stability.
 
 ## Future Enhancements
 
-### Voice Support
-- Enable WebRTC for actual voice conversations
-- Add speech-to-text transcription
-- Implement real-time audio streaming
-
 ### AI Improvements
 - Better interest detection algorithms
 - Contextual conversation flow
@@ -103,7 +88,6 @@ Currently, WebRTC is disabled in favor of the text chat interface for stability.
 - Integration with actual AI/LLM service
 
 ### UI/UX Enhancements
-- Voice activity indicators
 - Typing indicators
 - Better mobile responsiveness
 - Interview progress tracking

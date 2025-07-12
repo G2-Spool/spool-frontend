@@ -29,7 +29,7 @@ All tables have Row Level Security (RLS) enabled for fine-grained access control
 ## Edge Functions Deployed
 
 ### 1. thread-discovery
-- **Purpose**: Extracts learning goals from voice interview transcripts
+- **Purpose**: Extracts learning goals from text chat conversations
 - **Key Features**:
   - Uses GPT-4 to analyze conversation transcripts
   - Extracts structured learning objectives
@@ -45,8 +45,8 @@ All tables have Row Level Security (RLS) enabled for fine-grained access control
   - Creates Thread structure in database
   - Sequences concepts based on prerequisites
 
-### 3. voice-interview
-- **Purpose**: Handles voice interview interactions
+### 3. text-interview
+- **Purpose**: Handles text chat interview interactions
 - **Key Features**:
   - Generates contextual interview questions
   - Extracts interests and learning preferences

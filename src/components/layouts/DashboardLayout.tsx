@@ -28,7 +28,7 @@ export const DashboardLayout: React.FC = () => {
   // Navigation items available for future use
   // const navigation = [
   //   { name: 'Home', href: '/dashboard', icon: Home },
-  //   { name: 'Voice Interview', href: '/interview', icon: MessageCircle },
+  //   { name: 'Text Interview', href: '/interview', icon: MessageCircle },
   //   { name: 'Profile', href: '/profile', icon: User },
   // ];
 

@@ -287,7 +287,7 @@ SELECT * FROM student_profiles WHERE user_id = '[user-id]';
 3. **Onboarding Steps**:
    - Welcome screen
    - Profile setup (name, grade)
-   - Voice interview intro
+   - Text interview intro
    - Interest discovery
    - Product tour
 4. **Completion** → Redirected to dashboard
@@ -300,7 +300,7 @@ Ensure these endpoints are available:
 GET  /api/student-profile - Check if profile exists
 PUT  /api/student-profile - Create/update profile
 POST /api/student-profile/interests - Save interests
-POST /api/interview/start - Begin voice interview
+POST /api/interview/start - Begin text interview
 POST /api/interview/complete - Finish interview
 POST /api/onboarding/complete - Mark onboarding done
 ```
@@ -311,7 +311,7 @@ Created components:
 - `OnboardingWizard.tsx` - Main orchestrator
 - `OnboardingWelcome.tsx` - Introduction
 - `ProfileSetup.tsx` - Basic info collection
-- `VoiceInterviewIntro.tsx` - Interview preparation
+- `TextInterviewIntro.tsx` - Interview preparation
 - `InterestDiscovery.tsx` - Interest selection
 - `ProductTour.tsx` - Feature walkthrough
 

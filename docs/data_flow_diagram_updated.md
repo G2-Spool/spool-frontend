@@ -123,7 +123,7 @@ graph TB
     Student[Student]
     
     %% Sub-processes - Thread Discovery
-    P1_1((1.1<br/>Conduct<br/>Voice<br/>Interview))
+    P1_1((1.1<br/>Conduct<br/>Text<br/>Interview))
     P1_2((1.2<br/>Extract<br/>Learning<br/>Objectives))
     P1_3((1.3<br/>Analyze<br/>Goal<br/>Scope))
     P1_4((1.4<br/>Identify<br/>Cross-Curricular<br/>Needs))

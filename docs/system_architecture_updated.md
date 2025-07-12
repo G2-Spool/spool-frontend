@@ -45,7 +45,7 @@ graph TB
     end
     
     subgraph "Core Services - Edge Functions"
-        E --> F[Voice Interview<br/>Edge Function<br/>(FastRTC)]
+        E --> F[Text Interview<br/>Edge Function<br/>(Chat)]
         E --> G[Content Assembly<br/>Edge Function]
         E --> H[Exercise Generation<br/>Edge Function]
         E --> I[Progress Tracking<br/>Edge Function]
@@ -80,7 +80,7 @@ graph TB
 #### Container Services (ECS Cluster: spool-mvp)
 | Service | Status | Technology | Purpose |
 |---------|--------|------------|---------|
-| spool-interview-service | ✅ Active | FastAPI + FastRTC | Voice interviews |
+| spool-interview-service | ✅ Active | FastAPI | Text chat interviews |
 | spool-content-service | ✅ Active | FastAPI | Content delivery |
 | spool-exercise-service | ✅ Active | FastAPI | Exercise generation |
 | spool-progress-service | ✅ Active | FastAPI | Analytics tracking |
@@ -147,7 +147,7 @@ class ThreadDiscoveryService:
 ```
 
 **Integration Points:**
-- Receives transcripts from Voice Interview Service
+- Receives conversation history from Text Interview Service
 - Sends proposals to Thread Generation Service
 - Stores goals in PostgreSQL
 
@@ -224,15 +224,15 @@ class ThreadVisualizer {
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant VI as Voice Interview
+    participant TI as Text Interview
     participant TD as Thread Discovery
     participant TG as Thread Generation
     participant P as Pinecone
     participant N as Neo4j
     participant DB as PostgreSQL
     
-    U->>VI: "I want to learn game development"
-    VI->>TD: Transcript + Context
+    U->>TI: "I want to learn game development"
+    TI->>TD: Conversation history + Context
     TD->>TD: Extract learning objectives
     TD->>TG: Learning Goal
     TG->>TG: Map cross-curricular concepts
@@ -268,11 +268,11 @@ graph LR
 
 ## 7. Enhanced Service Specifications
 
-### 7.1 Voice Interview Service Enhancement
+### 7.1 Text Interview Service Enhancement
 
 **Current Capabilities:**
-- WebRTC audio streaming via FastRTC
-- Real-time transcription
+- Text-based chat interface
+- Real-time message processing
 - Interest extraction
 
 **Thread-Based Enhancements:**
@@ -432,7 +432,7 @@ CREATE (c1)-[:PREREQUISITE_FOR]->(c2)
 ```yaml
 Base URL: https://alj6xppcj6.execute-api.us-east-1.amazonaws.com/prod/
 
-/api/interview/*    # Voice interview endpoints
+/api/interview/*    # Text chat interview endpoints
 /api/content/*      # Content delivery
 /api/exercise/*     # Exercise generation
 /api/progress/*     # Progress tracking

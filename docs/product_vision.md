@@ -20,7 +20,7 @@ Spool is an AI-powered personalized learning platform that transforms how studen
 - **Frontend:** React 18 with TypeScript for robust, maintainable user interfaces
 - **Backend Platform:** Supabase for authentication, database, and edge functions
 - **API Layer:** Supabase Edge Functions for serverless compute
-- **Backend Services Architecture:** Microservices pattern with specialized Edge Functions:
+- **Backend Services Architecture:** Supabase Edge Functions pattern with specialized services:
   - Thread Discovery Service (Interest discovery and learning goal extraction)
   - Thread Generation Service (LLM-powered concept mapping and relevance scoring)
   - Content Assembly Service (Vector search and content curation)
@@ -333,9 +333,9 @@ In Spool's vision, education becomes an exciting journey of discovery where stud
 
 ### Core Stack:
 - **Frontend:** React 18 with TypeScript for robust, maintainable user interfaces
-- **API Gateway:** AWS API Gateway (managed service) for routing, authentication, and scalability - no custom gateway code needed
-- **Backend Framework:** FastAPI (Python) for all microservices - delivering high-performance, type-safe APIs with automatic documentation
-- **Backend Services Architecture:** Microservices pattern with four specialized FastAPI services:
+- **Backend Platform:** Supabase for authentication, database, and edge functions
+- **API Layer:** Supabase Edge Functions for serverless compute
+- **Backend Services Architecture:** Supabase Edge Functions pattern with specialized services:
   - Interview Service (Text-based chat and interest discovery)
   - Content Processing Service (NLP and content transformation)
   - Exercise Generation Service (AI-powered personalization)
@@ -344,36 +344,37 @@ In Spool's vision, education becomes an exciting journey of discovery where stud
 - **Vector Storage:** Pinecone for semantic content indexing and retrieval
 - **Knowledge Graphs:** Neo4j for mapping learning paths, prerequisites, and concept relationships
 - **LLM Integration:** OpenAI GPT-4 for dynamic content personalization and assessment evaluation
-- **Database:** PostgreSQL for user profiles, learning progress, and system configuration
-- **Container Orchestration:** AWS ECS for scalable microservices deployment
+- **Database:** Supabase PostgreSQL for user profiles, learning progress, and system configuration
+- **Edge Computing:** Supabase Edge Functions for scalable serverless execution
 
-### Why AWS API Gateway (Managed Service):
-AWS API Gateway was chosen over a custom API gateway service for several compelling reasons:
-- **Zero Maintenance:** Fully managed by AWS with automatic scaling and high availability
-- **Built-in Features:** Rate limiting, caching, API keys, and monitoring out of the box
-- **Cognito Integration:** Native AWS Cognito authorizers for seamless authentication
-- **Cost Effective:** Pay-per-request pricing (~$3.50 per million requests) vs maintaining a custom service
-- **Simple Routing:** Our straightforward routing needs (path-based to services) don't require custom logic
-- **REST Support:** Standard REST endpoints for all services
+### Why Supabase:
+Supabase was chosen as our backend platform for several compelling reasons:
+- **Integrated Platform:** Authentication, database, and edge functions in one cohesive platform
+- **Zero Infrastructure Management:** Fully managed with automatic scaling and high availability
+- **Edge Functions:** TypeScript/Deno-based serverless functions with excellent performance
+- **Built-in Authentication:** Row-level security and JWT-based auth out of the box
+- **Real-time Capabilities:** WebSocket support for live updates and collaboration features
+- **Cost Effective:** Generous free tier and predictable scaling costs
+- **Developer Experience:** Excellent local development story with CLI tools
 
-### Why FastAPI:
-FastAPI was chosen as our backend framework for several compelling reasons:
-- **Performance:** Built on Starlette ASGI framework, FastAPI delivers performance comparable to Node.js and Go, handling 300,000+ requests per second in benchmarks
-- **Type Safety:** Leverages Python type hints for automatic request validation, serialization, and API documentation generation
-- **Asynchronous by Design:** Native async/await support enables efficient handling of concurrent requests, perfect for our AI-heavy workloads
-- **Developer Productivity:** Automatic interactive API documentation (Swagger/ReDoc) accelerates development and testing
-- **Microservices Ready:** Lightweight footprint and built-in dependency injection make it ideal for our distributed architecture
-- **Data Validation:** Integrated Pydantic models ensure data integrity across all service boundaries
+### Edge Functions Architecture:
+Supabase Edge Functions provide our serverless compute layer:
+- **TypeScript Native:** Full type safety across frontend and backend
+- **Deno Runtime:** Secure, performant runtime with built-in TypeScript support
+- **Auto-scaling:** Functions scale automatically based on demand
+- **Low Latency:** Global edge deployment ensures fast response times
+- **Direct Database Access:** Seamless integration with Supabase PostgreSQL
+- **Simple Deployment:** Git-based deployment with automatic CI/CD
 
 ### Key Libraries:
 - **D3.js:** Interactive learning path visualization
 - **LangGraph:** Structuring the inputs, outputs, state management, and prompts of our LLM calls
 - **SQLAlchemy:** Async ORM for PostgreSQL interactions
-- **Pydantic:** Data validation and settings management
-- **httpx:** Async HTTP client for inter-service communication
-- **uvicorn:** ASGI server for running FastAPI applications
+- **Zod:** TypeScript-first schema validation
+- **Deno:** Secure runtime for Edge Functions
+- **PostgreSQL-JS:** Type-safe database client
 
-**Architecture Principle:** Modular microservices design with FastAPI enables rapid development while maintaining high performance and type safety across all backend services.
+**Architecture Principle:** Supabase Edge Functions architecture enables rapid development while maintaining high performance, type safety, and seamless integration across all services.
 
 
 **Architecture Principle:** Modular design enables rapid content transformation while maintaining educational integrity and supporting scalable personalization.
@@ -390,70 +391,87 @@ Student, parent, or educator seeks personalized education that adapts to individ
    - AI asks natural questions about interests, activities, and aspirations
    - Clean chat interface with message bubbles
    - System extracts interests across personal, social, career, and philanthropic dimensions
-    #### AI-Powered Voice Interview System
+    #### AI-Powered Text Chat System
 
 ##### Overview
-Spool's onboarding begins with an innovative voice-based interview powered by FastRTC, creating a natural conversation that feels more like talking to a friendly mentor than filling out a form. The system uses WebRTC for real-time audio streaming while maintaining a simple REST-based architecture that integrates seamlessly with AWS API Gateway.
+Spool's onboarding begins with an innovative text-based conversation that feels more like chatting with a friendly mentor than filling out a form. The system uses a clean chat interface with natural language processing to create an engaging experience where students share their interests through written dialogue.
 
 ##### Technical Architecture
-- **WebRTC via FastRTC**: Handles all real-time communication complexity
-- **REST-based Signaling**: No WebSockets needed - FastRTC uses HTTP endpoints
-- **Python Backend**: FastAPI service manages audio streaming and processing
-- **AI Voice Agent**: Natural language processing with voice synthesis
-- **Chat Interface**: Dual-mode display showing both voice and text
+- **Clean Chat UI**: Modern messaging interface with typing indicators
+- **REST API**: Simple HTTP endpoints for message exchange
+- **Edge Function Backend**: TypeScript service manages conversation flow
+- **AI Agent**: Natural language processing and response generation
+- **Real-time Updates**: Message streaming for responsive interaction
 
-##### FastRTC Implementation
+##### Chat Implementation
 ```python
-from fastrtc import Stream, ReplyOnPause, get_stt_model, get_tts_model
+from langchain import ConversationChain
+from pydantic import BaseModel
 
-# Initialize models
-stt_model = get_stt_model()  # Moonshine for speech-to-text
-tts_model = get_tts_model()  # Kokoro for text-to-speech
+class ChatMessage(BaseModel):
+    message: str
+    timestamp: datetime
+    role: str  # 'user' or 'assistant'
 
-def interview_handler(audio: tuple[int, np.ndarray]):
-    # Transcribe student's speech
-    text = stt_model.stt(audio)
+async def process_message(user_message: str, session_id: str):
+    # Get conversation history
+    history = get_conversation_history(session_id)
     
     # Generate contextual AI response
-    response = generate_interview_question(text, conversation_history)
+    response = await generate_interview_response(
+        user_message, 
+        history,
+        student_profile
+    )
     
-    # Convert response to natural speech
-    for audio_chunk in tts_model.stream_tts_sync(response):
-        yield audio_chunk
+    # Store message and response
+    save_message(session_id, user_message, 'user')
+    save_message(session_id, response, 'assistant')
+    
+    # Extract interests if detected
+    interests = extract_interests(response, history)
+    
+    return {
+        "reply": response,
+        "interests": interests,
+        "is_complete": check_interview_complete(history)
+    }
 
-# Create stream with automatic voice detection
-stream = Stream(
-    handler=ReplyOnPause(interview_handler),
-    modality="audio",
-    mode="send-receive"
-)
+// Supabase Edge Function endpoint
+export async function handleMessage(req: Request) {
+  const { session_id, message } = await req.json()
+  return await processMessage(message, session_id)
+}
+```
 
-# Mount on FastAPI - creates all necessary endpoints
-stream.mount(app)
+Supabase Edge Functions Configuration
+```typescript
+// Example Edge Function for Interview Service
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-API Gateway Configuration
-Instead of maintaining a custom API gateway service, Spool uses AWS API Gateway:
-yaml# AWS API Gateway Routes (Managed Service)
-/api/interview/*:
-  integration: http_proxy
-  target: http://alb.internal/interview/{proxy}
-  authorization: AWS_COGNITO_USER_POOLS
-
-/api/content/*:
-  integration: http_proxy
-  target: http://alb.internal/content/{proxy}
-  authorization: AWS_COGNITO_USER_POOLS
-
-# FastRTC automatically handles these WebRTC signaling endpoints
-/webrtc/offer    # Created by stream.mount(app)
-/webrtc/ice      # Created by stream.mount(app)
+serve(async (req) => {
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  )
+  
+  // Handle interview messages
+  const { session_id, message } = await req.json()
+  const result = await processMessage(message, session_id)
+  
+  return new Response(JSON.stringify(result), {
+    headers: { 'Content-Type': 'application/json' },
+  })
+})
+```
 
 Service Communication
-
-Frontend → API Gateway: HTTPS with JWT tokens
-API Gateway → Services: HTTP via Application Load Balancer
-Services → Databases: Direct connections with pooling
-WebRTC Audio: Peer-to-peer after signaling
+```
+Frontend → Supabase Edge Functions: HTTPS with JWT tokens
+Edge Functions → Database: Direct Supabase client connections
+Edge Functions → External APIs: HTTPS with proper error handling
+```
 
 
 2. **Competency Assessment**
@@ -489,19 +507,19 @@ WebRTC Audio: Peer-to-peer after signaling
 
 **Welcome Experience**
 - Warm introduction video explaining Spool's personalization approach
-- Choice between voice interview or text-based interest survey
+- Text-based interest discovery chat interface
 - Parent/educator orientation available separately
 - Immediate value demonstration through sample personalized content
 
 **Progressive Disclosure**
-- Begin with voice interview for interest discovery
+- Begin with text chat for interest discovery
 - Show concept personalization preview before subject selection
 - Introduce exercise system through guided first attempt
 - Unlock gamification features after first concept completion
 - Reveal advanced features as student progresses
 
 **Success Milestones**
-- Complete engaging voice interview
+- Complete engaging interest discovery chat
 - See first personalized concept with personal hooks
 - Master first concept through two-stage exercise system
 - Earn first achievement badge
@@ -510,7 +528,7 @@ WebRTC Audio: Peer-to-peer after signaling
 ### Product Tour Design
 
 **Interactive Tour Segments**
-1. **Voice Interview Demo** - Experience conversational interest discovery
+1. **Interest Discovery Chat Demo** - Experience conversational interest discovery
 2. **Concept Display Preview** - See how content personalizes to interests
 3. **Exercise System Walkthrough** - Understand articulation-based assessment
 4. **Progress Visualization** - Explore gamified learning paths
@@ -522,24 +540,24 @@ WebRTC Audio: Peer-to-peer after signaling
 - **Clear Value Props:** Highlight unique benefits at each step
 - **Role-Appropriate:** Different paths for students vs parents/educators
 
-## AI-Powered Voice Interview System
+## AI-Powered Text Chat System
 
 ### Overview
-Spool's onboarding begins with an innovative voice-based interview that feels more like a friendly conversation than a traditional assessment. Using WebRTC technology and an AI voice agent, we create a natural, engaging experience where students share their interests, passions, and curiosities through spoken dialogue. This conversational approach captures authentic insights that written surveys often miss, while the real-time chat interface provides transparency and comfort.
+Spool's onboarding begins with an innovative text-based conversation that feels more like chatting with a friendly mentor than filling out a traditional form. Using a clean chat interface and AI-powered natural language processing, we create an engaging experience where students share their interests, passions, and curiosities through written dialogue. This conversational approach captures authentic insights in a comfortable, accessible format.
 
 ### Technical Architecture
 
 **Core Components:**
-- **WebRTC Connection**: Real-time, low-latency voice communication
-- **Python Backend**: Manages WebRTC signaling and audio streaming
-- **AI Voice Agent**: Natural language processing with voice synthesis
-- **Chat Interface**: Dual-mode display showing both voice and text
+- **Clean Chat UI**: Modern messaging interface with typing indicators
+- **Python Backend**: Manages conversation flow and state
+- **AI Agent**: Natural language processing and response generation
+- **Real-time Updates**: Message streaming for responsive interaction
 
 **Communication Flow:**
 ```
-Student Browser ←WebRTC→ Python Server ←→ AI Voice Agent
-       ↓                        ↓
-   Chat Interface        Transcript Processing
+Student Browser ←HTTPS→ Python Server ←→ AI Agent
+       ↓                      ↓
+   Chat Interface      Interest Extraction
 ```
 
 ### Interview Experience Design
@@ -547,7 +565,7 @@ Student Browser ←WebRTC→ Python Server ←→ AI Voice Agent
 **1. Initial Connection**
 - Student clicks "Start Interview" button
 - Browser requests microphone permissions
-- WebRTC connection established with Python backend
+- Clean chat interface opens in modal or full screen
 - Friendly AI voice greets student: "Hi! I'm here to learn about what makes you excited so we can make your learning experience amazing. This will just be a casual chat about your interests."
 
 **2. Conversational Interface**
@@ -632,12 +650,12 @@ AI: "That shows amazing problem-solving skills! What was the trickiest part?"
 ### Data Processing Pipeline
 
 **Real-time Processing:**
-1. **Audio Streaming**: Continuous 16kHz audio stream via WebRTC
-2. **Speech-to-Text**: Immediate transcription using Whisper API
+1. **Message Streaming**: Real-time chat message exchange
+2. **Text Analysis**: Natural language processing of messages
 3. **Intent Analysis**: Real-time understanding of student responses
 4. **Response Generation**: AI formulates contextual follow-ups
-5. **Text-to-Speech**: Natural voice synthesis for AI responses
-6. **Transcript Update**: Chat interface updates simultaneously
+5. **Message Display**: Chat interface updates with new messages
+6. **Interest Tracking**: Live extraction of interests from conversation
 
 **Post-Interview Analysis:**
 1. **Interest Extraction**: NLP identifies key themes and passions
@@ -662,8 +680,8 @@ AI: "That shows amazing problem-solving skills! What was the trickiest part?"
 ### Privacy & Safety Considerations
 
 **Data Handling:**
-- Audio streams processed in real-time, not stored
-- Only transcripts and extracted interests saved
+- Chat messages processed in real-time
+- Conversation history and extracted interests saved
 - Clear privacy notice before interview starts
 - Parental consent workflow for younger students
 
@@ -683,20 +701,19 @@ AI: "That shows amazing problem-solving skills! What was the trickiest part?"
 
 **Quality Metrics:**
 - Interest profile accuracy (parent validation)
-- Transcription accuracy rate
-- Voice interaction success rate
-- Fallback to text percentage (target: <5%)
+- Message comprehension rate
+- Chat interaction quality
+- Conversation flow naturalness
 
 ### Implementation Considerations
 
-**Python WebRTC Stack:**
+**Chat System Stack:**
 ```python
 # Core components
-- aiortc: WebRTC implementation
-- asyncio: Asynchronous audio streaming
-- websockets: Signaling server
-- pydub: Audio processing
-- edge-tts: Voice synthesis
+- asyncio: Asynchronous message handling
+- websockets: Real-time chat communication
+- langchain: Natural language processing
+- redis: Session state management
 ```
 
 **Scalability Design:**
@@ -705,7 +722,7 @@ AI: "That shows amazing problem-solving skills! What was the trickiest part?"
 - Redis for session management
 - CloudFront for media streaming
 
-This conversational interview system transforms the typically mundane process of profile creation into an engaging experience that students actually enjoy. By using natural voice interaction with visual feedback, we capture authentic interests while building excitement for the personalized learning journey ahead.
+This conversational interview system transforms the typically mundane process of profile creation into an engaging experience that students actually enjoy. By using natural text-based chat interaction, we capture authentic interests while building excitement for the personalized learning journey ahead.
 
 # Concept Display System Enhancement
 
@@ -1094,190 +1111,3 @@ This two-stage system ensures:
 - **Time to Mastery**: Average time from concept start to full mastery including remediation
 
 This comprehensive exercise system transforms assessment from a testing mechanism into a learning experience, ensuring every student achieves true mastery before progression.
-
-# Interview System Enhancement
-
-## AI-Powered Voice Interview System
-
-### Overview
-Spool's onboarding begins with an innovative voice-based interview that feels more like a friendly conversation than a traditional assessment. Using WebRTC technology and an AI voice agent, we create a natural, engaging experience where students share their interests, passions, and curiosities through spoken dialogue. This conversational approach captures authentic insights that written surveys often miss, while the real-time chat interface provides transparency and comfort.
-
-### Technical Architecture
-
-**Core Components:**
-- **WebRTC Connection**: Real-time, low-latency voice communication
-- **Python Backend**: Manages WebRTC signaling and audio streaming
-- **AI Voice Agent**: Natural language processing with voice synthesis
-- **Chat Interface**: Dual-mode display showing both voice and text
-
-**Communication Flow:**
-```
-Student Browser ←WebRTC→ Python Server ←→ AI Voice Agent
-       ↓                        ↓
-   Chat Interface        Transcript Processing
-```
-
-### Interview Experience Design
-
-**1. Initial Connection**
-- Student clicks "Start Interview" button
-- Browser requests microphone permissions
-- WebRTC connection established with Python backend
-- Friendly AI voice greets student: "Hi! I'm here to learn about what makes you excited so we can make your learning experience amazing. This will just be a casual chat about your interests."
-
-**2. Conversational Interface**
-- **Split-screen design**:
-  - Left side: Live chat transcript
-  - Right side: Visual indicators (speaking/listening states)
-- **Real-time transcription**: Student sees their words appear as they speak
-- **System messages**: AI's questions and responses shown in chat
-- **Color coding**: 
-  - Blue bubbles: AI voice agent
-  - Green bubbles: Student responses
-  - Gray italics: System status messages
-
-**3. Natural Conversation Flow**
-The AI voice agent conducts a warm, adaptive conversation rather than a rigid questionnaire:
-
-**Opening Questions:**
-- "What do you love doing when you have free time?"
-- "Tell me about something you did recently that was really fun"
-- "What activities make you lose track of time?"
-
-**Deepening Understanding:**
-- "That sounds awesome! What is it about [activity] that you enjoy most?"
-- "When did you first get interested in [interest]?"
-- "Have you ever thought about turning [interest] into something bigger?"
-
-**Exploration Questions:**
-- "What kinds of trips or vacations do you dream about taking?"
-- "If you could learn about anything in the world, what would it be?"
-- "What questions do you find yourself wondering about?"
-
-**Life Context Questions:**
-- "Do you like doing things on your own or with friends and family?"
-- "Have you ever helped someone using your [skill/interest]?"
-- "What would your dream job look like?"
-
-### Adaptive Conversation Intelligence
-
-**Dynamic Response Paths:**
-- AI adjusts follow-up questions based on student responses
-- Enthusiasm detection triggers deeper exploration
-- Natural transitions between topics
-- Age-appropriate language adaptation
-
-**Interest Signal Detection:**
-- Emotional tone analysis for genuine excitement
-- Keyword extraction for specific interests
-- Pattern recognition for learning preferences
-- Social context understanding
-
-**Example Adaptive Flow:**
-```
-Student: "I love playing Minecraft with my friends"
-AI: "That's fantastic! Are you more of a builder or an explorer in Minecraft?"
-Student: "I love building huge castles and redstone machines"
-AI: "Wow, redstone machines - that's like programming with blocks! 
-     Do you enjoy figuring out how to make things work?"
-Student: "Yeah! I spent weeks making an automatic farm system"
-AI: "That shows amazing problem-solving skills! What was the trickiest part?"
-```
-
-### Chat Interface Features
-
-**Visual Design:**
-- Clean, modern chat interface similar to familiar messaging apps
-- Animated typing indicators when AI is "thinking"
-- Smooth auto-scroll as conversation progresses
-- Ability to scroll back and review earlier parts
-
-**Interactive Elements:**
-- "Pause" button for bathroom breaks or interruptions
-- "I didn't catch that" button for audio issues
-- Volume adjustment for AI voice
-- Text input fallback option if voice fails
-
-**Accessibility Features:**
-- High contrast mode option
-- Adjustable font sizes
-- Screen reader compatibility
-- Keyboard navigation support
-
-### Data Processing Pipeline
-
-**Real-time Processing:**
-1. **Audio Streaming**: Continuous 16kHz audio stream via WebRTC
-2. **Speech-to-Text**: Immediate transcription using Whisper API
-3. **Intent Analysis**: Real-time understanding of student responses
-4. **Response Generation**: AI formulates contextual follow-ups
-5. **Text-to-Speech**: Natural voice synthesis for AI responses
-6. **Transcript Update**: Chat interface updates simultaneously
-
-**Post-Interview Analysis:**
-1. **Interest Extraction**: NLP identifies key themes and passions
-2. **Category Mapping**: Interests mapped to life categories
-3. **Learning Style Indicators**: Communication patterns analyzed
-4. **Profile Generation**: Comprehensive interest profile created
-
-### Interview Completion & Transition
-
-**Graceful Conclusion:**
-- AI naturally wraps up after 5-7 minutes or 6-8 topic areas
-- "This has been such a great conversation! I've learned so much about what excites you."
-- Summary of key interests displayed in chat
-- "Ready to start your personalized learning journey?"
-
-**Profile Confirmation:**
-- Visual summary of discovered interests
-- Opportunity to add anything missed
-- Preview of how interests will personalize learning
-- Seamless transition to subject selection
-
-### Privacy & Safety Considerations
-
-**Data Handling:**
-- Audio streams processed in real-time, not stored
-- Only transcripts and extracted interests saved
-- Clear privacy notice before interview starts
-- Parental consent workflow for younger students
-
-**Safety Features:**
-- Inappropriate content detection
-- Automatic session termination for safety concerns
-- Report functionality for parents
-- Conversation logs available for review
-
-### Success Metrics
-
-**Engagement Metrics:**
-- Average conversation duration (target: 6-8 minutes)
-- Response depth (average words per answer)
-- Topic coverage (interests discovered per session)
-- Completion rate (target: 95%+)
-
-**Quality Metrics:**
-- Interest profile accuracy (parent validation)
-- Transcription accuracy rate
-- Voice interaction success rate
-- Fallback to text percentage (target: <5%)
-
-### Implementation Considerations
-
-**Python WebRTC Stack:**
-```python
-# Core components
-- aiortc: WebRTC implementation
-- asyncio: Asynchronous audio streaming
-- websockets: Signaling server
-- pydub: Audio processing
-- edge-tts: Voice synthesis
-```
-
-**Scalability Design:**
-- Containerized Python services
-- Horizontal scaling for concurrent interviews
-- Redis for session management
-- CloudFront for media streaming
-
-This conversational interview system transforms the typically mundane process of profile creation into an engaging experience that students actually enjoy. By using natural voice interaction with visual feedback, we capture authentic interests while building excitement for the personalized learning journey ahead.

@@ -125,13 +125,12 @@ Headers added to backend requests:
 ## Service Integration
 
 ### Interview Service
-Special WebRTC endpoints for voice interviews:
+Endpoints for text-based interviews:
 ```
-POST /api/interview/rtc/offer
-POST /api/interview/rtc/answer
-POST /api/interview/rtc/ice-candidate
 POST /api/interview/start
+POST /api/interview/{session_id}/message
 GET  /api/interview/{session_id}/status
+POST /api/interview/{session_id}/complete
 ```
 
 ### Content Service
@@ -223,7 +222,7 @@ TOKEN="your-jwt-token"
 curl -H "Authorization: Bearer $TOKEN" \
   https://your-api-id.execute-api.us-east-1.amazonaws.com/prod/api/interview/health
 
-# Test WebRTC signaling
+# Test interview start
 curl -X POST \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \

@@ -76,7 +76,7 @@ serviceUrls: {
 2. **Service Health Verification**
    - Test each service endpoint through API Gateway
    - Verify authentication is working
-   - Check WebRTC endpoints for interview service
+   - Check text interview endpoints for interview service
 
 3. **Database Connections**
    - Configure RDS PostgreSQL

@@ -56,16 +56,16 @@ This Functional Requirements Document (FRD) translates the high-level business n
 | FR-023 | The system **shall** show concept relevance scores (80-100%) for transparency. |
 | FR-024 | The system **shall** categorize concepts as Core (>90%), Supporting (80-90%), or Optional (70-80%). |
 
-### 2.4 Voice Interview System (Enhanced for Threads)
+### 2.4 Text-Based Interview System (Enhanced for Threads)
 
-**User Story:** As a new student, I want to have a natural conversation about what I want to learn, so that the system can create my first Learning Thread.
+**User Story:** As a new student, I want to have a natural text conversation about what I want to learn, so that the system can create my first Learning Thread.
 
 | ID | Requirement Description |
 | :---- | :---- |
-| FR-025 | The system **shall** establish a WebRTC connection using FastRTC within 3 seconds. |
-| FR-026 | The system **shall** stream audio via FastRTC's built-in WebRTC handling. |
-| FR-027 | The system **shall** use FastRTC's ReplyOnPause handler for natural turn-taking. |
-| FR-028 | The system **shall** display real-time transcript using FastRTC's transcription output. |
+| FR-025 | The system **shall** provide a clean chat interface with message bubbles and typing indicators. |
+| FR-026 | The system **shall** respond to messages within 2 seconds using AI-generated responses. |
+| FR-027 | The system **shall** maintain conversation context for natural dialogue flow. |
+| FR-028 | The system **shall** display the full conversation history in the chat interface. |
 | FR-029 | The system **shall** conduct a 5-7 minute adaptive conversation about learning goals. |
 | FR-030 | The system **shall** extract both interests AND specific learning objectives from the conversation. |
 | FR-031 | The system **shall** generate an initial Thread proposal at interview completion. |
@@ -184,7 +184,7 @@ This Functional Requirements Document (FRD) translates the high-level business n
 | FR-081 | The system **shall** implement Thread Discovery Service using Supabase Edge Functions for learning goal extraction. |
 | FR-082 | The system **shall** implement Thread Generation Service using Supabase Edge Functions for LLM-powered concept mapping. |
 | FR-083 | The system **shall** implement Content Assembly Service using Supabase Edge Functions for vector search and curation. |
-| FR-084 | The system **shall** implement Voice Interview Service using Supabase Edge Functions with FastRTC integration. |
+| FR-084 | The system **shall** implement Text Interview Service using Supabase Edge Functions with chat interface. |
 | FR-085 | The system **shall** implement Exercise Generation Service using Supabase Edge Functions for AI personalization. |
 | FR-086 | The system **shall** implement Progress Tracking Service using Supabase Edge Functions for analytics. |
 | FR-087 | The system **shall** use Supabase Auth and Edge Functions for authentication and request routing. |
@@ -221,10 +221,10 @@ This Functional Requirements Document (FRD) translates the high-level business n
 ### 3.1 Infrastructure Components
 
 **Edge Functions (Replacing Lambda & ECS Services):**
-- **Thread Discovery Function**: Learning goal extraction from voice interviews
+- **Thread Discovery Function**: Learning goal extraction from text chat interviews
 - **Thread Generation Function**: LLM-powered concept mapping and Thread assembly
 - **Content Assembly Function**: Vector search and content curation
-- **Voice Interview Function**: WebRTC voice handling with FastRTC
+- **Text Interview Function**: Chat-based conversation handling
 - **Exercise Generation Function**: AI-powered exercise personalization
 - **Progress Tracking Function**: Analytics and gamification tracking
 - **Thread Visualization Function**: D3.js data preparation
@@ -252,7 +252,7 @@ This Functional Requirements Document (FRD) translates the high-level business n
 | Thread Discovery | 512 MB | 60s | Unlimited |
 | Thread Generation | 1 GB | 120s | Unlimited |
 | Content Assembly | 512 MB | 30s | Unlimited |
-| Voice Interview | 512 MB | 300s | Unlimited |
+| Text Interview | 256 MB | 60s | Unlimited |
 | Exercise Generation | 512 MB | 60s | Unlimited |
 | Progress Tracking | 256 MB | 30s | Unlimited |
 
@@ -380,7 +380,7 @@ Identified Concepts (across subjects):
 | FR-001 to FR-010 | Curiosity-driven learning | Thread Discovery & Generation |
 | FR-011 to FR-018 | Visual learning paths | Thread Visualization |
 | FR-019 to FR-024 | Cross-curricular integration | Thread-Based Architecture |
-| FR-025 to FR-032 | Natural conversation interface | Voice Interview (FastRTC) |
+| FR-025 to FR-032 | Natural conversation interface | Text Interview (Chat) |
 | FR-033 to FR-038 | Persistent personalization | Thread-Enhanced Profiles |
 | FR-039 to FR-045 | Intelligent content assembly | Vector Search & Knowledge Graphs |
 | FR-046 to FR-051 | Contextual learning | Thread-Aware Display |

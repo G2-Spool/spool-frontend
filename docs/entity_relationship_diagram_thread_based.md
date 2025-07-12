@@ -15,7 +15,7 @@ graph TB
     subgraph "Supabase Edge Functions - Thread Services"
         A[Thread Discovery<br/>Edge Function]
         B[Thread Generation<br/>Edge Function]
-        C[Voice Interview<br/>Edge Function]
+        C[Text Interview<br/>Edge Function]
         D[Content Assembly<br/>Edge Function]
         E[Exercise Generation<br/>Edge Function]
         F[Progress Tracking<br/>Edge Function]
