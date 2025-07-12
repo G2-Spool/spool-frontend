@@ -36,53 +36,111 @@ exports.handler = async (event) => {
     const { httpMethod, path, pathParameters, resource } = event;
     
     // Use resource path for routing (more reliable than path)
+    // Resource will be like "/api/thread/{proxy+}" or specific resource paths
     const resourcePath = resource || path;
     
     let response;
     
-    // Route to appropriate handler based on resource path
-    switch (true) {
-      case httpMethod === 'POST' && resourcePath === '/api/thread':
-        response = await createThreadHandler(event);
-        break;
-        
-      case httpMethod === 'GET' && resourcePath === '/api/thread':
-        response = await listThreadsHandler(event);
-        break;
-        
-      case httpMethod === 'GET' && resourcePath === '/api/thread/list':
-        response = await listThreadsHandler(event);
-        break;
-        
-      case httpMethod === 'GET' && resourcePath === '/api/thread/{threadId}':
-        response = await getThreadHandler(event);
-        break;
-        
-      case httpMethod === 'PUT' && resourcePath === '/api/thread/{threadId}':
-        response = await updateThreadHandler(event);
-        break;
-        
-      case httpMethod === 'GET' && resourcePath === '/api/thread/connection/test':
-        response = createResponse(200, {
-          message: 'Thread API connection successful',
-          timestamp: new Date().toISOString()
-        });
-        break;
-        
-      default:
-        response = createResponse(400, {
-          error: 'Invalid request',
-          message: `Unsupported method ${httpMethod} for resource ${resourcePath}`,
-          debug: { path, resource: resourcePath, httpMethod },
-          availableEndpoints: [
-            'POST /api/thread',
-            'GET /api/thread',
-            'GET /api/thread/list', 
-            'GET /api/thread/{threadId}',
-            'PUT /api/thread/{threadId}',
-            'GET /api/thread/connection/test'
-          ]
-        });
+    // Normalize the path by removing trailing slashes and handling proxy
+    const normalizedPath = path ? path.replace(/\/$/, '') : '';
+    
+    // Handle different API Gateway integration patterns
+    if (resource && resource.includes('{proxy+}')) {
+      // Proxy integration - parse the actual path
+      const proxyPath = normalizedPath.replace(/^\/api/, '');
+      
+      switch (true) {
+        case httpMethod === 'POST' && proxyPath === '/thread':
+          response = await createThreadHandler(event);
+          break;
+          
+        case httpMethod === 'GET' && proxyPath === '/thread':
+          response = await listThreadsHandler(event);
+          break;
+          
+        case httpMethod === 'GET' && proxyPath === '/thread/list':
+          response = await listThreadsHandler(event);
+          break;
+          
+        case httpMethod === 'GET' && proxyPath.match(/^\/thread\/[^\/]+$/):
+          response = await getThreadHandler(event);
+          break;
+          
+        case httpMethod === 'PUT' && proxyPath.match(/^\/thread\/[^\/]+$/):
+          response = await updateThreadHandler(event);
+          break;
+          
+        case httpMethod === 'GET' && proxyPath === '/thread/connection/test':
+          response = createResponse(200, {
+            message: 'Thread API connection successful',
+            timestamp: new Date().toISOString(),
+            lambdaName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+            region: process.env.AWS_REGION
+          });
+          break;
+          
+        default:
+          response = createResponse(400, {
+            error: 'Invalid request',
+            message: `Unsupported method ${httpMethod} for path ${proxyPath}`,
+            debug: { path: normalizedPath, resource, httpMethod, proxyPath },
+            availableEndpoints: [
+              'POST /api/thread',
+              'GET /api/thread',
+              'GET /api/thread/list', 
+              'GET /api/thread/{threadId}',
+              'PUT /api/thread/{threadId}',
+              'GET /api/thread/connection/test'
+            ]
+          });
+      }
+    } else {
+      // Direct resource mapping
+      switch (true) {
+        case httpMethod === 'POST' && resourcePath === '/api/thread':
+          response = await createThreadHandler(event);
+          break;
+          
+        case httpMethod === 'GET' && resourcePath === '/api/thread':
+          response = await listThreadsHandler(event);
+          break;
+          
+        case httpMethod === 'GET' && resourcePath === '/api/thread/list':
+          response = await listThreadsHandler(event);
+          break;
+          
+        case httpMethod === 'GET' && resourcePath === '/api/thread/{threadId}':
+          response = await getThreadHandler(event);
+          break;
+          
+        case httpMethod === 'PUT' && resourcePath === '/api/thread/{threadId}':
+          response = await updateThreadHandler(event);
+          break;
+          
+        case httpMethod === 'GET' && resourcePath === '/api/thread/connection/test':
+          response = createResponse(200, {
+            message: 'Thread API connection successful',
+            timestamp: new Date().toISOString(),
+            lambdaName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+            region: process.env.AWS_REGION
+          });
+          break;
+          
+        default:
+          response = createResponse(400, {
+            error: 'Invalid request',
+            message: `Unsupported method ${httpMethod} for resource ${resourcePath}`,
+            debug: { path, resource: resourcePath, httpMethod },
+            availableEndpoints: [
+              'POST /api/thread',
+              'GET /api/thread',
+              'GET /api/thread/list', 
+              'GET /api/thread/{threadId}',
+              'PUT /api/thread/{threadId}',
+              'GET /api/thread/connection/test'
+            ]
+          });
+      }
     }
     
     // Ensure response has CORS headers even if handler didn't include them
@@ -108,4 +166,4 @@ exports.handler = async (event) => {
       requestId: event.requestContext?.requestId
     });
   }
-};
+}; 
