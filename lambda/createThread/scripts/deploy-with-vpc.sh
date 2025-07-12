@@ -22,6 +22,21 @@ SECURITY_GROUP_ID="sg-b969c293"
 
 # Environment variables
 COGNITO_USER_POOL_ID="us-east-1_H7Kti5MPI"
+# Get RDS connection string from SSM Parameter Store
+echo "Retrieving RDS connection details from SSM Parameter Store..."
+DB_HOST=$(aws ssm get-parameter --name "/spool/prod/rds/host" --with-decryption --query "Parameter.Value" --output text --region $REGION 2>/dev/null || echo "")
+DB_PORT=$(aws ssm get-parameter --name "/spool/prod/rds/port" --with-decryption --query "Parameter.Value" --output text --region $REGION 2>/dev/null || echo "5432")
+DB_NAME=$(aws ssm get-parameter --name "/spool/prod/rds/database" --with-decryption --query "Parameter.Value" --output text --region $REGION 2>/dev/null || echo "")
+DB_USER=$(aws ssm get-parameter --name "/spool/prod/rds/username" --with-decryption --query "Parameter.Value" --output text --region $REGION 2>/dev/null || echo "")
+DB_PASS=$(aws ssm get-parameter --name "/spool/prod/rds/password" --with-decryption --query "Parameter.Value" --output text --region $REGION 2>/dev/null || echo "")
+
+if [ -n "$DB_HOST" ] && [ -n "$DB_NAME" ] && [ -n "$DB_USER" ] && [ -n "$DB_PASS" ]; then
+    DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+    echo "Database connection string constructed successfully"
+else
+    echo "Warning: Could not retrieve all database parameters from SSM. Lambda will attempt to fetch them at runtime."
+    DATABASE_URL=""
+fi
 
 # Check if AWS CLI is configured
 if ! aws sts get-caller-identity >/dev/null 2>&1; then
@@ -54,28 +69,54 @@ if aws lambda get-function --function-name $FUNCTION_NAME --region $REGION >/dev
         --region $REGION
     
     echo "Updating function configuration with VPC..."
-    aws lambda update-function-configuration \
-        --function-name $FUNCTION_NAME \
-        --runtime $RUNTIME \
-        --handler $HANDLER \
-        --timeout $TIMEOUT \
-        --memory-size $MEMORY_SIZE \
-        --environment Variables="{COGNITO_USER_POOL_ID=$COGNITO_USER_POOL_ID}" \
-        --vpc-config SubnetIds=$SUBNET_IDS,SecurityGroupIds=$SECURITY_GROUP_ID \
-        --region $REGION
+    if [ -n "$DATABASE_URL" ]; then
+        aws lambda update-function-configuration \
+            --function-name $FUNCTION_NAME \
+            --runtime $RUNTIME \
+            --handler $HANDLER \
+            --timeout $TIMEOUT \
+            --memory-size $MEMORY_SIZE \
+            --environment Variables="{COGNITO_USER_POOL_ID=$COGNITO_USER_POOL_ID,DATABASE_URL=$DATABASE_URL}" \
+            --vpc-config SubnetIds=$SUBNET_IDS,SecurityGroupIds=$SECURITY_GROUP_ID \
+            --region $REGION
+    else
+        aws lambda update-function-configuration \
+            --function-name $FUNCTION_NAME \
+            --runtime $RUNTIME \
+            --handler $HANDLER \
+            --timeout $TIMEOUT \
+            --memory-size $MEMORY_SIZE \
+            --environment Variables="{COGNITO_USER_POOL_ID=$COGNITO_USER_POOL_ID}" \
+            --vpc-config SubnetIds=$SUBNET_IDS,SecurityGroupIds=$SECURITY_GROUP_ID \
+            --region $REGION
+    fi
 else
     echo "Creating new Lambda function with VPC configuration..."
-    aws lambda create-function \
-        --function-name $FUNCTION_NAME \
-        --runtime $RUNTIME \
-        --role $ROLE_ARN \
-        --handler $HANDLER \
-        --timeout $TIMEOUT \
-        --memory-size $MEMORY_SIZE \
-        --zip-file fileb://createThread.zip \
-        --environment Variables="{COGNITO_USER_POOL_ID=$COGNITO_USER_POOL_ID}" \
-        --vpc-config SubnetIds=$SUBNET_IDS,SecurityGroupIds=$SECURITY_GROUP_ID \
-        --region $REGION
+    if [ -n "$DATABASE_URL" ]; then
+        aws lambda create-function \
+            --function-name $FUNCTION_NAME \
+            --runtime $RUNTIME \
+            --role $ROLE_ARN \
+            --handler $HANDLER \
+            --timeout $TIMEOUT \
+            --memory-size $MEMORY_SIZE \
+            --zip-file fileb://createThread.zip \
+            --environment Variables="{COGNITO_USER_POOL_ID=$COGNITO_USER_POOL_ID,DATABASE_URL=$DATABASE_URL}" \
+            --vpc-config SubnetIds=$SUBNET_IDS,SecurityGroupIds=$SECURITY_GROUP_ID \
+            --region $REGION
+    else
+        aws lambda create-function \
+            --function-name $FUNCTION_NAME \
+            --runtime $RUNTIME \
+            --role $ROLE_ARN \
+            --handler $HANDLER \
+            --timeout $TIMEOUT \
+            --memory-size $MEMORY_SIZE \
+            --zip-file fileb://createThread.zip \
+            --environment Variables="{COGNITO_USER_POOL_ID=$COGNITO_USER_POOL_ID}" \
+            --vpc-config SubnetIds=$SUBNET_IDS,SecurityGroupIds=$SECURITY_GROUP_ID \
+            --region $REGION
+    fi
 fi
 
 # Clean up

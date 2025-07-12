@@ -11,6 +11,7 @@ import { StreakDisplay } from '../components/molecules/StreakDisplay';
 import { InterestBubble } from '../components/molecules/InterestBubble';
 import { LearningPathSkeleton } from '../components/LoadingStates/LearningPathSkeleton';
 import { CreateThreadModal } from '../components/organisms/CreateThreadModal';
+import { InterviewModal } from '../components/organisms/InterviewModal';
 import { 
   BookOpen, 
   Trophy, 
@@ -28,6 +29,7 @@ export const StudentDashboard: React.FC = () => {
   const { studentProfile, user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<LifeCategory | 'all'>('all');
   const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
   
   // Fetch real data from API
   const { data: learningPaths, isLoading: pathsLoading } = useLearningPaths();
