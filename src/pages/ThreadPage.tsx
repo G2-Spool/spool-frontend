@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { useThread } from '../hooks/useThread';
 import { ThreadSectionsSidebar } from '../components/organisms/ThreadSectionsSidebar';
-import { TwoStageExercise } from '../components/organisms/TwoStageExercise';
+import { ChatBasedExercise } from '../components/organisms/ChatBasedExercise';
 import { cn } from '../utils/cn';
 
 // Mock student profile - in production this would come from user context
@@ -280,7 +280,7 @@ export const ThreadPage: React.FC = () => {
           {currentSection && (
             <div className="space-y-6">
               {showExercise && currentSectionStatus === 'exercising' ? (
-                <TwoStageExercise
+                <ChatBasedExercise
                   conceptId={currentSection.id}
                   conceptName={currentSection.title}
                   conceptDescription={currentSection.text.substring(0, 200)}

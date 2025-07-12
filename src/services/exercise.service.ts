@@ -126,6 +126,40 @@ class ExerciseService {
     }
   }
 
+  async getHint(
+    exerciseId: string,
+    currentStep: number,
+    chatContext: string[]
+  ): Promise<{ hint: string; stepNumber: number }> {
+    try {
+      const response = await fetch(`${this.baseUrl}/hint`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('idToken')}`,
+        },
+        body: JSON.stringify({
+          exerciseId,
+          currentStep,
+          chatContext,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get hint: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error getting hint:', error);
+      // Fallback hint if API fails
+      return {
+        hint: "Think about breaking this problem into smaller steps. What information do you have, and what do you need to find?",
+        stepNumber: currentStep + 1
+      };
+    }
+  }
+
   async getExerciseHistory(conceptId: string): Promise<any[]> {
     try {
       const response = await fetch(`${this.baseUrl}/history/${conceptId}`, {
