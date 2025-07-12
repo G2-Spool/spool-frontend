@@ -15,12 +15,14 @@ import { ConceptPage } from './pages/ConceptPage';
 import { ExercisePage } from './pages/ExercisePage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ThreadsPage } from './pages/ThreadsPage';
+import { ClassesPage } from './pages/ClassesPage';
 import { ProgressPage } from './pages/ProgressPage';
 import { ThreadPage } from './pages/ThreadPage';
+import { TopicPage } from './pages/TopicPage';
 
 // Layouts
 import { AuthLayout } from './components/layouts/AuthLayout';
-import { DashboardLayout } from './components/layouts/DashboardLayout';
+import { MainLayout } from './components/layouts/MainLayout';
 import { ProtectedRoute } from './components/layouts/ProtectedRoute';
 
 // Onboarding
@@ -55,18 +57,20 @@ function App() {
               <Route
                 element={
                   <ProtectedRoute allowedRoles={['student']}>
-                    <DashboardLayout />
+                    <MainLayout />
                   </ProtectedRoute>
                 }
               >
                 <Route path="/dashboard" element={<StudentDashboard />} />
                 <Route path="/interview" element={<VoiceInterviewPage />} />
                 <Route path="/threads" element={<ThreadsPage />} />
+                <Route path="/classes" element={<ClassesPage />} />
                 <Route path="/progress" element={<ProgressPage />} />
                 <Route path="/learning-path/:id" element={<LearningPathDetail />} />
                 <Route path="/learn/:conceptId" element={<ConceptPage />} />
                 <Route path="/exercise/:exerciseId" element={<ExercisePage />} />
                 <Route path="/thread/:threadId" element={<ThreadPage />} />
+                <Route path="/topic/:topicId" element={<TopicPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
               </Route>
 

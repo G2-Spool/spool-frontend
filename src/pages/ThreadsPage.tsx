@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Card } from '../components/atoms/Card';
-import { Badge } from '../components/atoms/Badge';
-import { ProgressBar } from '../components/molecules/ProgressBar';
-import { Button } from '../components/atoms/Button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
 import { TextbookCard } from '../components/molecules/TextbookCard';
+import { ProgressBar } from '../components/molecules/ProgressBar';
 import { 
   Clock, 
   Trophy, 
@@ -114,29 +114,31 @@ export const ThreadsPage: React.FC = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-obsidian dark:text-gray-100 mb-2">Threads</h1>
-            <p className="text-gray-600 dark:text-gray-400">Continue learning or explore new subjects</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowSearch(!showSearch)}
-            >
-              <Search className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
+    <div className="w-full">
+      <div className="max-w-7xl mx-auto space-y-8 p-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-foreground">Learning Threads</h1>
+              <p className="text-muted-foreground text-lg">Continue learning or explore new subjects</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSearch(!showSearch)}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                disabled={isLoading}
+              >
+                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
           </div>
         </div>
         
@@ -162,7 +164,7 @@ export const ThreadsPage: React.FC = () => {
             {/* Filter Options */}
             <div className="flex gap-2 mt-2">
               <Badge
-                variant={filters.category?.includes('personal') ? 'primary' : 'default'}
+                variant={filters.category?.includes('personal') ? 'default' : 'secondary'}
                 className="cursor-pointer"
                 onClick={() => {
                   setFilters(prev => ({
@@ -176,7 +178,7 @@ export const ThreadsPage: React.FC = () => {
                 Personal
               </Badge>
               <Badge
-                variant={filters.category?.includes('social') ? 'primary' : 'default'}
+                variant={filters.category?.includes('social') ? 'default' : 'secondary'}
                 className="cursor-pointer"
                 onClick={() => {
                   setFilters(prev => ({
@@ -190,7 +192,7 @@ export const ThreadsPage: React.FC = () => {
                 Social
               </Badge>
               <Badge
-                variant={filters.category?.includes('career') ? 'primary' : 'default'}
+                variant={filters.category?.includes('career') ? 'default' : 'secondary'}
                 className="cursor-pointer"
                 onClick={() => {
                   setFilters(prev => ({
@@ -204,7 +206,7 @@ export const ThreadsPage: React.FC = () => {
                 Career
               </Badge>
               <Badge
-                variant={filters.category?.includes('philanthropic') ? 'primary' : 'default'}
+                variant={filters.category?.includes('philanthropic') ? 'default' : 'secondary'}
                 className="cursor-pointer"
                 onClick={() => {
                   setFilters(prev => ({
@@ -220,20 +222,21 @@ export const ThreadsPage: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
-      
-      {/* Error State */}
-      {error && (
-        <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-          <AlertCircle className="h-5 w-5 text-red-500" />
-          <p className="text-red-700">Failed to load courses. Please try again.</p>
-        </div>
-      )}
+        
+        {/* Error State */}
+        {error && (
+          <Card className="p-4 bg-destructive/10 border-destructive/20">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+              <p className="text-destructive">Failed to load courses. Please try again.</p>
+            </div>
+          </Card>
+        )}
 
-      {/* Current Threads (User's Learning Threads) */}
-      <section className="mb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-obsidian">Your Learning Threads</h2>
+        {/* Current Threads (User's Learning Threads) */}
+        <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-foreground">Your Learning Threads</h2>
           <Button
             size="sm"
             onClick={() => {
@@ -289,8 +292,8 @@ export const ThreadsPage: React.FC = () => {
       </section>
 
       {/* Enrolled Courses */}
-      <section className="mb-12">
-        <h2 className="text-xl font-semibold text-obsidian mb-6">Current Courses</h2>
+      <section className="space-y-6">
+        <h2 className="text-2xl font-semibold text-foreground">Current Courses</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading ? (
             // Loading skeletons
@@ -318,7 +321,7 @@ export const ThreadsPage: React.FC = () => {
                         <h3 className="text-lg font-semibold text-obsidian line-clamp-2">
                           {course.title}
                         </h3>
-                        <Badge variant="primary" size="sm">
+                        <Badge variant="default">
                           {course.category}
                         </Badge>
                       </div>
@@ -365,8 +368,8 @@ export const ThreadsPage: React.FC = () => {
       </section>
 
       {/* Core Subjects (Textbooks) */}
-      <section>
-        <h2 className="text-xl font-semibold text-obsidian mb-6">Explore Core Subjects</h2>
+      <section className="space-y-6">
+        <h2 className="text-2xl font-semibold text-foreground">Explore Core Subjects</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoadingTextbooks ? (
             // Loading skeletons
@@ -440,6 +443,7 @@ export const ThreadsPage: React.FC = () => {
           console.log('Interests extracted from courses page:', interests);
         }}
       />
+      </div>
     </div>
   );
 };

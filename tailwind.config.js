@@ -163,5 +163,29 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Line clamp is built into Tailwind CSS 3.x
+    function({ addUtilities }) {
+      addUtilities({
+        '.line-clamp-1': {
+          overflow: 'hidden',
+          display: '-webkit-box',
+          '-webkit-box-orient': 'vertical',
+          '-webkit-line-clamp': '1',
+        },
+        '.line-clamp-2': {
+          overflow: 'hidden',
+          display: '-webkit-box',
+          '-webkit-box-orient': 'vertical',
+          '-webkit-line-clamp': '2',
+        },
+        '.line-clamp-3': {
+          overflow: 'hidden',
+          display: '-webkit-box',
+          '-webkit-box-orient': 'vertical',
+          '-webkit-line-clamp': '3',
+        },
+      })
+    }
+  ],
 }

@@ -1,6 +1,6 @@
 import React, { Component, type ReactNode } from 'react';
 import { AlertCircle } from 'lucide-react';
-import { Button } from '../atoms/Button';
+import { Button } from '../ui/button';
 
 interface Props {
   children: ReactNode;
@@ -55,7 +55,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <Button variant="outline" onClick={this.handleReset}>
               Try Again
             </Button>
-            <Button variant="primary" onClick={() => window.location.reload()}>
+            <Button variant="default" onClick={() => window.location.reload()}>
               Refresh Page
             </Button>
           </div>
