@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/atoms/Button';
 import { BookOpen, Sparkles, Users, BarChart3, ArrowRight } from 'lucide-react';
+import { SpoolPlayer } from '../components/remotion/SpoolPlayer';
 
 export const LandingPage: React.FC = () => {
   return (
@@ -107,83 +108,28 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* Spool Demo Animation */}
       <section className="py-16 lg:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-obsidian dark:text-gray-100 mb-4">
-              How Spool Works
+              See Spool in Action
             </h2>
             <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
-              From voice interview to mastery in four simple steps
+              Watch how we transform traditional linear education into connected, meaningful learning
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto">
-            <div className="space-y-8">
-              {/* Step 1 */}
-              <div className="flex gap-4 items-start">
-                <div className="flex-shrink-0 w-10 h-10 bg-teal-500 dark:bg-teal-600 text-white rounded-full flex items-center justify-center font-bold">
-                  1
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    Voice Interview
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Students have a natural conversation with our AI about their interests, 
-                    hobbies, and aspirations. No forms, just friendly chat.
-                  </p>
-                </div>
-              </div>
-
-              {/* Step 2 */}
-              <div className="flex gap-4 items-start">
-                <div className="flex-shrink-0 w-10 h-10 bg-teal-500 dark:bg-teal-600 text-white rounded-full flex items-center justify-center font-bold">
-                  2
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    Personalized Content
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Every concept is presented with hooks, examples, and exercises that 
-                    connect to the student's specific interests and life goals.
-                  </p>
-                </div>
-              </div>
-
-              {/* Step 3 */}
-              <div className="flex gap-4 items-start">
-                <div className="flex-shrink-0 w-10 h-10 bg-teal-500 dark:bg-teal-600 text-white rounded-full flex items-center justify-center font-bold">
-                  3
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    Articulated Understanding
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Students explain their thought process, not just provide answers. 
-                    AI evaluates each step and provides targeted help where needed.
-                  </p>
-                </div>
-              </div>
-
-              {/* Step 4 */}
-              <div className="flex gap-4 items-start">
-                <div className="flex-shrink-0 w-10 h-10 bg-teal-500 dark:bg-teal-600 text-white rounded-full flex items-center justify-center font-bold">
-                  4
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    True Mastery
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Two-stage exercises ensure both understanding and application ability. 
-                    Progress tracking and gamification keep motivation high.
-                  </p>
-                </div>
-              </div>
+          <div className="max-w-5xl mx-auto">
+            <SpoolPlayer className="mb-8" />
+            
+            {/* Brief explanation below the demo */}
+            <div className="text-center mt-8">
+              <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Traditional education treats learning as a straight line from start to finish. 
+                But real life is messy and interconnected. Spool organizes this complexity 
+                into clear, personalized academic lessons that connect to what matters most to each student.
+              </p>
             </div>
           </div>
         </div>
