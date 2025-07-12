@@ -933,15 +933,16 @@
 /* Sidebar edge indicators when hidden */
 .sidebar-edge-indicator {
   position: fixed;
-  width: 3px;
-  height: 60px;
-  background: linear-gradient(to bottom, transparent, rgba(79, 209, 197, 0.6), transparent);
-  border-radius: 0 3px 3px 0;
+  width: 4px;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, rgba(79, 209, 197, 0.8), transparent);
+  border-radius: 0 4px 4px 0;
   top: 50%;
   transform: translateY(-50%);
   opacity: 0;
-  transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out, width 0.2s ease-in-out;
   z-index: 40;
+  animation: pulse 2s infinite;
 }
 
 .sidebar-edge-indicator.left {
@@ -950,11 +951,21 @@
 
 .sidebar-edge-indicator.right {
   right: 0;
-  border-radius: 3px 0 0 3px;
+  border-radius: 4px 0 0 4px;
 }
 
 .sidebar-edge-indicator.show {
   opacity: 1;
+}
+
+.sidebar-edge-indicator:hover {
+  width: 8px;
+  background: linear-gradient(to bottom, transparent, rgba(79, 209, 197, 1), transparent);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 
 /* Focus mode improvements */

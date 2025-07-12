@@ -29,11 +29,15 @@ interface SidebarProviderProps {
 export const SidebarProvider: React.FC<SidebarProviderProps> = ({ children }) => {
   const [isLeftSidebarVisible, setIsLeftSidebarVisible] = useState(true);
   const [isRightSidebarVisible, setIsRightSidebarVisible] = useState(true);
+  const [leftRevealedByHover, setLeftRevealedByHover] = useState(false);
+  const [rightRevealedByHover, setRightRevealedByHover] = useState(false);
 
-  // Edge hover detection
+  // Edge hover detection and auto-hide
   useEffect(() => {
     let leftHoverTimer: NodeJS.Timeout;
     let rightHoverTimer: NodeJS.Timeout;
+    let leftHideTimer: NodeJS.Timeout;
+    let rightHideTimer: NodeJS.Timeout;
 
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
@@ -46,6 +50,7 @@ export const SidebarProvider: React.FC<SidebarProviderProps> = ({ children }) =>
           clearTimeout(leftHoverTimer);
           leftHoverTimer = setTimeout(() => {
             setIsLeftSidebarVisible(true);
+            setLeftRevealedByHover(true);
           }, 300); // Show after 300ms of hovering
         }
       } else {
@@ -58,10 +63,38 @@ export const SidebarProvider: React.FC<SidebarProviderProps> = ({ children }) =>
           clearTimeout(rightHoverTimer);
           rightHoverTimer = setTimeout(() => {
             setIsRightSidebarVisible(true);
+            setRightRevealedByHover(true);
           }, 300); // Show after 300ms of hovering
         }
       } else {
         clearTimeout(rightHoverTimer);
+      }
+
+      // Auto-hide logic for hover-revealed sidebars
+      // Left sidebar area (approximately 256px width)
+      if (isLeftSidebarVisible && leftRevealedByHover) {
+        if (clientX > 280) { // Mouse moved away from left sidebar area
+          clearTimeout(leftHideTimer);
+          leftHideTimer = setTimeout(() => {
+            setIsLeftSidebarVisible(false);
+            setLeftRevealedByHover(false);
+          }, 500); // Hide after 0.5 seconds of being away
+        } else {
+          clearTimeout(leftHideTimer); // Cancel hide if mouse returns to sidebar
+        }
+      }
+
+      // Right sidebar area (approximately 320px width)
+      if (isRightSidebarVisible && rightRevealedByHover) {
+        if (clientX < windowWidth - 340) { // Mouse moved away from right sidebar area
+          clearTimeout(rightHideTimer);
+          rightHideTimer = setTimeout(() => {
+            setIsRightSidebarVisible(false);
+            setRightRevealedByHover(false);
+          }, 500); // Hide after 0.5 seconds of being away
+        } else {
+          clearTimeout(rightHideTimer); // Cancel hide if mouse returns to sidebar
+        }
       }
     };
 
@@ -71,33 +104,43 @@ export const SidebarProvider: React.FC<SidebarProviderProps> = ({ children }) =>
       document.removeEventListener('mousemove', handleMouseMove);
       clearTimeout(leftHoverTimer);
       clearTimeout(rightHoverTimer);
+      clearTimeout(leftHideTimer);
+      clearTimeout(rightHideTimer);
     };
-  }, [isLeftSidebarVisible, isRightSidebarVisible]);
+  }, [isLeftSidebarVisible, isRightSidebarVisible, leftRevealedByHover, rightRevealedByHover]);
 
   const setLeftSidebarVisible = (visible: boolean) => {
     setIsLeftSidebarVisible(visible);
+    setLeftRevealedByHover(false); // Reset hover state when manually controlled
   };
 
   const setRightSidebarVisible = (visible: boolean) => {
     setIsRightSidebarVisible(visible);
+    setRightRevealedByHover(false); // Reset hover state when manually controlled
   };
 
   const hideAllSidebars = () => {
     setIsLeftSidebarVisible(false);
     setIsRightSidebarVisible(false);
+    setLeftRevealedByHover(false);
+    setRightRevealedByHover(false);
   };
 
   const showAllSidebars = () => {
     setIsLeftSidebarVisible(true);
     setIsRightSidebarVisible(true);
+    setLeftRevealedByHover(false);
+    setRightRevealedByHover(false);
   };
 
   const toggleLeftSidebar = () => {
     setIsLeftSidebarVisible(!isLeftSidebarVisible);
+    setLeftRevealedByHover(false);
   };
 
   const toggleRightSidebar = () => {
     setIsRightSidebarVisible(!isRightSidebarVisible);
+    setRightRevealedByHover(false);
   };
 
   const value = {

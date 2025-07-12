@@ -58,7 +58,7 @@ export const ThreadPage: React.FC = () => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       const shouldShow = scrollPosition > 800 && !showExercise && selectedSection && sectionProgress[selectedSection] !== 'completed';
-      setShowFloatingCTA(shouldShow);
+      setShowFloatingCTA(Boolean(shouldShow));
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -527,8 +527,6 @@ export const ThreadPage: React.FC = () => {
           }}
           expandedSections={expandedSections}
           onToggleExpanded={toggleSectionExpanded}
-          completedSections={completedSections}
-          sectionProgress={sectionProgress}
         />
       </div>
 
