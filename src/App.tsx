@@ -17,6 +17,7 @@ import { ThreadsPage } from './pages/ThreadsPage';
 import { ProgressPage } from './pages/ProgressPage';
 import { ThreadPage } from './pages/ThreadPage';
 import { TopicPage } from './pages/TopicPage';
+import { TestThreadCreation } from './pages/TestThreadCreation';
 
 // Layouts
 import { AuthLayout } from './components/layouts/AuthLayout';
@@ -51,7 +52,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              
+
               <Route
                 element={
                   <ProtectedRoute allowedRoles={['student']}>
@@ -61,45 +62,46 @@ function App() {
               >
                 <Route path="/dashboard" element={<StudentDashboard />} />
                 <Route path="/threads" element={<ThreadsPage />} />
-                <Route path="/progress" element={<ProgressPage />} />
-                <Route path="/learning-path/:id" element={<LearningPathDetail />} />
-                <Route path="/topic/:topicId" element={<TopicPage />} />
-                <Route path="/topic/:topicId/learn/:conceptId" element={<ConceptPage />} />
-                <Route path="/learn/:conceptId" element={<ConceptPage />} />
+                <Route path="/threads/:threadId" element={<ThreadPage />} />
+                <Route path="/learning-path/:pathId" element={<LearningPathDetail />} />
+                <Route path="/concept/:conceptId" element={<ConceptPage />} />
                 <Route path="/exercise/:exerciseId" element={<ExercisePage />} />
-                <Route path="/thread/:threadId" element={<ThreadPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/progress" element={<ProgressPage />} />
+                <Route path="/topic/:topicId" element={<TopicPage />} />
+                <Route path="/thread/:threadId" element={<ThreadPage />} />
+                <Route path="/test-thread" element={<TestThreadCreation />} />
               </Route>
-
 
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            
+            <Toaster 
+              position="top-center"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+                success: {
+                  duration: 3000,
+                  iconTheme: {
+                    primary: '#10b981',
+                    secondary: '#fff',
+                  },
+                },
+                error: {
+                  duration: 5000,
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#fff',
+                  },
+                },
+              }}
+            />
           </Router>
-          <Toaster 
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#363636',
-                color: '#fff',
-              },
-              success: {
-                duration: 3000,
-                iconTheme: {
-                  primary: '#4ade80',
-                  secondary: '#fff',
-                },
-              },
-              error: {
-                duration: 5000,
-                iconTheme: {
-                  primary: '#ef4444',
-                  secondary: '#fff',
-                },
-              },
-            }}
-          />
         </AuthProvider>
       </QueryProvider>
     </ErrorBoundary>
