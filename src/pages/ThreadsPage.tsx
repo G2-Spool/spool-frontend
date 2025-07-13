@@ -154,12 +154,6 @@ export const ThreadsPage: React.FC = () => {
     navigate(`/topic/${topicId}`);
   };
 
-  const handlePlayClick = (topicId: string) => {
-    console.log('Play clicked:', topicId);
-    // Navigate to learning page for the topic
-    navigate(`/learn/${topicId}`);
-  };
-
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
@@ -278,7 +272,6 @@ export const ThreadsPage: React.FC = () => {
               topics={subject.topics}
               color={subject.color}
               onTopicClick={handleTopicClick}
-              onPlayClick={handlePlayClick}
             />
           ))}
         </div>

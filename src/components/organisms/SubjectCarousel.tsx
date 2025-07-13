@@ -25,7 +25,6 @@ interface SubjectCarouselProps {
   topics: Topic[]
   color: string
   onTopicClick?: (topicId: string) => void
-  onPlayClick?: (topicId: string) => void
   className?: string
 }
 
@@ -34,7 +33,6 @@ export function SubjectCarousel({
   topics, 
   color, 
   onTopicClick, 
-  onPlayClick,
   className 
 }: SubjectCarouselProps) {
   const [scrollPosition, setScrollPosition] = useState(0)
@@ -97,7 +95,6 @@ export function SubjectCarousel({
               progress={topic.progress}
               color={color}
               onCardClick={() => onTopicClick?.(topic.id)}
-              onPlayClick={() => onPlayClick?.(topic.id)}
             />
           ))}
         </div>
