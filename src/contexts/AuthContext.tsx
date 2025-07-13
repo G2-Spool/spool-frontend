@@ -107,28 +107,70 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     let mounted = true;
+    let initTimeout: NodeJS.Timeout;
 
     // Initialize auth state
     const initializeAuth = async () => {
       try {
         console.log('Initializing auth...');
         
+        // Set a timeout to prevent indefinite loading
+        initTimeout = setTimeout(() => {
+          console.warn('Auth initialization timeout - forcing loading complete');
+          if (mounted && isLoading) {
+            setIsLoading(false);
+          }
+        }, 5000); // 5 second timeout
+        
         // Get the initial session
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Error getting session:', error);
-          setIsLoading(false);
+          if (mounted) {
+            setIsLoading(false);
+          }
           return;
         }
 
-        if (mounted) {
-          processSession(session);
-          setIsLoading(false);
+        // If we have a session, try to refresh it to ensure it's valid
+        if (session) {
+          console.log('Session found, refreshing...');
+          const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+          
+          if (refreshError) {
+            console.error('Error refreshing session:', refreshError);
+            // If refresh fails, the session is invalid - clear it
+            if (mounted) {
+              processSession(null);
+              setIsLoading(false);
+            }
+            return;
+          }
+          
+          if (mounted) {
+            processSession(refreshedSession || session);
+            setIsLoading(false);
+            console.log('Auth initialization complete');
+          }
+        } else {
+          // No session found
+          console.log('No session found');
+          if (mounted) {
+            processSession(null);
+            setIsLoading(false);
+          }
         }
       } catch (error) {
         console.error('Failed to initialize auth:', error);
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
+      } finally {
+        // Clear timeout if it hasn't fired
+        if (initTimeout) {
+          clearTimeout(initTimeout);
+        }
       }
     };
 
@@ -143,17 +185,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Process the new session
       processSession(session);
       
-      // Only set loading to false if we're not already loaded
-      if (isLoading) {
-        setIsLoading(false);
-      }
+      // Don't change loading state here - it's already handled by initializeAuth
     });
 
     return () => {
       mounted = false;
+      if (initTimeout) {
+        clearTimeout(initTimeout);
+      }
       subscription.unsubscribe();
     };
-  }, [isLoading]); // Add isLoading to dependencies
+  }, []); // Empty dependency array - only run once on mount
 
   const login = async (email: string, password: string) => {
     try {
