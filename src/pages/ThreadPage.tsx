@@ -41,7 +41,6 @@ export const ThreadPage: React.FC = () => {
   const [showExercise, setShowExercise] = useState(false);
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [sectionProgress, setSectionProgress] = useState<Record<string, 'reading' | 'exercising' | 'completed'>>({});
-  const [showFloatingCTA, setShowFloatingCTA] = useState(false);
   const [showLearningTip, setShowLearningTip] = useState(true);
   
   // Fetch thread data
@@ -79,12 +78,6 @@ export const ThreadPage: React.FC = () => {
       setSelectedSection(thread.sections[0].id);
     }
   }, [thread, selectedSection]);
-
-  // Handle scroll for floating CTA - Disabled for dual scroll layout
-  useEffect(() => {
-    // Floating CTA disabled when using dual scroll layout
-    setShowFloatingCTA(false);
-  }, []);
   
   const toggleSectionExpanded = (sectionId: string) => {
     const newExpanded = new Set(expandedSections);

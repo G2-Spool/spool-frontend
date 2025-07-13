@@ -1,12 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, Loader2, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '../config/supabase';
 import toast from 'react-hot-toast';
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
 
 interface InterestWithDetails {
   interest: string;
@@ -27,94 +22,59 @@ export function InterestDiscoveryModal({
   studentId,
   onInterestsUpdated 
 }: InterestDiscoveryModalProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [, setSessionId] = useState<string>('');
   const [extractedInterests, setExtractedInterests] = useState<InterestWithDetails[]>([]);
-  const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  useEffect(() => {
-    if (isOpen) {
-      startSession();
-    }
-  }, [isOpen]);
-
-  const startSession = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('interest-discovery', {
-        body: { action: 'start_session', studentId }
-      });
-
-      if (error) throw error;
-
-      setSessionId(data.sessionId);
-      setMessages([{ role: 'assistant', content: data.message }]);
-    } catch (error) {
-      console.error('Error starting session:', error);
-      toast.error('Failed to start chat session');
-    }
-  };
-
-  const sendMessage = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (!inputValue.trim() || isLoading) return;
 
-    const userMessage = inputValue.trim();
-    setInputValue('');
     setIsLoading(true);
-
-    // Add user message to UI immediately
-    const newMessages = [...messages, { role: 'user' as const, content: userMessage }];
-    setMessages(newMessages);
+    console.log('Submitting interests text:', inputValue);
 
     try {
+      console.log('Calling interest-discovery edge function...');
       const { data, error } = await supabase.functions.invoke('interest-discovery', {
         body: { 
-          action: 'process_message', 
+          action: 'extract_interests', 
           studentId,
-          messages: newMessages,
-          newMessage: userMessage
+          text: inputValue.trim()
         }
       });
 
-      if (error) throw error;
+      console.log('Edge function response:', { data, error });
 
-      // Add AI response
-      setMessages(data.messages);
-      setExtractedInterests(data.extractedInterests);
-
-      // Notify parent component if interests were updated
-      if (data.newInterestsFound > 0 && onInterestsUpdated) {
-        onInterestsUpdated(data.extractedInterests);
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
       }
 
-      // Auto-close if conversation is complete
-      if (data.shouldConclude) {
-        setTimeout(() => {
-          toast.success(`Discovered ${data.extractedInterests.length} interests!`);
-          onClose();
-        }, 2000);
+      if (!data || !data.success) {
+        throw new Error('Failed to extract interests');
       }
+
+      setExtractedInterests(data.interests);
+
+      // Notify parent component
+      if (data.interests.length > 0 && onInterestsUpdated) {
+        onInterestsUpdated(data.interests);
+      }
+
+      toast.success(`Discovered ${data.interests.length} interests!`);
+      
+      // Clear form and close after a short delay
+      setTimeout(() => {
+        setInputValue('');
+        setExtractedInterests([]);
+        onClose();
+      }, 2000);
     } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error('Failed to send message');
+      console.error('Error processing interests:', error);
+      toast.error('Failed to process your interests. Please try again.');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
     }
   };
 
@@ -128,7 +88,7 @@ export function InterestDiscoveryModal({
           <div className="flex items-center gap-3">
             <Sparkles className="w-6 h-6 text-purple-500" />
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Discover Your Interests
+              Tell Us About Your Interests
             </h2>
           </div>
           <button
@@ -139,73 +99,66 @@ export function InterestDiscoveryModal({
           </button>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[80%] p-4 rounded-lg ${
-                  message.role === 'user'
-                    ? 'bg-purple-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                }`}
-              >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
-                <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col p-6">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Tell us about your hobbies, activities you enjoy, subjects that fascinate you, 
+            or anything you're curious about. The more details you share, the better we can 
+            personalize your learning experience!
+          </p>
+
+          <textarea
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="I love playing basketball because I enjoy the teamwork and strategy. I'm also really into cooking, especially trying new recipes from different cultures. Recently I've been curious about how artificial intelligence works..."
+            className="flex-1 w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white resize-none"
+            disabled={isLoading}
+            rows={8}
+          />
+
+          {/* Extracted Interests Preview */}
+          {extractedInterests.length > 0 && (
+            <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Discovered interests:</p>
+              <div className="flex flex-wrap gap-2">
+                {extractedInterests.map((interest, index) => (
+                  <div
+                    key={index}
+                    className="group relative"
+                  >
+                    <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs rounded-full">
+                      {interest.interest}
+                    </span>
+                    {interest.details && (
+                      <div className="absolute bottom-full left-0 mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                        {interest.details}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}
-          <div ref={messagesEndRef} />
-        </div>
 
-        {/* Interest Pills */}
-        {extractedInterests.length > 0 && (
-          <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Discovered interests:</p>
-            <div className="flex flex-wrap gap-2">
-              {extractedInterests.map((interest, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs rounded-full"
-                >
-                  {interest.interest}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Input */}
-        <div className="p-6 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex gap-3">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Tell me about your hobbies and interests..."
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
-              disabled={isLoading}
-            />
-            <button
-              onClick={sendMessage}
-              disabled={!inputValue.trim() || isLoading}
-              className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              <Send className="w-4 h-4" />
-              Send
-            </button>
-          </div>
-        </div>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={!inputValue.trim() || isLoading}
+            className="mt-6 px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                Discover My Interests
+              </>
+            )}
+          </button>
+        </form>
       </div>
     </div>
   );

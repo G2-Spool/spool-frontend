@@ -217,7 +217,7 @@ export const StudentDashboard: React.FC = () => {
               onClick={() => setShowInterestModal(true)}
             >
               <MessageCircle className="h-4 w-4 mr-2" />
-              Start Chat
+              Add Interests
             </Button>
           </Card>
         )}
@@ -293,7 +293,7 @@ export const StudentDashboard: React.FC = () => {
                   onClick={() => setShowInterestModal(true)}
                 >
                   <Zap className="h-4 w-4 mr-2" />
-                  Discover Interests
+                  Follow a Thread...
                 </Button>
               </Card>
             )}
