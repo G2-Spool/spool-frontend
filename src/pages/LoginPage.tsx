@@ -33,10 +33,10 @@ export const LoginPage: React.FC = () => {
 
     try {
       await login(email, password);
-      navigate(from, { replace: true });
+      // Don't navigate here - let the useEffect handle it when isAuthenticated updates
     } catch (err: any) {
+      console.error('Login error in form:', err);
       setError(err.message || 'Invalid email or password');
-    } finally {
       setIsLoading(false);
     }
   };

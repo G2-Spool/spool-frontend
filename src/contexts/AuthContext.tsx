@@ -73,13 +73,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const fetchUserData = async () => {
     try {
+      console.log('Fetching user data...');
       const { data: { user: supabaseUser }, error } = await supabase.auth.getUser();
       
-      if (error || !supabaseUser) {
+      if (error) {
+        console.error('Error getting user:', error);
         setUser(null);
         setStudentProfile(null);
         return;
       }
+      
+      if (!supabaseUser) {
+        console.log('No user found');
+        setUser(null);
+        setStudentProfile(null);
+        return;
+      }
+      
+      console.log('Supabase user found:', supabaseUser.id);
       
       // Map Supabase user to our User type
       const userData: User = {
@@ -99,26 +110,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // const profile = await fetchStudentProfile(userData.id);
       // For now, use mock data
       setStudentProfile(mockStudentProfile);
+      console.log('User and profile set successfully');
     } catch (error) {
-      console.error('Error fetching user:', error);
+      console.error('Error in fetchUserData:', error);
       setUser(null);
       setStudentProfile(null);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     // Check for existing session
-    fetchUserData();
+    const initAuth = async () => {
+      try {
+        await fetchUserData();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    initAuth();
 
     // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.id);
+      
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         await fetchUserData();
+        setIsLoading(false);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setStudentProfile(null);
+        setIsLoading(false);
       }
     });
 
@@ -129,7 +151,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      setIsLoading(true);
+      console.log('Login attempt for:', email);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -137,14 +159,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       
       if (error) {
+        console.error('Login error:', error);
         throw error;
       }
       
       if (data.user) {
+        console.log('Login successful, user:', data.user.id);
+        // The auth state change listener will handle updating the user state
+        // But we'll also manually fetch to ensure immediate update
         await fetchUserData();
       }
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('Login error caught:', error);
       
       // Handle Supabase-specific errors
       if (error instanceof AuthError) {
@@ -158,8 +184,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         throw new Error(error.message || 'An error occurred during login');
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 

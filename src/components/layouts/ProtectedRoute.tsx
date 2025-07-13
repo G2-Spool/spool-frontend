@@ -15,6 +15,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { user, isLoading, isAuthenticated } = useAuth();
   const location = useLocation();
 
+  // Debug logging
+  console.log('ProtectedRoute check:', {
+    isLoading,
+    isAuthenticated,
+    user: user?.id,
+    pathname: location.pathname
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -24,11 +32,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!isAuthenticated) {
+    console.log('Not authenticated, redirecting to login');
     // Redirect to login page but save the attempted location
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    console.log('User role not allowed:', user.role);
     // User doesn't have the required role
     return <Navigate to="/" replace />;
   }
