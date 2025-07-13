@@ -40,6 +40,7 @@ export const SignUpPage: React.FC = () => {
         password: formData.password,
         options: {
           data: {
+            full_name: `${formData.firstName} ${formData.lastName}`.trim(),
             first_name: formData.firstName,
             last_name: formData.lastName,
             role: formData.role,

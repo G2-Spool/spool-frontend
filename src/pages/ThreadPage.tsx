@@ -5,21 +5,11 @@ import { Button } from '../components/atoms/Button';
 import { Badge } from '../components/atoms/Badge';
 import { 
   ArrowLeft, 
-  Clock, 
   Brain, 
-  MessageSquare,
-  Lightbulb,
-  TrendingUp,
-  Sparkles,
-  Play,
-  CheckCircle,
   BarChart3,
-  Zap,
   Award,
-  X,
-  Split,
-  ExternalLink,
-  BadgeHelp
+  TrendingUp,
+  Sparkles
 } from 'lucide-react';
 import { useThread } from '../hooks/useThread';
 import { ThreadSectionsSidebar } from '../components/organisms/ThreadSectionsSidebar';
@@ -34,46 +24,24 @@ export const ThreadPage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-  const [showExercise, setShowExercise] = useState(false);
+  const [showExercise, setShowExercise] = useState(true);
   const [completedSections] = useState<Set<string>>(new Set());
   const [sectionProgress, setSectionProgress] = useState<Record<string, 'reading' | 'exercising' | 'completed'>>({});
-  const [showLearningTip, setShowLearningTip] = useState(true);
   const [sidebarActiveTab, setSidebarActiveTab] = useState<'concepts' | 'glossary'>('concepts');
   const [newTerms, setNewTerms] = useState<string[]>([]);
   
   // Fetch thread data
   const { data: thread, isLoading, error } = useThread(threadId || '');
   
-  // Get difficulty color to match sidebar
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty?.toLowerCase()) {
-      case 'beginner':
-        return 'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30';
-      case 'intermediate':
-        return 'text-yellow-700 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/30';
-      case 'advanced':
-        return 'text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-900/30';
-      default:
-        return 'text-gray-700 dark:text-gray-400 bg-gray-100 dark:bg-gray-900/30';
-    }
-  };
 
-  // Get relevance color based on score
-  const getRelevanceColor = (score: number) => {
-    const percentage = Math.round(score * 100);
-    if (percentage < 30) {
-      return 'text-red-600 dark:text-red-400';
-    } else if (percentage <= 70) {
-      return 'text-yellow-600 dark:text-yellow-400';
-    } else {
-      return 'text-green-600 dark:text-green-400';
-    }
-  };
   
-  // Set initial selected section
+  // Set initial selected section and start exercise mode
   useEffect(() => {
     if (thread?.sections && thread.sections.length > 0 && !selectedSection) {
-      setSelectedSection(thread.sections[0].id);
+      const firstSectionId = thread.sections[0].id;
+      setSelectedSection(firstSectionId);
+      // Set the first section to exercising mode immediately
+      setSectionProgress(prev => ({ ...prev, [firstSectionId]: 'exercising' }));
     }
   }, [thread, selectedSection]);
   
@@ -85,14 +53,6 @@ export const ThreadPage: React.FC = () => {
       newExpanded.add(sectionId);
     }
     setExpandedSections(newExpanded);
-  };
-
-  const handleStartExercise = () => {
-    if (selectedSection) {
-      setSectionProgress(prev => ({ ...prev, [selectedSection]: 'exercising' }));
-      setShowExercise(true);
-      setSidebarActiveTab('concepts'); // Start on concepts tab
-    }
   };
 
   // const handleExerciseComplete = () => {
@@ -161,7 +121,6 @@ export const ThreadPage: React.FC = () => {
   }
   
   const currentSection = thread.sections.find(s => s.id === selectedSection);
-  const currentSectionStatus = selectedSection ? sectionProgress[selectedSection] || 'reading' : 'reading';
   
   return (
     <div className="flex h-full bg-gray-50 dark:bg-gray-900">
@@ -173,20 +132,7 @@ export const ThreadPage: React.FC = () => {
             <Button
               variant="ghost"
               size="md"
-              onClick={() => {
-                if (showExercise) {
-                  // Exit exercise mode and return to section overview
-                  setShowExercise(false);
-                  setSidebarActiveTab('concepts'); // Reset to concepts tab
-                  setNewTerms([]); // Clear new terms
-                  if (selectedSection) {
-                    setSectionProgress(prev => ({ ...prev, [selectedSection]: 'reading' }));
-                  }
-                } else {
-                  // Navigate back to threads page
-                  navigate('/threads');
-                }
-              }}
+              onClick={() => navigate('/threads')}
               className="mb-4 rounded-lg px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-2 -ml-2"
             >
               <ArrowLeft className="w-8 h-5" />
@@ -277,298 +223,45 @@ export const ThreadPage: React.FC = () => {
               )}
             </div>
             
-            {/* Analysis Summary - Hidden during exercise */}
-            {!showExercise && (
-              <Card className="bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 p-4 mb-6">
-                <div className="flex items-start gap-3">
-                  <Brain className="h-8 w-8 text-teal-600 dark:text-teal-400 mt-1" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-teal-950 dark:text-teal-300 mb-1">Your Learning Focus</h3>
-                    <p className="text-white text-base">{thread.analysis.summary}</p>
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {thread.analysis.subjects.map((subject: string, idx: number) => (
-                        <Badge key={idx} variant="primary" size="sm">
-                          {subject}
-                        </Badge>
-                      ))}
-                      {thread.analysis.topics.map((topic: string, idx: number) => (
-                        <Badge key={idx} variant="default" size="sm">
-                          {topic}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            )}
+
             
             <div className="text-sm text-gray-600">
               <span className="font-medium">{thread.sections.length} sections</span> matched your query
             </div>
           </div>
           
-          {/* Selected Section Content or Exercise */}
+          {/* Exercise Interface */}
           {currentSection && (
             <div className="space-y-6 px-8 pb-8">
-              {showExercise && currentSectionStatus === 'exercising' ? (
-                <div className="space-y-6">
-                  {/* Concept Presentation */}
-                  <ConceptPresentation
-                    conceptId={currentSection.id}
-                    conceptTitle={currentSection.title}
-                  />
-                  
-                  {/* Chat Exercise Interface */}
-                  <div style={{ backgroundColor: '#2d3748' }} className="rounded-lg">
-                    <div className="p-6">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="p-3 bg-gradient-to-br from-teal-100 to-blue-100 dark:from-teal-900/30 dark:to-blue-900/30 rounded-lg">
-                          <Brain className="h-6 w-6 text-teal-600 dark:text-teal-400" />
-                        </div>
-                        <div>
-                          <h2 className="text-xl font-bold text-foreground">Interactive Exercise</h2>
-                          <p className="text-muted-foreground">Practice your understanding with AI-guided exercises</p>
-                        </div>
+              <div className="space-y-6">
+                {/* Concept Presentation */}
+                <ConceptPresentation
+                  conceptId={currentSection.id}
+                  conceptTitle={currentSection.title}
+                />
+                
+                {/* Chat Exercise Interface */}
+                <div style={{ backgroundColor: '#2d3748' }} className="rounded-lg">
+                  <div className="p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="p-3 bg-gradient-to-br from-teal-100 to-blue-100 dark:from-teal-900/30 dark:to-blue-900/30 rounded-lg">
+                        <Brain className="h-6 w-6 text-teal-600 dark:text-teal-400" />
                       </div>
-                      
-                      <ChatExerciseInterface
-                        conceptId={currentSection.id}
-                        conceptTitle={currentSection.title}
-                        onSwitchToGlossary={() => setSidebarActiveTab('glossary')}
-                        onNewTerm={(term) => setNewTerms(prev => [...prev, term])}
-                      />
+                      <div>
+                        <h2 className="text-xl font-bold text-foreground">Interactive Exercise</h2>
+                        <p className="text-muted-foreground">Practice your understanding with AI-guided exercises</p>
+                      </div>
                     </div>
+                    
+                    <ChatExerciseInterface
+                      conceptId={currentSection.id}
+                      conceptTitle={currentSection.title}
+                      onSwitchToGlossary={() => setSidebarActiveTab('glossary')}
+                      onNewTerm={(term) => setNewTerms(prev => [...prev, term])}
+                    />
                   </div>
                 </div>
-              ) : (
-                <>
-                  <Card className="p-6 bg-gray-50 dark:bg-gray-800/80">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h2 className="text-3xl font-semibold text-obsidian dark:text-gray-100">
-                            {currentSection.title}
-                          </h2>
-                          {currentSectionStatus === 'completed' && (
-                            <Badge variant="success" size="sm">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Completed
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-4 text-base text-gray-600">
-                          <div className="flex items-center gap-1">
-                            <TrendingUp className={cn("h-4 w-4", getRelevanceColor(currentSection.relevanceScore))} />
-                            <span className={getRelevanceColor(currentSection.relevanceScore)}>
-                              {Math.round(currentSection.relevanceScore * 100)}% relevant
-                            </span>
-                          </div>
-                          {currentSection.estimatedMinutes && (
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              <span>{currentSection.estimatedMinutes} min</span>
-                            </div>
-                          )}
-                          {currentSection.difficulty && (
-                            <span className={cn(
-                              "text-sm font-medium px-2 py-0.5 rounded-full",
-                              getDifficultyColor(currentSection.difficulty)
-                            )}>
-                              {currentSection.difficulty}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Start Exercise Button */}
-                      {currentSectionStatus !== 'completed' && (
-                        <div className="flex-shrink-0 ml-6">
-                          <Button
-                            variant="primary"
-                            size="md"
-                            onClick={handleStartExercise}
-                            className="bg-teal-600 hover:bg-teal-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 !text-white font-semibold px-4 py-2 rounded-lg flex items-center"
-                          >
-                            <Play className="h-4 w-4 mr-2" />
-                            Start Exercise
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Section Text Content */}
-                    <div className="prose prose-gray max-w-none">
-                      <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                        <MarkdownText text={currentSection.text} />
-                      </p>
-                    </div>
-                    
-                    {/* Learning Tips */}
-                    {showLearningTip && (
-                      <div className="mt-6 p-4 bg-yellow-200 dark:bg-yellow-900/20 border border-yellow-400 dark:border-yellow-600 rounded-lg relative">
-                        <button
-                          onClick={() => setShowLearningTip(false)}
-                          className="absolute top-3 right-3 p-1 hover:bg-yellow-300 dark:hover:bg-yellow-800/50 rounded-full transition-colors duration-200"
-                        >
-                          <X className="h-4 w-4 text-gray-400" />
-                        </button>
-                        <div className="flex items-start gap-2 pr-8">
-                          <Lightbulb className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
-                          <div>
-                            <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-1">Learning Tip</h4>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
-                              This section connects to key concepts in {thread.analysis.subjects.join(' and ')}. 
-                              Try to relate this material to what you already know about these subjects.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Related Concepts */}
-                    {currentSection.conceptIds && currentSection.conceptIds.length > 0 && (
-                      <Card className="mt-6 p-6 bg-gray-50 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700 shadow-2xl">
-                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                          <Split className="h-5 w-5 text-purple-500" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
-                          <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 bg-clip-text text-transparent" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
-                            Tangents
-                          </span>
-                        </h3>
-                        <div className="space-y-0">
-                          {['Machine Learning Fundamentals', 'Data Processing Techniques', 'Pattern Recognition', 'Algorithm Optimization'].map((conceptName, index) => (
-                            <div key={index}>
-                              <div className="group flex items-center justify-between py-3 pl-2 pr-4 -mx-2 cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-700/80 hover:shadow-sm hover:scale-[1.01] transition-all duration-200 rounded-lg">
-                                <div className="flex items-center gap-3">
-                                  <BadgeHelp className="h-5 w-5 text-teal-600 dark:text-teal-400 transition-colors duration-200 group-hover:text-teal-700 dark:group-hover:text-teal-300" />
-                                  <span className="text-gray-900 dark:text-gray-100 font-medium transition-colors duration-200">{conceptName}</span>
-                                </div>
-                                <ExternalLink className="h-4 w-4 text-gray-400 transition-all duration-200 group-hover:text-teal-700 dark:group-hover:text-teal-300 group-hover:translate-x-0.5" />
-                              </div>
-                              {index < 3 && (
-                                <div className="border-b border-gray-200 dark:border-gray-700" />
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </Card>
-                    )}
-                  </Card>
-
-                  {/* Two Stage Exercise CTA Section */}
-                  {currentSectionStatus !== 'completed' && (
-                    <Card className="relative overflow-hidden p-6 bg-gradient-to-br from-teal-50 to-sky-100 dark:from-teal-900/20 dark:to-sky-900/20 border-2 border-teal-300 dark:border-teal-700 shadow-lg hover:shadow-xl transition-all duration-300">
-                      {/* Animated background pattern */}
-                      <div className="absolute inset-0 opacity-20">
-                        <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-teal-500 to-sky-500 rounded-full blur-3xl transform translate-x-32 -translate-y-32 animate-pulse" />
-                        <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-tr from-blue-500 to-cyan-500 rounded-full blur-3xl transform -translate-x-32 translate-y-32 animate-pulse" />
-                      </div>
-                      
-                      <div className="relative flex items-start gap-4">
-                        <div className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md transform hover:scale-105 transition-transform">
-                          <Zap className="h-6 w-6 text-teal-600 dark:text-teal-400" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <h3 className="text-xl font-bold text-obsidian dark:text-gray-100">
-                              Ready to Master This Concept?
-                            </h3>
-                            <Badge variant="success" size="sm" className="animate-pulse bg-gradient-to-b from-green-600 to-green-700 text-white dark:from-green-700 dark:to-green-800 dark:text-green-100 px-2 py-1.25">
-                              <Sparkles className="h-3 w-3 mr-1" />
-                              Interactive
-                            </Badge>
-                          </div>
-                          <p className="text-gray-700 dark:text-gray-300 mb-6 text-base leading-relaxed">
-                            Our AI-powered Two-Stage Exercise System creates personalized challenges based on your interests, 
-                            ensuring you truly understand and can apply what you've learned.
-                          </p>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                            <div className="flex items-start gap-3 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg backdrop-blur-sm">
-                              <div className="p-2 bg-gradient-to-br from-teal-100 to-blue-100 dark:from-teal-900/30 dark:to-blue-900/30 rounded-lg">
-                                <Brain className="h-6 w-6 text-teal-600 dark:text-teal-400" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-base text-gray-900 dark:text-gray-100">Stage 1: Initial Exercise</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                  Test core understanding with scenarios from your interests
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-3 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg backdrop-blur-sm">
-                              <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
-                                <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-base text-gray-900 dark:text-gray-100">Stage 2: Advanced Exercise</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                  Apply knowledge to complex real-world challenges
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                            <Button
-                              variant="primary"
-                              size="lg"
-                              onClick={handleStartExercise}
-                              className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 !text-gray-300 font-semibold px-6 rounded-lg flex items-center text-m"
-                            >
-                              <Play className="h-5 w-5 mr-3 text-gray-300" />
-                              Start Exercise
-                            </Button>
-                            <div className="flex flex-wrap items-center gap-8 text-sm">
-                              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                                <Award className="h-6 w-6 text-yellow-500" />
-                                <span className="font-medium text-base text-gray-600 dark:text-gray-400 hover:bg-gradient-to-tl hover:from-white hover:to-yellow-400 hover:bg-clip-text hover:!text-transparent transition-all duration-300 cursor-pointer">Earn mastery badge</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                                <Clock className="h-6 w-6" />
-                                <span className="text-base">10-15 minutes</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  )}
-
-                  {/* Completed Section Celebration */}
-                  {currentSectionStatus === 'completed' && (
-                    <Card className="p-6 bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border-green-200 dark:border-green-800">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                          <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-green-900 dark:text-green-100 mb-1">
-                            Section Mastered! 🎉
-                          </h3>
-                          <p className="text-green-800 dark:text-green-200">
-                            You've successfully completed both exercises for this section. Great work!
-                          </p>
-                        </div>
-                      </div>
-                    </Card>
-                  )}
-                  
-                  {/* Discussion Prompt */}
-                  <Card className="p-4 bg-personal/10 dark:bg-personal/20 border-personal/30 dark:border-personal/40">
-                    <div className="flex items-start gap-3">
-                      <MessageSquare className="h-5 w-5 text-personal dark:text-personal/80 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Reflection Question</h4>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
-                          How does this section relate to your initial question? What new insights have you gained?
-                        </p>
-                        <Button variant="outline" size="sm" className="mt-3">
-                          Share Your Thoughts
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                </>
-              )}
+            </div>
             </div>
           )}
         </div>
@@ -580,7 +273,10 @@ export const ThreadPage: React.FC = () => {
         selectedSection={selectedSection}
         onSelectSection={(sectionId) => {
           setSelectedSection(sectionId);
-          setShowExercise(false);
+          // Set the new section to exercising mode immediately
+          setSectionProgress(prev => ({ ...prev, [sectionId]: 'exercising' }));
+          setShowExercise(true);
+          setSidebarActiveTab('concepts'); // Start on concepts tab
         }}
         expandedSections={expandedSections}
         onToggleExpanded={toggleSectionExpanded}
