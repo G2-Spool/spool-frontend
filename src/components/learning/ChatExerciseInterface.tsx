@@ -16,7 +16,9 @@ import {
   Lightbulb, 
   BookOpen,
   Sigma,
-  Brain
+  Brain,
+  Plus,
+  Minus
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
@@ -814,6 +816,14 @@ export function ChatExerciseInterface({ conceptId, onSwitchToGlossary, onNewTerm
   const [currentDifficulty, setCurrentDifficulty] = useState<DifficultyLevel>(difficultyLevels[0]) // Start with Novice
   const [showDifficultyTooltip, setShowDifficultyTooltip] = useState(false)
   const [difficultyTooltipTimer, setDifficultyTooltipTimer] = useState<NodeJS.Timeout | null>(null)
+  const [difficultyButtonTooltips, setDifficultyButtonTooltips] = useState<{
+    decrease: boolean
+    increase: boolean
+  }>({ decrease: false, increase: false })
+  const [difficultyButtonTimers, setDifficultyButtonTimers] = useState<{
+    decrease: NodeJS.Timeout | null
+    increase: NodeJS.Timeout | null
+  }>({ decrease: null, increase: null })
   
   const chatContainerRef = useRef<HTMLDivElement>(null)
   const inputRefs = useRef<{ [key: string]: HTMLTextAreaElement | null }>({})
@@ -879,6 +889,21 @@ export function ChatExerciseInterface({ conceptId, onSwitchToGlossary, onNewTerm
     }
   }
 
+  const handleDifficultyButtonTooltip = (button: 'decrease' | 'increase', show: boolean) => {
+    if (show) {
+      const timer = setTimeout(() => {
+        setDifficultyButtonTooltips(prev => ({ ...prev, [button]: true }))
+      }, 500)
+      setDifficultyButtonTimers(prev => ({ ...prev, [button]: timer }))
+    } else {
+      if (difficultyButtonTimers[button]) {
+        clearTimeout(difficultyButtonTimers[button])
+      }
+      setDifficultyButtonTooltips(prev => ({ ...prev, [button]: false }))
+      setDifficultyButtonTimers(prev => ({ ...prev, [button]: null }))
+    }
+  }
+
 
 
   // Manage typing queue
@@ -915,8 +940,11 @@ export function ChatExerciseInterface({ conceptId, onSwitchToGlossary, onNewTerm
       Object.values(buttonTooltipTimers).forEach(timer => {
         if (timer) clearTimeout(timer)
       })
+      Object.values(difficultyButtonTimers).forEach(timer => {
+        if (timer) clearTimeout(timer)
+      })
     }
-  }, [difficultyTooltipTimer, buttonTooltipTimers])
+  }, [difficultyTooltipTimer, buttonTooltipTimers, difficultyButtonTimers])
 
 
 
@@ -1375,27 +1403,8 @@ export function ChatExerciseInterface({ conceptId, onSwitchToGlossary, onNewTerm
                 {/* Content */}
                 {exercise.isExpanded && (
                   <div>
-                    {/* Collapsed Exercise Summary */}
-                    {exercise.status === 'collapsed' && (
-                      <div className="p-6 text-muted-foreground">
-                        <p className="text-sm">
-                          🎉 Exercise completed - You successfully mastered two-step linear equations!
-                        </p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="mt-2 text-primary hover:text-primary/90"
-                          onClick={() => setExercises(prev => prev.map(ex => 
-                            ex.id === exercise.id ? { ...ex, status: 'completed' } : ex
-                          ))}
-                        >
-                          View Full Exercise
-                        </Button>
-                      </div>
-                    )}
-
                     {/* Chat Container */}
-                    {(exercise.status === 'active' || exercise.status === 'completed') && (
+                    {(exercise.status === 'active' || exercise.status === 'completed' || exercise.status === 'collapsed') && (
                       <div 
                         ref={exercise.status === 'active' ? chatContainerRef : null}
                         className="p-6 space-y-4 rounded-b-lg"
@@ -1581,16 +1590,38 @@ export function ChatExerciseInterface({ conceptId, onSwitchToGlossary, onNewTerm
                               </p>
                               
                               {/* Compact Difficulty Control */}
-                              <div className="flex items-center gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDifficultyChange('decrease')}
-                                  disabled={currentDifficulty.id === 1}
-                                  className="h-6 w-6 p-0 hover:bg-muted"
-                                >
-                                  <ChevronDown className="w-3 h-3" />
-                                </Button>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">Difficulty:</span>
+                                                                <div className="relative">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDifficultyChange('decrease')}
+                                    disabled={currentDifficulty.id === 1}
+                                    className={cn(
+                                      "h-6 w-6 p-0 border rounded-md transition-all duration-200",
+                                      currentDifficulty.id === 1 
+                                        ? "cursor-not-allowed border-gray-600" 
+                                        : "hover:bg-red-900/20 border-gray-500 hover:border-red-400 hover:scale-110 hover:shadow-md"
+                                    )}
+                                    style={{ backgroundColor: '#2d3748' }}
+                                    onMouseEnter={() => currentDifficulty.id !== 1 && handleDifficultyButtonTooltip('decrease', true)}
+                                    onMouseLeave={() => handleDifficultyButtonTooltip('decrease', false)}
+                                  >
+                                    <Minus className={cn(
+                                      "w-3 h-3",
+                                      currentDifficulty.id === 1 
+                                        ? "text-muted-foreground" 
+                                        : "text-red-500"
+                                    )} />
+                                  </Button>
+                                  
+                                  {difficultyButtonTooltips.decrease && (
+                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-xs text-white whitespace-nowrap z-30" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
+                                      Decrease difficulty
+                                    </div>
+                                  )}
+                                </div>
                                 
                                 <div className="relative">
                                   <div
@@ -1610,22 +1641,40 @@ export function ChatExerciseInterface({ conceptId, onSwitchToGlossary, onNewTerm
                                   {showDifficultyTooltip && (
                                     <div className="absolute bottom-full right-0 mb-2 px-2 py-1 rounded text-xs text-white whitespace-nowrap z-20" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
                                       {currentDifficulty.description}
-                                      <div className="absolute top-full right-2">
-                                        <div className="w-1.5 h-1.5 rotate-45" style={{ backgroundColor: '#5a6478', borderRight: '1px solid #374151', borderBottom: '1px solid #374151' }}></div>
-                                      </div>
                                     </div>
                                   )}
                                 </div>
                                 
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDifficultyChange('increase')}
-                                  disabled={currentDifficulty.id === difficultyLevels.length}
-                                  className="h-6 w-6 p-0 hover:bg-muted"
-                                >
-                                  <ChevronUp className="w-3 h-3" />
-                                </Button>
+                                                                <div className="relative">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDifficultyChange('increase')}
+                                    disabled={currentDifficulty.id === difficultyLevels.length}
+                                    className={cn(
+                                      "h-6 w-6 p-0 border rounded-md transition-all duration-200",
+                                      currentDifficulty.id === difficultyLevels.length 
+                                        ? "cursor-not-allowed border-gray-600" 
+                                        : "hover:bg-green-900/20 border-gray-500 hover:border-green-400 hover:scale-110 hover:shadow-md"
+                                    )}
+                                    style={{ backgroundColor: '#2d3748' }}
+                                    onMouseEnter={() => currentDifficulty.id !== difficultyLevels.length && handleDifficultyButtonTooltip('increase', true)}
+                                    onMouseLeave={() => handleDifficultyButtonTooltip('increase', false)}
+                                  >
+                                    <Plus className={cn(
+                                      "w-3 h-3",
+                                      currentDifficulty.id === difficultyLevels.length 
+                                        ? "text-muted-foreground" 
+                                        : "text-green-500"
+                                    )} />
+                                  </Button>
+                                  
+                                  {difficultyButtonTooltips.increase && (
+                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-xs text-white whitespace-nowrap z-30" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
+                                      Increase difficulty
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>

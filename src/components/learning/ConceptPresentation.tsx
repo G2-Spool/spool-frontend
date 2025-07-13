@@ -265,7 +265,9 @@ export function ConceptPresentation({ conceptId, className }: ConceptPresentatio
 
             <div className="space-y-8">
               <div className="space-y-3">
-                <h3 className="text-lg font-semibold tracking-wide" style={{ color: '#805AD5' }}>Personal</h3>
+                <h3 className="text-lg font-semibold tracking-wide" style={{ color: '#805AD5' }}>
+                  {exerciseData?.hook_title || "Personal"}
+                </h3>
                 <p className="text-foreground leading-relaxed pl-4">{conceptData.hooks.personal}</p>
               </div>
 
