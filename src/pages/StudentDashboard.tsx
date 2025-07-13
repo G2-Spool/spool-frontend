@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useLearningPaths, useActiveLearningPath, useStudentStats } from '../hooks/useLearningPaths';
+import { useActiveLearningPath, useStudentStats } from '../hooks/useLearningPaths';
 import { useInterests } from '../hooks/useInterests';
+import { useUserThreads } from '../hooks/useThread';
 import { Button } from '../components/atoms/Button';
 import { Card } from '../components/atoms/Card';
-import { Badge } from '../components/atoms/Badge';
-import { LearningPathCard } from '../components/molecules/LearningPathCard';
 import { ExpandableStatsCard } from '../components/molecules/ExpandableStatsCard';
 import { StreakDisplay } from '../components/molecules/StreakDisplay';
 import { InterestDetailCard } from '../components/molecules/InterestDetailCard';
-import { LearningPathSkeleton } from '../components/LoadingStates/LearningPathSkeleton';
 import { InterestDiscoveryModal } from '../components/InterestDiscoveryModal';
 import { CreateThreadModal } from '../components/organisms/CreateThreadModal';
 import { 
@@ -20,7 +18,7 @@ import {
   Clock, 
   Sparkles,
   Plus,
-  Spool,
+  Lightbulb,
   MessageCircle,
 } from 'lucide-react';
 import type { LifeCategory } from '../types';
@@ -29,26 +27,186 @@ import type { LifeCategory } from '../types';
 export const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { studentProfile, user } = useAuth();
-  const [selectedCategory, setSelectedCategory] = useState<LifeCategory | 'all'>('all');
+
   const [showInterestModal, setShowInterestModal] = useState(false);
   const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
+  const [stretchAmount, setStretchAmount] = useState(0);
+  const [isStretching, setIsStretching] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
   
   // Fetch real data from API
-  const { data: learningPaths, isLoading: pathsLoading } = useLearningPaths();
   const { data: activePath, isLoading: activePathLoading } = useActiveLearningPath();
   const { data: stats, isLoading: statsLoading } = useStudentStats();
   const { interests, isLoading: interestsLoading } = useInterests(studentProfile?.id);
+  const { data: threads, isLoading: threadsLoading } = useUserThreads(user?.id || 'anonymous', 10);
+
+  // Sample threads for demonstration
+  const sampleThreads = [
+    {
+      threadId: 'sample-1',
+      userInput: 'How do neural networks learn and make predictions?',
+      analysis: 'A comprehensive study of neural network fundamentals',
+      sections: [
+        { id: '1', title: 'Neural Network Architecture', estimatedMinutes: 20 },
+        { id: '2', title: 'Backpropagation', estimatedMinutes: 25 },
+        { id: '3', title: 'Training Process', estimatedMinutes: 18 },
+        { id: '4', title: 'Activation Functions', estimatedMinutes: 15 }
+      ],
+      createdAt: new Date().toISOString(),
+      estimatedReadTime: 78,
+      progress: 42
+    },
+    {
+      threadId: 'sample-2',
+      userInput: 'How does photosynthesis work in plants?',
+      analysis: 'A comprehensive study of photosynthesis mechanisms',
+      sections: [
+        { id: '1', title: 'Light Reactions', estimatedMinutes: 15 },
+        { id: '2', title: 'Calvin Cycle', estimatedMinutes: 20 },
+        { id: '3', title: 'Chloroplast Structure', estimatedMinutes: 12 }
+      ],
+      createdAt: new Date().toISOString(),
+      estimatedReadTime: 47,
+      progress: 67
+    },
+    {
+      threadId: 'sample-4',
+      userInput: 'How does quantum mechanics explain atomic behavior?',
+      analysis: 'Fundamentals of quantum theory and atomic structure',
+      sections: [
+        { id: '1', title: 'Wave-Particle Duality', estimatedMinutes: 22 },
+        { id: '2', title: 'Schrödinger Equation', estimatedMinutes: 28 },
+        { id: '3', title: 'Quantum Numbers', estimatedMinutes: 16 },
+        { id: '4', title: 'Electron Orbitals', estimatedMinutes: 20 },
+        { id: '5', title: 'Uncertainty Principle', estimatedMinutes: 14 }
+      ],
+      createdAt: new Date().toISOString(),
+      estimatedReadTime: 100,
+      progress: 80
+    }
+  ];
+
+  // Show all 3 sample threads for demonstration
+  const displayThreads = sampleThreads;
+
+  // Drag to scroll handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    
+    setIsDragging(true);
+    setStartX(e.pageX - carousel.offsetLeft);
+    setScrollLeft(carousel.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    
+    const x = e.pageX - carousel.offsetLeft;
+    const walk = (x - startX) * 2; // Multiply by 2 for faster scrolling
+    carousel.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  // Touch events for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - carousel.offsetLeft);
+    setScrollLeft(carousel.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    
+    const x = e.touches[0].pageX - carousel.offsetLeft;
+    const walk = (x - startX) * 2;
+    carousel.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  // Handle elastic scroll effect
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    const handleScroll = () => {
+      const scrollLeft = carousel.scrollLeft;
+      
+      // If scrolled beyond the left boundary (negative scroll)
+      if (scrollLeft <= 0) {
+        const overscroll = Math.abs(scrollLeft);
+        const maxStretch = 100; // Maximum stretch in pixels
+        const stretch = Math.min(overscroll * 0.3, maxStretch); // Reduce stretch factor for subtlety
+        
+        setStretchAmount(stretch);
+        setIsStretching(true);
+      } else {
+        setStretchAmount(0);
+        setIsStretching(false);
+      }
+    };
+
+    const handleScrollEnd = () => {
+      // Spring back animation
+      if (isStretching) {
+        setIsStretching(false);
+        setStretchAmount(0);
+        
+        // Smooth scroll back to 0
+        setTimeout(() => {
+          carousel.scrollTo({ left: 0, behavior: 'smooth' });
+        }, 100);
+      }
+    };
+
+    carousel.addEventListener('scroll', handleScroll);
+    carousel.addEventListener('scrollend', handleScrollEnd);
+    
+    // Fallback for browsers without scrollend
+    let scrollTimeout: NodeJS.Timeout;
+    carousel.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(handleScrollEnd, 150);
+    });
+
+    return () => {
+      carousel.removeEventListener('scroll', handleScroll);
+      carousel.removeEventListener('scrollend', handleScrollEnd);
+      clearTimeout(scrollTimeout);
+    };
+  }, [isStretching]);
 
   if (!studentProfile || !user) {
     return null;
   }
 
-  const filteredPaths = selectedCategory === 'all' 
-    ? (learningPaths || [])
-    : (learningPaths || []).filter(path => path.category === selectedCategory);
+
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto w-full overflow-x-hidden">
       {/* Header with New Thread Button */}
       <div className="mb-8 flex items-start justify-between">
         <div>
@@ -56,17 +214,18 @@ export const StudentDashboard: React.FC = () => {
             Home
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Welcome back, {studentProfile.firstName}! Ready to continue your learning journey?
+            Welcome back! Ready to continue your learning journey?
           </p>
         </div>
         <Button
           variant="primary"
           size="lg"
           onClick={() => setShowCreateThreadModal(true)}
-          className="flex items-center gap-3 px-6 py-3"
+          className="flex items-center gap-3 px-6 py-3 rounded-lg !text-white"
+          style={{ color: 'white !important' }}
         >
-          <Plus className="h-5 w-5" />
-          New Thread
+          <Lightbulb className="h-5 w-5 text-white" />
+          <span className="text-white">New Thread</span>
         </Button>
       </div>
 
@@ -85,73 +244,42 @@ export const StudentDashboard: React.FC = () => {
       </Card>
 
       {/* Quick Stats - More subtle and expandable */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 items-stretch">
         <ExpandableStatsCard
           title="Points"
           value={statsLoading ? '—' : (stats?.totalPoints || studentProfile.totalPoints).toLocaleString()}
           subtitle="all time"
           icon={Trophy}
+          iconColor="text-yellow-500 dark:text-yellow-400"
           variant="default"
           trend={{ value: 12, isPositive: true }}
-          expandedContent={{
-            weeklyData: stats?.weeklyData?.points || [0, 0, 0, 0, 0, 0, 0],
-            monthlyGoal: 5000,
-            bestRecord: 850,
-            insights: [
-              "You're 12% above average this week",
-              "Complete 3 more exercises to reach next level"
-            ]
-          }}
         />
         <ExpandableStatsCard
           title="Exercises"
           value={statsLoading ? '—' : stats?.exercisesThisMonth || 0}
           subtitle="this month"
           icon={BookOpen}
+          iconColor="text-blue-500 dark:text-blue-400"
           variant="default"
           trend={{ value: 8, isPositive: true }}
-          expandedContent={{
-            weeklyData: stats?.weeklyData?.exercises || [0, 0, 0, 0, 0, 0, 0],
-            monthlyGoal: 60,
-            bestRecord: 15,
-            insights: [
-              "On track to exceed monthly goal",
-              "Most productive on Wednesdays"
-            ]
-          }}
         />
         <ExpandableStatsCard
           title="Time"
           value={statsLoading ? '—' : `${(stats?.learningTimeThisWeek || 0) / 60}h`}
           subtitle="this week"
           icon={Clock}
+          iconColor="text-green-500 dark:text-green-400"
           variant="default"
           trend={{ value: 5, isPositive: false }}
-          expandedContent={{
-            weeklyData: stats?.weeklyData?.timeMinutes?.map(m => m / 60) || [0, 0, 0, 0, 0, 0, 0],
-            monthlyGoal: 50,
-            bestRecord: 3.5,
-            insights: [
-              "5% below last week",
-              "Try morning sessions for better focus"
-            ]
-          }}
         />
         <ExpandableStatsCard
           title="Goal"
           value={`${stats?.dailyGoalMinutes || studentProfile.dailyGoalMinutes}m`}
           subtitle="daily target"
           icon={Target}
+          iconColor="text-purple-500 dark:text-purple-400"
           variant="default"
-          expandedContent={{
-            weeklyData: stats?.weeklyData?.goalMinutes || [30, 30, 30, 30, 30, 30, 30],
-            monthlyGoal: (stats?.dailyGoalMinutes || studentProfile.dailyGoalMinutes) * 30,
-            bestRecord: 60,
-            insights: [
-              "Met goal 5 out of 7 days",
-              "Consider adjusting to 35 minutes"
-            ]
-          }}
+          trend={{ value: 3, isPositive: true }}
         />
       </div>
 
@@ -160,31 +288,154 @@ export const StudentDashboard: React.FC = () => {
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100 mb-4">Continue Thread</h2>
           <div className="max-w-xl">
-            <LearningPathSkeleton />
+            <Card className="h-32 animate-pulse bg-gray-100 dark:bg-gray-800">
+              <div className="w-full h-full" />
+            </Card>
           </div>
         </div>
       ) : activePath ? (
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100 mb-4">Continue Thread</h2>
           <div className="max-w-xl">
-            <LearningPathCard {...activePath} />
+            <Card className="p-4 cursor-pointer hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-obsidian dark:text-gray-100 mb-1">
+                    {activePath.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {activePath.description}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {activePath.progress}% complete
+                  </p>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
       ) : null}
 
-      {/* Interests Section - Now shows detailed interest cards */}
+      {/* Your Threads */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100">Your Interests</h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowInterestModal(true)}
-            className="flex items-center gap-2"
-          >
-            <MessageCircle className="h-4 w-4" />
-            Discover More
-          </Button>
+          <h2 className="text-2xl font-semibold text-obsidian dark:text-gray-100">Your Threads</h2>
+        </div>
+
+        <Card className="pl-4 pr-6 py-4 overflow-hidden">
+          {threadsLoading ? (
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex-shrink-0 w-48 h-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <div 
+              ref={carouselRef}
+              className="flex gap-4 overflow-x-auto pb-2 transition-transform duration-300 ease-out scrollbar-hide cursor-grab active:cursor-grabbing select-none"
+              style={{
+                transform: `translateX(${stretchAmount}px) scaleX(${1 + stretchAmount * 0.002})`,
+                transformOrigin: 'left center',
+                overscrollBehaviorX: 'contain',
+                WebkitOverflowScrolling: 'touch',
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                MozUserSelect: 'none',
+                msUserSelect: 'none'
+              }}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              {displayThreads.map((thread, index) => {
+                const colors = [
+                  'from-blue-400 via-blue-600 to-purple-700 hover:from-blue-300 hover:via-blue-500 hover:to-purple-600',
+                  'from-purple-400 via-pink-500 to-red-600 hover:from-purple-300 hover:via-pink-400 hover:to-red-500',
+                  'from-green-400 via-teal-500 to-blue-600 hover:from-green-300 hover:via-teal-400 hover:to-blue-500',
+                  'from-orange-400 via-red-500 to-pink-600 hover:from-orange-300 hover:via-red-400 hover:to-pink-500',
+                  'from-pink-400 via-purple-500 to-indigo-600 hover:from-pink-300 hover:via-purple-400 hover:to-indigo-500',
+                  'from-indigo-400 via-blue-500 to-cyan-600 hover:from-indigo-300 hover:via-blue-400 hover:to-cyan-500'
+                ];
+                
+                const colorClass = colors[index % colors.length];
+                
+                return (
+                  <div
+                    key={thread.threadId}
+                    onClick={(e) => {
+                      if (!isDragging) {
+                        navigate(`/thread/${thread.threadId}`);
+                      }
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    className={`flex-shrink-0 w-48 h-32 bg-gradient-to-br ${colorClass} rounded-lg p-4 cursor-pointer transition-all duration-200 select-none`}
+                  >
+                    <div className="h-full flex flex-col justify-between pointer-events-none">
+                      <div>
+                        <h3 className="text-white font-semibold text-base line-clamp-3 mb-2 select-none">
+                          {thread.userInput || 'Untitled Thread'}
+                        </h3>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80 text-xs select-none">
+                          {thread.sections.length} Sections
+                        </span>
+                        <span className="text-white/80 text-xs font-semibold select-none">
+                          {(thread as any).progress || 0}% Complete
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              
+              {/* Add Thread Button Card */}
+              <div
+                onClick={(e) => {
+                  if (!isDragging) {
+                    setShowCreateThreadModal(true);
+                  }
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+                className="flex-shrink-0 w-48 h-32 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-lg p-4 cursor-pointer hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-700 transition-all duration-200 border-2 border-dashed border-gray-300 dark:border-gray-600 select-none"
+              >
+                <div className="h-full flex flex-col items-center justify-center pointer-events-none">
+                  <Plus className="h-8 w-8 text-gray-400 dark:text-gray-500 mb-2" />
+                  <span className="text-gray-600 dark:text-gray-400 text-sm font-medium select-none">
+                    Add Thread
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {!threadsLoading && displayThreads.length === 0 && (
+            <div className="text-center py-8">
+              <MessageCircle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400 mb-4">No threads yet</p>
+              <Button
+                variant="primary"
+                onClick={() => setShowCreateThreadModal(true)}
+                className="text-white"
+              >
+                <Plus className="h-4 w-4 mr-2 text-white" />
+                Create Your First Thread
+              </Button>
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Interests Section - Now shows detailed interest cards */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-semibold text-obsidian dark:text-gray-100">Your Interests</h2>
         </div>
         
         {interestsLoading ? (
@@ -217,89 +468,12 @@ export const StudentDashboard: React.FC = () => {
             <Button
               variant="primary"
               onClick={() => setShowInterestModal(true)}
+              className="text-white !text-white"
             >
-              <MessageCircle className="h-4 w-4 mr-2" />
+              <MessageCircle className="h-4 w-4 mr-2 text-white" />
               Add Interests
             </Button>
           </Card>
-        )}
-      </div>
-
-      {/* Learning Paths */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100">Learning Paths</h2>
-          <div className="flex items-center gap-2">
-              <Badge
-                variant={selectedCategory === 'all' ? 'primary' : 'default'}
-                onClick={() => setSelectedCategory('all')}
-                className="cursor-pointer"
-              >
-                All
-              </Badge>
-              <Badge
-                variant={selectedCategory === 'personal' ? 'primary' : 'default'}
-                onClick={() => setSelectedCategory('personal')}
-                className="cursor-pointer"
-              >
-                Personal
-              </Badge>
-              <Badge
-                variant={selectedCategory === 'social' ? 'primary' : 'default'}
-                onClick={() => setSelectedCategory('social')}
-                className="cursor-pointer"
-              >
-                Social
-              </Badge>
-              <Badge
-                variant={selectedCategory === 'career' ? 'primary' : 'default'}
-                onClick={() => setSelectedCategory('career')}
-                className="cursor-pointer"
-              >
-                Career
-              </Badge>
-              <Badge
-                variant={selectedCategory === 'philanthropic' ? 'primary' : 'default'}
-                onClick={() => setSelectedCategory('philanthropic')}
-                className="cursor-pointer"
-              >
-                Philanthropic
-              </Badge>
-            </div>
-          </div>
-
-        {pathsLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <LearningPathSkeleton key={i} />
-            ))}
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredPaths.map((path) => (
-                <LearningPathCard
-                  key={path.id}
-                  {...path}
-                  onClick={() => navigate(`/learning-path/${path.id}`)}
-                />
-              ))}
-            </div>
-
-            {filteredPaths.length === 0 && (
-              <Card className="text-center py-12">
-                <Sparkles className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600 dark:text-gray-400 mb-4">No learning paths in this category yet.</p>
-                <Button
-                  variant="primary"
-                  onClick={() => setShowCreateThreadModal(true)}
-                >
-                  <Spool className="h-4 w-4 mr-2" />
-                  Create Thread
-                </Button>
-              </Card>
-            )}
-          </>
         )}
       </div>
 

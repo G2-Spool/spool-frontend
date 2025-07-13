@@ -38,7 +38,7 @@ export const DashboardLayout: React.FC = () => {
   // const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-obsidian flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-obsidian flex overflow-x-hidden">
       {/* Sidebar Navigation */}
       <div className="hidden lg:block">
         <div className="fixed h-full">
