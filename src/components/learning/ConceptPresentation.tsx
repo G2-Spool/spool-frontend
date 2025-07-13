@@ -283,54 +283,6 @@ export function ConceptPresentation({ conceptId, className }: ConceptPresentatio
             </div>
 
             <div className="space-y-8">
-              {/* Vocabulary */}
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold text-foreground">Vocabulary</h3>
-                <div className="space-y-6 pl-6">
-                  {conceptData.vocabulary.map((item, index) => (
-                    <div key={index} className="space-y-1" id={`definition-${item.term}`}>
-                      <h4 className="font-extrabold text-foreground">{item.term}:</h4>
-                      <div className="pl-4">
-                        <div className="text-foreground leading-relaxed">
-                          {processLatexInText(item.definition)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Subtle separator */}
-              <div className="w-full h-px bg-gray-200 dark:bg-gray-700"></div>
-
-              {/* Mental Model */}
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold text-foreground">Mental Model: {conceptData.mentalModel.title}</h3>
-                <div className="space-y-3 pl-4">
-                  <div className="text-foreground leading-relaxed">
-                    {processLatexInText(conceptData.mentalModel.description)}
-                  </div>
-                  <div className="text-foreground leading-relaxed">
-                    {processLatexInText(conceptData.mentalModel.explanation)}
-                  </div>
-                </div>
-              </div>
-
-              {/* Subtle separator */}
-              <div className="w-full h-px bg-gray-200 dark:bg-gray-700"></div>
-
-              {/* Principle */}
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold text-foreground">Principle: {conceptData.principle.title}</h3>
-                <div className="pl-4">
-                  <div className="text-foreground leading-relaxed">
-                    {processLatexInText(conceptData.principle.description)}
-                  </div>
-                </div>
-              </div>
-
-              {/* Subtle separator */}
-              <div className="w-full h-px bg-gray-200 dark:bg-gray-700"></div>
 
               {/* Workflow */}
               <div className="space-y-4">
