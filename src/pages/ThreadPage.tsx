@@ -460,24 +460,24 @@ export const ThreadPage: React.FC = () => {
                             </div>
                           </div>
 
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                             <Button
                               variant="primary"
                               size="lg"
                               onClick={handleStartExercise}
-                              className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-white font-semibold px-8 rounded-lg"
+                              className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-white font-semibold px-6 rounded-lg flex items-center"
                             >
-                              <Play className="h-5 w-5 mr-2" />
+                              <Play className="h-5 w-5 mr-3" />
                               Start Exercise
                             </Button>
-                            <div className="flex flex-wrap items-center gap-4 text-sm">
+                            <div className="flex flex-wrap items-center gap-8 text-sm">
                               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                                <Award className="h-5 w-5 text-yellow-500" />
-                                <span className="font-medium">Earn mastery badge</span>
+                                <Award className="h-6 w-6 text-yellow-500" />
+                                <span className="font-medium text-base text-gray-600 dark:text-gray-400 hover:bg-gradient-to-tl hover:from-white hover:to-yellow-400 hover:bg-clip-text hover:!text-transparent transition-all duration-300 cursor-pointer">Earn mastery badge</span>
                               </div>
                               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                                <Clock className="h-4 w-4" />
-                                <span>~10-15 minutes</span>
+                                <Clock className="h-6 w-6" />
+                                <span className="text-base">10-15 minutes</span>
                               </div>
                             </div>
                           </div>
