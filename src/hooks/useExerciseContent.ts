@@ -16,6 +16,7 @@ export interface ExerciseContent {
   nonexample_title: string | null;
   nonexample_scenario: string;
   nonexample_explanation: string;
+  thread_id?: string;
 }
 
 // Helper function to check if a string is a valid UUID
@@ -70,6 +71,7 @@ export const useExerciseContent = (sectionId: string) => {
         nonexample_title: firstRow.nonexample_title,
         nonexample_scenario: firstRow.nonexample_scenario,
         nonexample_explanation: firstRow.nonexample_explanation,
+
         approach_steps: Array.isArray(firstRow.approach_steps) 
           ? firstRow.approach_steps.filter((step): step is string => typeof step === 'string')
           : []
@@ -79,6 +81,61 @@ export const useExerciseContent = (sectionId: string) => {
       return transformedData;
     },
     enabled: !!sectionId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+// New hook to fetch all concept content for a thread
+export const useThreadConceptContent = (threadId: string) => {
+  return useQuery<ExerciseContent[]>({
+    queryKey: ['thread-concept-content', threadId],
+    queryFn: async () => {
+      console.log('Fetching all concept content for threadId:', threadId);
+      
+      // First, try to get the thread_id from the current concept's data
+      const { data, error } = await supabase
+        .from('concept_content')
+        .select('*')
+        .eq('thread_id', threadId)
+        .order('concept_id'); // Order by concept_id to ensure consistent ordering
+
+      if (error) {
+        console.error('Error fetching thread concept content:', error);
+        throw error;
+      }
+
+      // Check if we have data
+      if (!data || data.length === 0) {
+        console.log('No concept content found for threadId:', threadId);
+        return [];
+      }
+
+      // Transform all rows
+      const transformedData: ExerciseContent[] = data.map(row => ({
+        id: row.id,
+        concept_id: row.concept_id,
+        concept_name: row.concept_name,
+        hook_title: row.hook_title,
+        hook_content: row.hook_content,
+        example_title: row.example_title,
+        example_scenario: row.example_scenario,
+        example_visual: row.example_visual,
+        approach_title: row.approach_title,
+        approach_formula: row.approach_formula,
+        nonexample_title: row.nonexample_title,
+        nonexample_scenario: row.nonexample_scenario,
+        nonexample_explanation: row.nonexample_explanation,
+
+        approach_steps: Array.isArray(row.approach_steps) 
+          ? row.approach_steps.filter((step): step is string => typeof step === 'string')
+          : []
+      }));
+
+      console.log('Successfully fetched thread concept content:', transformedData);
+      return transformedData;
+    },
+    enabled: !!threadId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
