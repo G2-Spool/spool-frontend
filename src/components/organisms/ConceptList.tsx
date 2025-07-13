@@ -5,7 +5,6 @@
  * description, and play buttons for starting each concept.
  */
 
-import React from 'react';
 import { Card } from '../atoms/Card';
 import { Check, Play } from 'lucide-react';
 
