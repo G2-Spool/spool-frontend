@@ -24,6 +24,48 @@ const vocabularyTerms: VocabularyTerm[] = [
   { term: '10x + 4 = 24', definition: 'A practice two-step linear equation for the sub-exercise.', type: 'equation' }
 ];
 
+// Custom fade-out animation styles
+const fadeOutStyles = `
+  @keyframes fadeOut {
+    0% {
+      border-color: var(--highlight-color);
+      background-color: var(--highlight-bg);
+    }
+    100% {
+      border-color: transparent;
+      background-color: transparent;
+    }
+  }
+  
+  .fade-out-vocab {
+    --highlight-color: #4FD1C5;
+    --highlight-bg: rgba(79, 209, 197, 0.1);
+    animation: fadeOut 3s ease-out forwards;
+  }
+  
+  .fade-out-equation {
+    --highlight-color: #805AD5;
+    --highlight-bg: rgba(128, 90, 213, 0.1);
+    animation: fadeOut 3s ease-out forwards;
+  }
+  
+  .fade-out-concept {
+    --highlight-color: #ED64A6;
+    --highlight-bg: rgba(237, 100, 166, 0.1);
+    animation: fadeOut 3s ease-out forwards;
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = fadeOutStyles;
+  if (!document.head.querySelector('style[data-fade-out]')) {
+    styleSheet.setAttribute('data-fade-out', 'true');
+    document.head.appendChild(styleSheet);
+  }
+}
+
 export const VocabularyDrawer: React.FC<VocabularyDrawerProps> = ({
   newTerms = [],
   onClearNewTerms,
@@ -57,7 +99,7 @@ export const VocabularyDrawer: React.FC<VocabularyDrawerProps> = ({
       const timer = setTimeout(() => {
         setShouldAnimate(false);
         onClearNewTerms?.();
-      }, 4100);
+      }, 3100); // Reduced to match 3s animation duration
       
       return () => clearTimeout(timer);
     }
@@ -78,8 +120,10 @@ export const VocabularyDrawer: React.FC<VocabularyDrawerProps> = ({
                   <div 
                     ref={(el) => { termRefs.current[vocab.term] = el; }}
                     className={cn(
-                      "p-3 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg",
-                      newTerms.includes(vocab.term) && shouldAnimate && "animate-pulse border-2 border-white"
+                      "p-3 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg border-2",
+                      newTerms.includes(vocab.term) && shouldAnimate 
+                        ? "fade-out-vocab"
+                        : "border-transparent"
                     )}
                     style={{
                       animationDelay: newTerms.includes(vocab.term) && shouldAnimate ? `${index * 0.1}s` : '0s'
@@ -112,8 +156,10 @@ export const VocabularyDrawer: React.FC<VocabularyDrawerProps> = ({
                   <div 
                     ref={(el) => { termRefs.current[vocab.term] = el; }}
                     className={cn(
-                      "p-3 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg",
-                      newTerms.includes(vocab.term) && shouldAnimate && "animate-pulse border-2 border-white"
+                      "p-3 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg border-2",
+                      newTerms.includes(vocab.term) && shouldAnimate 
+                        ? "fade-out-equation"
+                        : "border-transparent"
                     )}
                     style={{
                       animationDelay: newTerms.includes(vocab.term) && shouldAnimate ? `${index * 0.1}s` : '0s'
@@ -146,8 +192,10 @@ export const VocabularyDrawer: React.FC<VocabularyDrawerProps> = ({
                   <div 
                     ref={(el) => { termRefs.current[vocab.term] = el; }}
                     className={cn(
-                      "p-3 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg",
-                      newTerms.includes(vocab.term) && shouldAnimate && "animate-pulse border-2 border-white"
+                      "p-3 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg border-2",
+                      newTerms.includes(vocab.term) && shouldAnimate 
+                        ? "fade-out-concept"
+                        : "border-transparent"
                     )}
                     style={{
                       animationDelay: newTerms.includes(vocab.term) && shouldAnimate ? `${index * 0.1}s` : '0s'
