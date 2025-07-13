@@ -13,7 +13,7 @@ import {
   Lightbulb,
   TrendingUp,
   Sparkles,
-  PlayCircle,
+  Play,
   CheckCircle,
   BarChart3,
   Zap,
@@ -465,10 +465,10 @@ export const ThreadPage: React.FC = () => {
                               variant="primary"
                               size="lg"
                               onClick={handleStartExercise}
-                              className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-white font-semibold px-8"
+                              className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-white font-semibold px-8 rounded-lg"
                             >
-                              <PlayCircle className="h-6 w-6 mr-2" />
-                              Start Two-Stage Exercise
+                              <Play className="h-5 w-5 mr-2" />
+                              Start Exercise
                             </Button>
                             <div className="flex flex-wrap items-center gap-4 text-sm">
                               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
