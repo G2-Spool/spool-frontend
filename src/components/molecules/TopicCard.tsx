@@ -40,6 +40,7 @@ export function TopicCard({
         "hover:shadow-lg hover:shadow-black/5",
         "active:scale-98",
         "rounded-2xl overflow-hidden",
+        "border border-gray-300 dark:border-gray-700",
         className
       )}
       onClick={handleCardClick}
@@ -50,10 +51,10 @@ export function TopicCard({
           className="h-40 p-5 text-white relative overflow-hidden" 
           style={{ background: color }}
         >
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/25 transition-colors duration-200" />
+          <div className="absolute inset-0 bg-black/20 group-hover:bg-white/15 transition-colors duration-200" />
           
           <div className="relative z-10">
-            <h3 className="font-semibold text-xl leading-tight mb-2">
+            <h3 className="font-semibold text-2xl leading-tight mb-2">
               {title}
             </h3>
             {description && (
@@ -65,32 +66,33 @@ export function TopicCard({
         </div>
         
                          {/* Stats section with enhanced background */}
-        <div className="relative bg-gray-50 dark:bg-gray-700 group-hover:bg-gray-100 dark:group-hover:bg-gray-600 transition-colors duration-200">
-          <div className="relative z-10 p-5">
-            <div className="flex justify-between items-center text-base pt-2">
+        <div className="relative transition-colors duration-200" style={{ backgroundColor: '#1a202c' }}>
+          <div className="absolute inset-0 bg-transparent group-hover:bg-white/[0.075] transition-colors duration-200" />
+          <div className="relative z-10 px-3 py-2 pb-4">
+            <div className="flex justify-around items-center text-base pt-2">
               <div className="text-center">
-                <div className="font-bold text-foreground text-lg">
+                <div className="font-bold text-white text-2xl">
                   {sections}
                 </div>
-                <div className="text-muted-foreground text-sm">
+                <div className="text-gray-300 text-sm">
                   Sections
                 </div>
               </div>
               
               <div className="text-center">
-                <div className="font-bold text-foreground text-lg">
+                <div className="font-bold text-white text-2xl">
                   {concepts}
                 </div>
-                <div className="text-muted-foreground text-sm">
+                <div className="text-gray-300 text-sm">
                   Concepts
                 </div>
               </div>
               
               <div className="text-center">
-                <div className="font-bold text-foreground text-lg">
+                <div className="font-bold text-white text-2xl">
                   {progress}%
                 </div>
-                <div className="text-muted-foreground text-sm">
+                <div className="text-gray-300 text-sm">
                   Complete
                 </div>
               </div>

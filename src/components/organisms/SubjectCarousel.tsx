@@ -6,7 +6,7 @@
  */
 
 import { Button } from '../atoms/Button'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calculator, BookOpen, Microscope } from 'lucide-react'
 import { TopicCard } from '../molecules/TopicCard'
 import { cn } from '../../utils/cn'
 import { useState } from 'react'
@@ -39,6 +39,22 @@ export function SubjectCarousel({
   const cardWidth = 336 // 320px + 16px gap
   const maxScroll = Math.max(0, topics.length * cardWidth - 4 * cardWidth)
 
+  // Get appropriate icon for each subject
+  const getSubjectIcon = (subjectTitle: string) => {
+    switch (subjectTitle.toLowerCase()) {
+      case 'mathematics':
+        return Calculator
+      case 'humanities':
+        return BookOpen
+      case 'science':
+        return Microscope
+      default:
+        return BookOpen
+    }
+  }
+
+  const SubjectIcon = getSubjectIcon(title)
+
   const scrollLeft = () => {
     const newPosition = Math.max(0, scrollPosition - cardWidth * 2)
     setScrollPosition(newPosition)
@@ -55,7 +71,10 @@ export function SubjectCarousel({
   return (
     <div className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold text-foreground">{title}</h2>
+        <div className="flex items-center gap-3">
+          <SubjectIcon className="h-8 w-8 text-foreground" />
+          <h2 className="text-3xl font-bold text-foreground">{title}</h2>
+        </div>
         {topics.length > 4 && (
           <div className="flex space-x-2">
             <Button

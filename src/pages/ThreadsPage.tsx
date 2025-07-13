@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '../components/atoms/Card';
 import { Button } from '../components/atoms/Button';
 import { 
-  Search,
   Plus,
   MessageSquare,
 } from 'lucide-react';
@@ -31,8 +30,6 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 };
 
 export const ThreadsPage: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
   const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
   
   // Get current user
@@ -40,8 +37,7 @@ export const ThreadsPage: React.FC = () => {
   const userId = user?.id || 'anonymous';
   const navigate = useNavigate();
   
-  // Debounce search query
-  useDebounce(searchQuery, 300);
+
   
   // Fetch user threads
   const { 
@@ -158,34 +154,9 @@ export const ThreadsPage: React.FC = () => {
             <h1 className="text-3xl font-bold text-obsidian dark:text-gray-100 mb-2">Threads</h1>
             <p className="text-gray-600 dark:text-gray-400">Continue learning or explore new subjects</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowSearch(!showSearch)}
-            >
-              <Search className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        
-        {/* Search Bar */}
-        {showSearch && (
-          <div className="mt-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search courses by topic, skill, or interest..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-              />
-            </div>
-            
 
-          </div>
-        )}
+        </div>
+
       </div>
       
 
@@ -264,13 +235,6 @@ export const ThreadsPage: React.FC = () => {
 
       {/* Core Subjects (My Classes) */}
       <section className="space-y-12">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-obsidian dark:text-gray-100">Explore Core Subjects</h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">Browse subjects and track your learning progress</p>
-          </div>
-        </div>
-        
         {/* Subject Carousels */}
         <div className="space-y-16">
           {subjectsData.map((subject) => (
