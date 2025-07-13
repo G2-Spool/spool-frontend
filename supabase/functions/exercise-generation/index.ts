@@ -1,180 +1,227 @@
 // @ts-ignore - Deno imports for Supabase Edge Functions
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 // @ts-ignore - Deno imports for Supabase Edge Functions
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // @ts-ignore - Deno imports for Supabase Edge Functions
-import OpenAI from 'https://esm.sh/openai@4.28.0'
-import { corsHeaders } from '../_shared/cors.ts'
+import OpenAI from 'https://esm.sh/openai@4.28.0';
+import { corsHeaders } from '../_shared/cors.ts';
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const openaiKey = Deno.env.get('OPENAI_API_KEY')!
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+const openaiKey = Deno.env.get('OPENAI_API_KEY');
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
-const openai = new OpenAI({ apiKey: openaiKey })
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const openai = new OpenAI({
+  apiKey: openaiKey
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', {
+      headers: corsHeaders
+    });
   }
 
   try {
-    const { conceptId, threadId, studentId, exerciseType } = await req.json()
-    
-    // Get context data
-    const [threadResult, conceptResult, profileResult] = await Promise.all([
-      supabase.from('learning_threads').select('*').eq('id', threadId).single(),
-      supabase.from('thread_concepts').select('*').eq('thread_id', threadId).eq('concept_id', conceptId).single(),
-      supabase.from('student_profiles').select('*').eq('id', studentId).single()
-    ])
-    
-    if (threadResult.error || conceptResult.error || profileResult.error) {
-      throw new Error('Failed to fetch required data')
+    const { 
+      userId, 
+      threadId, 
+      exerciseNumber, // 1 or 2
+      conceptId = 'probability' // default to probability for MVP
+    } = await req.json();
+
+    // Get user profile and thread data
+    const [userResult, threadResult] = await Promise.all([
+      supabase.from('users').select('*').eq('id', userId).single(),
+      supabase.from('threads').select('*').eq('id', threadId).single()
+    ]);
+
+    if (userResult.error || threadResult.error) {
+      throw new Error('Failed to fetch user or thread data');
     }
-    
-    const thread = threadResult.data
-    const threadConcept = conceptResult.data
-    const profile = profileResult.data
-    
-    // Determine exercise complexity based on type
-    const isAdvanced = exerciseType === 'advanced'
-    const complexityPrompt = isAdvanced 
-      ? 'Create an ADVANCED exercise with additional complexity, multiple concepts, or real-world constraints.'
-      : 'Create an initial exercise that tests understanding of the core concept.'
-    
-    // Generate personalized exercise
-    const exerciseCompletion = await openai.chat.completions.create({
+
+    const user = userResult.data;
+    const thread = threadResult.data;
+
+    // Get the base exercise template
+    const { data: baseExercise, error: exerciseError } = await supabase
+      .from('exercises')
+      .select('*')
+      .eq('concept_id', conceptId)
+      .eq('exercise_number', exerciseNumber)
+      .single();
+
+    if (exerciseError || !baseExercise) {
+      throw new Error('Failed to fetch base exercise');
+    }
+
+    // Get the personality details
+    const { data: personality, error: personalityError } = await supabase
+      .from('personalities')
+      .select('*')
+      .eq('name', user.preferred_voice_personality || 'Default')
+      .single();
+
+    if (personalityError || !personality) {
+      throw new Error('Failed to fetch personality');
+    }
+
+    // Get the expected steps for the user's difficulty level
+    const difficultyLevel = user.default_difficulty_level || 'Beginner';
+    const expectedSteps = baseExercise.expected_steps_by_difficulty[difficultyLevel] || [];
+
+    // Determine context variation based on user interest and exercise
+    const contextVariation = user.primary_interest === 'basketball' ? 'basketball' : 
+                           baseExercise.base_context === 'blackjack' ? 'blackjack' : 
+                           'mixed';
+
+    // Generate personalized scenario and hint using OpenAI
+    const personalizationCompletion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
         {
-          role: 'system' as const,
-          content: `You are an expert at creating engaging, personalized exercises that test concept understanding while relating to student interests and Thread goals. ${complexityPrompt} The exercise MUST require students to explain their thought process step-by-step.`
+          role: 'system',
+          content: `You are ${personality.name}. ${personality.communication_style} ${personality.teaching_philosophy}
+          
+          Create a personalized version of this exercise that:
+          1. Maintains the core probability concept
+          2. Uses the ${contextVariation} context naturally
+          3. Matches the ${difficultyLevel} difficulty level
+          4. Relates to the thread: "${thread.situation_title}"
+          5. Speaks in your unique voice and style`
         },
         {
-          role: 'user' as const,
-          content: `Create an exercise for:\n\nConcept: ${threadConcept.concept_name} (${threadConcept.subject})\nThread Goal: ${thread.goal}\nStudent Interests: ${JSON.stringify(profile.interests)}\nCareer Interest: ${profile.career_interests[0] || 'general'}\n\nThe exercise should:\n1. Directly relate to the Thread goal\n2. Use one of the student's interests as context\n3. Require step-by-step explanation\n4. ${isAdvanced ? 'Include multiple concepts or real-world complexity' : 'Focus on the core concept'}`
+          role: 'user',
+          content: `Base Exercise:
+Title: ${baseExercise.base_title}
+Scenario Template: ${baseExercise.base_scenario_template}
+Hint Template: ${baseExercise.base_hint_template}
+Context: ${baseExercise.base_context}
+
+Thread Context: ${thread.situation_description}
+User Interest: ${user.primary_interest}
+
+Generate a personalized version that feels natural and engaging.`
         }
       ],
       tools: [
         {
-          type: 'function' as const,
+          type: 'function',
           function: {
-            name: 'generate_exercise',
-            description: 'Generate a personalized exercise',
+            name: 'generate_personalized_exercise',
+            description: 'Generate personalized exercise content',
             parameters: {
               type: 'object',
               properties: {
-                exercise_prompt: {
+                generated_scenario: {
                   type: 'string',
-                  description: 'The complete exercise prompt for the student'
+                  description: 'The personalized scenario text that incorporates the thread context and user interests'
                 },
-                context_setting: {
+                generated_hint: {
                   type: 'string',
-                  description: 'The interest-based scenario'
+                  description: 'The personalized hint that matches the personality style and helps guide the student'
                 },
-                expected_steps: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      step_number: { type: 'integer' },
-                      step_description: { type: 'string' },
-                      key_concept: { type: 'string' }
-                    }
-                  },
-                  description: 'The logical steps expected in the solution'
-                },
-                thread_goal_integration: {
-                  type: 'string',
-                  description: 'How this exercise relates to the Thread goal'
-                },
-                cross_curricular_elements: {
+                personality_touches: {
                   type: 'array',
                   items: { type: 'string' },
-                  description: 'Other subjects touched on'
-                },
-                success_criteria: {
-                  type: 'array',
-                  items: { type: 'string' },
-                  description: 'What constitutes a successful response'
-                },
-                common_misconceptions: {
-                  type: 'array',
-                  items: { type: 'string' },
-                  description: 'Common mistakes to watch for'
+                  description: 'Specific personality elements added to make it unique'
                 }
-              }
+              },
+              required: ['generated_scenario', 'generated_hint']
             }
           }
         }
       ],
-      tool_choice: { type: 'function' as const, function: { name: 'generate_exercise' } }
-    })
-    
-    const exerciseData = JSON.parse(exerciseCompletion.choices[0].message?.tool_calls?.[0]?.function.arguments || '{}')
-    
-    // Store the exercise in the database
-    const { data: assessment, error: assessmentError } = await supabase
-      .from('thread_assessments')
+      tool_choice: {
+        type: 'function',
+        function: { name: 'generate_personalized_exercise' }
+      }
+    });
+
+    const personalizationData = JSON.parse(
+      personalizationCompletion.choices[0].message?.tool_calls?.[0]?.function.arguments || '{}'
+    );
+
+    // Create the exercise variation record
+    const { data: exerciseVariation, error: variationError } = await supabase
+      .from('exercise_variations')
       .insert({
-        student_profile_id: studentId,
+        exercise_id: baseExercise.id,
+        user_id: userId,
         thread_id: threadId,
-        concept_id: conceptId,
-        thread_goal_integration: exerciseData.thread_goal_integration,
-        cross_curricular_elements: exerciseData.cross_curricular_elements,
-        thread_position_context: `Concept ${threadConcept.sequence_order} of ${thread.concepts_total}`,
-        assessment_type: exerciseType === 'advanced' ? 'advanced_exercise' : 'initial_exercise',
-        exercise_prompt: exerciseData.exercise_prompt,
-        expected_steps: exerciseData.expected_steps,
-        requires_cross_subject_thinking: exerciseData.cross_curricular_elements.length > 0,
-        real_world_application_required: true,
-        status: 'pending',
-        created_at: new Date().toISOString()
+        voice_personality: user.preferred_voice_personality || 'Default',
+        difficulty_level: difficultyLevel,
+        context_variation: contextVariation,
+        generated_scenario: personalizationData.generated_scenario,
+        generated_hint: personalizationData.generated_hint,
+        expected_steps: expectedSteps,
+        is_active: true
       })
       .select()
-      .single()
-    
-    if (assessmentError) throw assessmentError
-    
-    // Prepare response with exercise details
+      .single();
+
+    if (variationError) {
+      throw new Error('Failed to create exercise variation');
+    }
+
+    // Format the response to match the expected exercise structure
     const response = {
       success: true,
       exercise: {
-        id: assessment.id,
-        type: exerciseType,
-        prompt: exerciseData.exercise_prompt,
-        context: exerciseData.context_setting,
-        thread_integration: exerciseData.thread_goal_integration,
-        expected_steps: exerciseData.expected_steps,
-        success_criteria: exerciseData.success_criteria,
-        hints: {
-          common_misconceptions: exerciseData.common_misconceptions,
-          cross_curricular_connections: exerciseData.cross_curricular_elements
-        },
+        id: exerciseVariation.id,
+        exercise_id: baseExercise.id,
+        concept_id: baseExercise.concept_id,
+        exercise_number: baseExercise.exercise_number,
+        
+        // Base exercise info
+        base_title: baseExercise.base_title,
+        base_context: baseExercise.base_context,
+        
+        // Personalized content
+        personalized_scenario: exerciseVariation.generated_scenario,
+        personalized_hint: exerciseVariation.generated_hint,
+        
+        // Exercise configuration
+        difficulty_level: exerciseVariation.difficulty_level,
+        voice_personality: exerciseVariation.voice_personality,
+        context_variation: exerciseVariation.context_variation,
+        
+        // Expected steps for evaluation
+        expected_steps: exerciseVariation.expected_steps,
+        
+        // Metadata
         metadata: {
-          concept_name: threadConcept.concept_name,
-          subject: threadConcept.subject,
-          thread_progress: `${threadConcept.sequence_order}/${thread.concepts_total}`,
-          relevance_to_goal: threadConcept.relevance_score
+          thread_title: thread.title,
+          thread_situation: thread.situation_title,
+          user_interest: user.primary_interest,
+          personality_name: personality.name,
+          personality_touches: personalizationData.personality_touches || []
         }
       }
-    }
-    
-    return new Response(
-      JSON.stringify(response),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    )
+    };
+
+    return new Response(JSON.stringify(response), {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      },
+      status: 200
+    });
+
   } catch (error) {
-    console.error('Exercise generation error:', error)
+    console.error('Exercise generation error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({
+        error: error.message,
+        details: error.toString()
+      }), 
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        },
+        status: 400
       }
-    )
+    );
   }
-}) 
+}); 
