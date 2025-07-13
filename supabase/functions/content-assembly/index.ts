@@ -3,7 +3,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 // @ts-ignore - Deno imports for Supabase Edge Functions
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 // @ts-ignore - Deno imports for Supabase Edge Functions
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0'
+import OpenAI from 'https://esm.sh/openai@4.28.0'
 import { corsHeaders } from '../_shared/cors.ts'
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -11,7 +11,7 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const openaiKey = Deno.env.get('OPENAI_API_KEY')!
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
-const openai = new OpenAIApi(new Configuration({ apiKey: openaiKey }))
+const openai = new OpenAI({ apiKey: openaiKey })
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -39,85 +39,91 @@ serve(async (req) => {
     // Generate bridge explanation if crossing subjects
     let bridgeContent = null
     if (threadConcept.bridge_from_concept_id) {
-      const bridgeCompletion = await openai.createChatCompletion({
+      const bridgeCompletion = await openai.chat.completions.create({
         model: 'gpt-4',
         messages: [
           {
-            role: 'system',
+            role: 'system' as const,
             content: `You are an expert at explaining connections between concepts from different subjects. Create a clear, engaging bridge that shows how the previous concept connects to the new one in the context of the learning goal.`
           },
           {
-            role: 'user',
+            role: 'user' as const,
             content: `Thread Goal: ${thread.goal}\nPrevious Concept: ${threadConcept.bridge_from_concept_id}\nNew Concept: ${threadConcept.concept_name} (${threadConcept.subject})\n\nExplain the connection in 2-3 sentences.`
           }
         ],
         max_tokens: 150
       })
-      bridgeContent = bridgeCompletion.data.choices[0].message?.content
+      bridgeContent = bridgeCompletion.choices[0].message?.content
     }
     
     // Generate personalized hooks based on interests
-    const hooksCompletion = await openai.createChatCompletion({
+    const hooksCompletion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
         {
-          role: 'system',
+          role: 'system' as const,
           content: `Generate four engaging hooks that connect the concept to different life areas. Each hook should be 2-3 sentences and show immediate value.`
         },
         {
-          role: 'user',
+          role: 'user' as const,
           content: `Concept: ${threadConcept.concept_name}\nThread Goal: ${thread.goal}\nStudent Interests: ${JSON.stringify(profile.interests)}\nCareer Interests: ${profile.career_interests.join(', ')}\nPhilanthropic Interests: ${profile.philanthropic_interests.join(', ')}`
         }
       ],
-      functions: [
+      tools: [
         {
-          name: 'generate_hooks',
-          description: 'Generate personalized hooks for the concept',
-          parameters: {
-            type: 'object',
-            properties: {
-              personal_hook: { type: 'string' },
-              social_hook: { type: 'string' },
-              career_hook: { type: 'string' },
-              philanthropic_hook: { type: 'string' }
+          type: 'function' as const,
+          function: {
+            name: 'generate_hooks',
+            description: 'Generate personalized hooks for the concept',
+            parameters: {
+              type: 'object',
+              properties: {
+                personal_hook: { type: 'string' },
+                social_hook: { type: 'string' },
+                career_hook: { type: 'string' },
+                philanthropic_hook: { type: 'string' }
+              }
             }
           }
         }
       ],
-      function_call: { name: 'generate_hooks' }
+      tool_choice: { type: 'function' as const, function: { name: 'generate_hooks' } }
     })
     
-    const hooks = JSON.parse(hooksCompletion.data.choices[0].message?.function_call?.arguments || '{}')
+    const hooks = JSON.parse(hooksCompletion.choices[0].message?.tool_calls?.[0]?.function.arguments || '{}')
     
     // Generate interest-based examples
     const interests = [...(profile.interests.hobbies || []), ...(profile.interests.activities || [])]
-    const examplesCompletion = await openai.createChatCompletion({
+    const examplesCompletion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
         {
-          role: 'system',
+          role: 'system' as const,
           content: `Create 3-4 examples that make the concept concrete using the student's specific interests. Each example should clearly demonstrate the concept in action.`
         },
         {
-          role: 'user',
+          role: 'user' as const,
           content: `Concept: ${threadConcept.concept_name}\nStudent Interests: ${interests.join(', ')}\nThread Context: Learning to ${thread.goal}`
         }
       ],
-      functions: [
+      tools: [
         {
-          name: 'generate_examples',
-          description: 'Generate interest-based examples',
-          parameters: {
-            type: 'object',
-            properties: {
-              examples: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    interest_tag: { type: 'string' },
-                    example_text: { type: 'string' },
-                    visual_hint: { type: 'string' }
+          type: 'function' as const,
+          function: {
+            name: 'generate_examples',
+            description: 'Generate interest-based examples',
+            parameters: {
+              type: 'object',
+              properties: {
+                examples: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      interest_tag: { type: 'string' },
+                      example_text: { type: 'string' },
+                      visual_hint: { type: 'string' }
+                    }
                   }
                 }
               }
@@ -125,10 +131,10 @@ serve(async (req) => {
           }
         }
       ],
-      function_call: { name: 'generate_examples' }
+      tool_choice: { type: 'function' as const, function: { name: 'generate_examples' } }
     })
     
-    const examples = JSON.parse(examplesCompletion.data.choices[0].message?.function_call?.arguments || '{}')
+    const examples = JSON.parse(examplesCompletion.choices[0].message?.tool_calls?.[0]?.function.arguments || '{}')
     
     // In production, you would fetch the actual content from Pinecone
     // For now, we'll generate placeholder core content
