@@ -442,7 +442,7 @@ function mockSectionsForPath(_pathId: string | undefined) {
           description: 'Discover what this is all about and why it matters',
           category: 'personal',
           components: {
-            hookRelevance: {
+            hook: {
               id: 'comp-1-1-1',
               title: 'Why This Matters to You',
               type: 'hook' as const,
@@ -450,20 +450,28 @@ function mockSectionsForPath(_pathId: string | undefined) {
               duration: '5 min',
               url: '#',
             },
-            showMeExamples: {
+            example: {
               id: 'comp-1-1-2',
               title: 'Real-World Examples',
-              type: 'examples' as const,
+              type: 'example' as const,
               contentType: 'interactive' as const,
               duration: '10 min',
               url: '#',
             },
-            whatAndHow: {
+            approach: {
               id: 'comp-1-1-3',
-              title: 'Core Concepts Explained',
-              type: 'what-how' as const,
+              title: 'Academic Approach',
+              type: 'approach' as const,
               contentType: 'article' as const,
               duration: '15 min',
+              url: '#',
+            },
+            nonExample: {
+              id: 'comp-1-1-4',
+              title: 'Common Mistakes to Avoid',
+              type: 'non-example' as const,
+              contentType: 'article' as const,
+              duration: '10 min',
               url: '#',
             },
           },

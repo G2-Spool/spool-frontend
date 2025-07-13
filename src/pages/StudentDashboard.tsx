@@ -44,8 +44,8 @@ export const StudentDashboard: React.FC = () => {
   const { isLoading: threadsLoading } = useUserThreads(user?.id || 'anonymous', 10);
   
   // Fetch the hardcoded thread and its concepts
-  const { data: hardcodedThread, isLoading: hardcodedThreadLoading } = useHardcodedThread();
-  const { data: hardcodedConcepts, isLoading: hardcodedConceptsLoading } = useThreadConcepts(HARDCODED_THREAD_ID);
+  const { data: hardcodedThread } = useHardcodedThread();
+  const { data: hardcodedConcepts } = useThreadConcepts(HARDCODED_THREAD_ID);
 
   // Build thread data from hardcoded thread and concepts
   const hardcodedThreadData = hardcodedThread && hardcodedConcepts ? {
