@@ -378,9 +378,7 @@ export class PineconeService {
 
   private buildPersonalizedQuery(profile: StudentProfile): string {
     const interests = profile.interests
-      .sort((a, b) => b.strength - a.strength)
       .slice(0, 5)
-      .map(i => i.interest)
       .join(', ');
     
     const categories = Object.entries(profile.lifeCategoryWeights)

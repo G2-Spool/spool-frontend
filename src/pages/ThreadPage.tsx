@@ -23,18 +23,11 @@ import {
 } from 'lucide-react';
 import { useThread } from '../hooks/useThread';
 import { ThreadSectionsSidebar } from '../components/organisms/ThreadSectionsSidebar';
-import { TwoStageExercise } from '../components/organisms/TwoStageExercise';
 import { ChatExerciseInterface } from '../components/learning/ChatExerciseInterface';
 import { ConceptPresentation } from '../components/learning/ConceptPresentation';
 import { cn } from '../utils/cn';
 import { MarkdownText } from '../utils/markdown';
 
-// Mock student profile - in production this would come from user context
-const mockStudentProfile = {
-  interests: ['gaming', 'technology', 'music', 'sports'],
-  careerInterests: ['software development', 'game design'],
-  philanthropicInterests: ['education', 'environment'],
-};
 
 export const ThreadPage: React.FC = () => {
   const { threadId } = useParams<{ threadId: string }>();
@@ -42,7 +35,7 @@ export const ThreadPage: React.FC = () => {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [showExercise, setShowExercise] = useState(false);
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [completedSections] = useState<Set<string>>(new Set());
   const [sectionProgress, setSectionProgress] = useState<Record<string, 'reading' | 'exercising' | 'completed'>>({});
   const [showLearningTip, setShowLearningTip] = useState(true);
   
@@ -99,23 +92,23 @@ export const ThreadPage: React.FC = () => {
     }
   };
 
-  const handleExerciseComplete = () => {
-    if (selectedSection) {
-      setCompletedSections(prev => new Set([...prev, selectedSection]));
-      setSectionProgress(prev => ({ ...prev, [selectedSection]: 'completed' }));
-      setShowExercise(false);
-      
-      // Auto-advance to next section if available
-      const currentIndex = thread?.sections.findIndex(s => s.id === selectedSection) ?? -1;
-      if (currentIndex >= 0 && currentIndex < (thread?.sections.length ?? 0) - 1) {
-        setTimeout(() => {
-          if (thread?.sections[currentIndex + 1]?.id) {
-            setSelectedSection(thread.sections[currentIndex + 1].id);
-          }
-        }, 1500);
-      }
-    }
-  };
+  // const handleExerciseComplete = () => {
+  //   if (selectedSection) {
+  //     setCompletedSections(prev => new Set([...prev, selectedSection]));
+  //     setSectionProgress(prev => ({ ...prev, [selectedSection]: 'completed' }));
+  //     setShowExercise(false);
+  //     
+  //     // Auto-advance to next section if available
+  //     const currentIndex = thread?.sections.findIndex(s => s.id === selectedSection) ?? -1;
+  //     if (currentIndex >= 0 && currentIndex < (thread?.sections.length ?? 0) - 1) {
+  //       setTimeout(() => {
+  //         if (thread?.sections[currentIndex + 1]?.id) {
+  //           setSelectedSection(thread.sections[currentIndex + 1].id);
+  //         }
+  //       }, 1500);
+  //     }
+  //   }
+  // };
 
   const getProgressPercentage = () => {
     if (!thread?.sections) return 0;

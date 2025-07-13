@@ -1,13 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Card } from '../atoms/Card';
 import { Badge } from '../atoms/Badge';
 import { 
   MessageSquare, 
   Brain, 
-  Clock,
   ArrowRight,
-  Sparkles
 } from 'lucide-react';
 import ThreadGraph from './ThreadGraph';
 import { cn } from '../../utils/cn';
