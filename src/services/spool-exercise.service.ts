@@ -1,50 +1,26 @@
-import { MICROSERVICE_ENDPOINTS, apiCall, getAuthHeaders } from '../config/api'
-import { fetchAuthSession } from 'aws-amplify/auth'
+import { API_ENDPOINTS } from '../config/api'
+import api from './api'
 import { 
   SpoolExercise, 
   ExerciseSubmission, 
   ExerciseRequest, 
-  ExerciseOption,
-  SpoolApiResponse,
-  SpoolPaginatedResponse 
+  ExerciseOption 
 } from '../types/backend.types'
 
-// Helper function to get authenticated headers
-async function getAuthenticatedHeaders(): Promise<HeadersInit> {
-  try {
-    const session = await fetchAuthSession()
-    const token = session.tokens?.idToken?.toString()
-    return getAuthHeaders(token)
-  } catch (error) {
-    console.error('Error getting auth headers:', error)
-    return getAuthHeaders()
-  }
-}
 
 // ===== EXERCISE GENERATION =====
 export async function generateExercise(request: ExerciseRequest): Promise<SpoolExercise | null> {
-  const headers = await getAuthenticatedHeaders()
-  
-  const response = await apiCall<SpoolApiResponse<SpoolExercise>>(
-    MICROSERVICE_ENDPOINTS.EXERCISE.GENERATE,
-    {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(request),
-    }
-  )
-
-  if (response.success && response.data?.data) {
-    return response.data.data
+  try {
+    const response = await api.post<SpoolExercise>(API_ENDPOINTS.exerciseGeneration, request);
+    return response || null;
+  } catch (error) {
+    console.error('Failed to generate exercise:', error);
+    return null;
   }
-
-  console.error('Failed to generate exercise:', response.error)
-  return null
 }
 
 export async function generatePersonalizedExercise(
   conceptId: string,
-  userId: string,
   userInterests: string[] = [],
   learningGoals: string[] = [],
   previousPerformance: number = 0,
@@ -70,66 +46,41 @@ export async function generateMultipleExercises(
   count: number = 5,
   difficulty?: 'beginner' | 'intermediate' | 'advanced'
 ): Promise<SpoolExercise[]> {
-  const headers = await getAuthenticatedHeaders()
-  
-  const response = await apiCall<SpoolApiResponse<SpoolExercise[]>>(
-    MICROSERVICE_ENDPOINTS.EXERCISE.GENERATE,
-    {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        concept_id: conceptId,
-        count,
-        difficulty_level: difficulty
-      }),
-    }
-  )
-
-  if (response.success && response.data?.data) {
-    return response.data.data
+  try {
+    const response = await api.post<SpoolExercise[]>(API_ENDPOINTS.exerciseGeneration, {
+      concept_id: conceptId,
+      count,
+      difficulty_level: difficulty
+    });
+    return response || [];
+  } catch (error) {
+    console.error('Failed to generate multiple exercises:', error);
+    return [];
   }
-
-  console.error('Failed to generate multiple exercises:', response.error)
-  return []
 }
 
 // ===== EXERCISE RETRIEVAL =====
 export async function getExercises(conceptId?: string): Promise<SpoolExercise[]> {
-  const headers = await getAuthenticatedHeaders()
-  const url = conceptId 
-    ? `${MICROSERVICE_ENDPOINTS.EXERCISE.GET_EXERCISES}?concept_id=${conceptId}`
-    : MICROSERVICE_ENDPOINTS.EXERCISE.GET_EXERCISES
-  
-  const response = await apiCall<SpoolPaginatedResponse<SpoolExercise>>(url, {
-    method: 'GET',
-    headers,
-  })
-
-  if (response.success && response.data?.data) {
-    return response.data.data
+  try {
+    const url = conceptId 
+      ? `${API_ENDPOINTS.exerciseGeneration}?concept_id=${conceptId}`
+      : API_ENDPOINTS.exerciseGeneration;
+    const response = await api.get<SpoolExercise[]>(url);
+    return response || [];
+  } catch (error) {
+    console.error('Failed to fetch exercises:', error);
+    return [];
   }
-
-  console.error('Failed to fetch exercises:', response.error)
-  return []
 }
 
 export async function getExerciseById(exerciseId: string): Promise<SpoolExercise | null> {
-  const headers = await getAuthenticatedHeaders()
-  
-  const response = await apiCall<SpoolApiResponse<SpoolExercise>>(
-    `${MICROSERVICE_ENDPOINTS.EXERCISE.GET_EXERCISES}/${exerciseId}`,
-    {
-      method: 'GET',
-      headers,
-    }
-  )
-
-  if (response.success && response.data?.data) {
-    return response.data.data
+  try {
+    const response = await api.get<SpoolExercise>(`${API_ENDPOINTS.exerciseGeneration}/${exerciseId}`);
+    return response || null;
+  } catch (error) {
+    console.error(`Failed to fetch exercise ${exerciseId}:`, error);
+    return null;
   }
-
-  console.error(`Failed to fetch exercise ${exerciseId}:`, response.error)
-  return null
 }
 
 // ===== EXERCISE SUBMISSION =====
@@ -138,27 +89,17 @@ export async function submitExerciseAnswer(
   userId: string,
   answer: string
 ): Promise<ExerciseSubmission | null> {
-  const headers = await getAuthenticatedHeaders()
-  
-  const response = await apiCall<SpoolApiResponse<ExerciseSubmission>>(
-    MICROSERVICE_ENDPOINTS.EXERCISE.SUBMIT_ANSWER,
-    {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        exercise_id: exerciseId,
-        user_id: userId,
-        answer
-      }),
-    }
-  )
-
-  if (response.success && response.data?.data) {
-    return response.data.data
+  try {
+    const response = await api.post<ExerciseSubmission>(`${API_ENDPOINTS.exerciseGeneration}/submit`, {
+      exercise_id: exerciseId,
+      user_id: userId,
+      answer
+    });
+    return response || null;
+  } catch (error) {
+    console.error('Failed to submit exercise answer:', error);
+    return null;
   }
-
-  console.error('Failed to submit exercise answer:', response.error)
-  return null
 }
 
 export async function assessAnswer(
@@ -171,55 +112,22 @@ export async function assessAnswer(
   feedback: string
   explanation?: string
 } | null> {
-  const headers = await getAuthenticatedHeaders()
-  
-  const response = await apiCall<SpoolApiResponse<{
-    is_correct: boolean
-    score: number
-    feedback: string
-    explanation?: string
-  }>>(
-    MICROSERVICE_ENDPOINTS.EXERCISE.ASSESS_ANSWER,
-    {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        exercise_id: exerciseId,
-        answer,
-        user_id: userId
-      }),
-    }
-  )
-
-  if (response.success && response.data?.data) {
-    return response.data.data
+  try {
+    const response = await api.post<{
+      is_correct: boolean
+      score: number
+      feedback: string
+      explanation?: string
+    }>(`${API_ENDPOINTS.exerciseGeneration}/assess`, {
+      exercise_id: exerciseId,
+      answer,
+      user_id: userId
+    });
+    return response || null;
+  } catch (error) {
+    console.error('Failed to assess answer:', error);
+    return null;
   }
-
-  console.error('Failed to assess answer:', response.error)
-  return null
-}
-
-// ===== EXERCISE FEEDBACK =====
-export async function getExerciseFeedback(
-  exerciseId: string,
-  userId: string
-): Promise<string | null> {
-  const headers = await getAuthenticatedHeaders()
-  
-  const response = await apiCall<SpoolApiResponse<{feedback: string}>>(
-    `${MICROSERVICE_ENDPOINTS.EXERCISE.GET_FEEDBACK}?exercise_id=${exerciseId}&user_id=${userId}`,
-    {
-      method: 'GET',
-      headers,
-    }
-  )
-
-  if (response.success && response.data?.data?.feedback) {
-    return response.data.data.feedback
-  }
-
-  console.error('Failed to get exercise feedback:', response.error)
-  return null
 }
 
 // ===== EXERCISE UTILITIES =====
@@ -296,38 +204,3 @@ export function getExerciseTypeIcon(type: string): string {
       return '❓'
   }
 }
-
-// ===== EXERCISE ANALYTICS =====
-export async function getExerciseAnalytics(
-  userId: string,
-  conceptId?: string
-): Promise<{
-  total_attempts: number
-  correct_answers: number
-  average_score: number
-  favorite_exercise_type: string
-  improvement_areas: string[]
-} | null> {
-  const headers = await getAuthenticatedHeaders()
-  const url = conceptId 
-    ? `${MICROSERVICE_ENDPOINTS.EXERCISE.GET_EXERCISES}/analytics?user_id=${userId}&concept_id=${conceptId}`
-    : `${MICROSERVICE_ENDPOINTS.EXERCISE.GET_EXERCISES}/analytics?user_id=${userId}`
-  
-  const response = await apiCall<SpoolApiResponse<{
-    total_attempts: number
-    correct_answers: number
-    average_score: number
-    favorite_exercise_type: string
-    improvement_areas: string[]
-  }>>(url, {
-    method: 'GET',
-    headers,
-  })
-
-  if (response.success && response.data?.data) {
-    return response.data.data
-  }
-
-  console.error('Failed to fetch exercise analytics:', response.error)
-  return null
-} 

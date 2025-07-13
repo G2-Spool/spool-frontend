@@ -3,12 +3,10 @@ import {
   AbsoluteFill,
   interpolate,
   useCurrentFrame,
-  useVideoConfig,
 } from 'remotion';
 
 export const SimpleDemo: React.FC = () => {
   const frame = useCurrentFrame();
-  const { } = useVideoConfig();
 
   // Simple animations to test if Remotion is working
   const opacity = interpolate(frame, [0, 30], [0, 1], { extrapolateRight: 'clamp' });

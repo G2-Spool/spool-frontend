@@ -1,8 +1,17 @@
 # Supabase
+.env
+.env.local
+**/node_modules
+**/package-lock.json
+
+# Function deployment artifacts
+functions/**/dist
+functions/**/build
+functions/**/.deno
+
+# Local database files
 .branches
 .temp
 
-# dotenvx
-.env.keys
-.env.local
-.env.*.local
+# Secrets
+secrets.toml

@@ -104,7 +104,9 @@ export const ThreadPage: React.FC = () => {
       const currentIndex = thread?.sections.findIndex(s => s.id === selectedSection) ?? -1;
       if (currentIndex >= 0 && currentIndex < (thread?.sections.length ?? 0) - 1) {
         setTimeout(() => {
-          setSelectedSection(thread?.sections[currentIndex + 1].id ?? null);
+          if (thread?.sections[currentIndex + 1]?.id) {
+            setSelectedSection(thread.sections[currentIndex + 1].id);
+          }
         }, 1500);
       }
     }

@@ -35,7 +35,15 @@ export const API_ENDPOINTS = {
     all: `${SUPABASE_FUNCTIONS_URL}/textbooks`,
     byId: `${SUPABASE_FUNCTIONS_URL}/textbooks/:id`
   },
-  students: `${SUPABASE_FUNCTIONS_URL}/students`
+  students: `${SUPABASE_FUNCTIONS_URL}/students`,
+  
+  // Supabase Edge Functions
+  contentAssembly: `${SUPABASE_FUNCTIONS_URL}/content-assembly`,
+  exerciseGeneration: `${SUPABASE_FUNCTIONS_URL}/exercise-generation`,
+  interestDiscovery: `${SUPABASE_FUNCTIONS_URL}/interest-discovery`,
+  progressTracking: `${SUPABASE_FUNCTIONS_URL}/progress-tracking`,
+  threadDiscovery: `${SUPABASE_FUNCTIONS_URL}/thread-discovery`,
+  threadGeneration: `${SUPABASE_FUNCTIONS_URL}/thread-generation`
 } as const;
 
 // Thread-specific edge function endpoints

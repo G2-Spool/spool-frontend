@@ -49,11 +49,7 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const [dimensions] = useState({ width: 500, height: 400 });
   
-  const { data: graphData, isLoading, error } = useThreadGraphD3(threadId, isVisible) as {
-    data: ThreadGraphData | undefined;
-    isLoading: boolean;
-    error: Error | null;
-  };
+  const { data: graphData, isLoading, error } = useThreadGraphD3(threadId, isVisible);
 
   useEffect(() => {
     if (!isVisible || !graphData || !svgRef.current) return;
@@ -64,8 +60,8 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
     const { width, height } = dimensions;
 
     // Create force simulation
-    const simulation = d3.forceSimulation<ThreadGraphNode>(graphData!.nodes)
-      .force('link', d3.forceLink<ThreadGraphNode, ThreadGraphEdge>(graphData!.edges)
+    const simulation = d3.forceSimulation<ThreadGraphNode>(graphData.nodes)
+      .force('link', d3.forceLink<ThreadGraphNode, ThreadGraphEdge>(graphData.edges)
         .id(d => d.id)
         .distance(d => 80 / (d.strength || 1))
       )
@@ -77,7 +73,7 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
     const links = svg.append('g')
       .attr('class', 'links')
       .selectAll('line')
-      .data(graphData!.edges)
+      .data(graphData.edges)
       .enter()
       .append('line')
       .attr('stroke', (d: any) => {
@@ -95,7 +91,7 @@ const ThreadGraph: React.FC<ThreadGraphProps> = ({
     const nodes = svg.append('g')
       .attr('class', 'nodes')
       .selectAll('g')
-      .data(graphData!.nodes)
+      .data(graphData.nodes)
       .enter()
       .append('g')
       .attr('class', 'node')
