@@ -20,7 +20,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
-import { useExerciseContent, useThreadConceptContent } from '../../hooks/useExerciseContent'
+import { useExerciseContent } from '../../hooks/useExerciseContent'
 
 // Add custom styles for inline math
 if (typeof document !== 'undefined') {
@@ -141,9 +141,7 @@ export function ConceptPresentation({ conceptId, className }: ConceptPresentatio
   // Fetch exercise content from database
   const { data: exerciseData, isLoading, error } = useExerciseContent(conceptId);
   
-  // Fetch all concepts for the thread to get all 4 hook titles
-  const threadId = 'd6046803-eece-42ba-9cbb-ab2eebd9c683'; // hardcoded thread_id as requested
-  const { data: allConcepts } = useThreadConceptContent(threadId);
+
   
   // Show loading state
   if (isLoading) {
@@ -206,12 +204,6 @@ export function ConceptPresentation({ conceptId, className }: ConceptPresentatio
   const conceptData = {
     title: exerciseData?.concept_name || "Concept",
     subtitle: "", // Not directly mapped from database
-    hooks: {
-      personal: exerciseData?.hook_content || "",
-      social: exerciseData?.hook_content || "",
-      career: exerciseData?.hook_content || "",
-      service: exerciseData?.hook_content || ""
-    },
     examples: [
       {
         interest: exerciseData?.example_title || "Example",
@@ -267,34 +259,11 @@ export function ConceptPresentation({ conceptId, className }: ConceptPresentatio
               <div className="w-full h-px bg-border"></div>
             </div>
 
-            <div className="space-y-8">
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold tracking-wide" style={{ color: '#805AD5' }}>
-                  {allConcepts?.[0]?.hook_title || exerciseData?.hook_title || "Personal"}
-                </h3>
-                <p className="text-foreground leading-relaxed pl-4">{conceptData.hooks.personal}</p>
-              </div>
-
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold tracking-wide" style={{ color: '#facc15' }}>
-                  {allConcepts?.[1]?.hook_title || "Social"}
-                </h3>
-                <p className="text-foreground leading-relaxed pl-4">{conceptData.hooks.social}</p>
-              </div>
-
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold tracking-wide" style={{ color: '#22d3ee' }}>
-                  {allConcepts?.[2]?.hook_title || "Career"}
-                </h3>
-                <p className="text-foreground leading-relaxed pl-4">{conceptData.hooks.career}</p>
-              </div>
-
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold tracking-wide" style={{ color: '#E53E3E' }}>
-                  {allConcepts?.[3]?.hook_title || "Service (Philanthropic)"}
-                </h3>
-                <p className="text-foreground leading-relaxed pl-4">{conceptData.hooks.service}</p>
-              </div>
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold tracking-wide" style={{ color: '#805AD5' }}>
+                {exerciseData?.hook_title || "Hook"}
+              </h3>
+              <p className="text-foreground leading-relaxed pl-4">{exerciseData?.hook_content || ""}</p>
             </div>
           </section>
 
