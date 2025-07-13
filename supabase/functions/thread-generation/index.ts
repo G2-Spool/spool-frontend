@@ -3,7 +3,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 // @ts-ignore - Deno imports for Supabase Edge Functions
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 // @ts-ignore - Deno imports for Supabase Edge Functions
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0'
+import OpenAI from 'https://esm.sh/openai@4.28.0'
 import { corsHeaders } from '../_shared/cors.ts'
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -11,7 +11,7 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const openaiKey = Deno.env.get('OPENAI_API_KEY')!
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
-const openai = new OpenAIApi(new Configuration({ apiKey: openaiKey }))
+const openai = new OpenAI({ apiKey: openaiKey })
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -21,72 +21,64 @@ serve(async (req) => {
   try {
     const { proposal, studentProfileId } = await req.json()
     
-    // Initialize clients
-    // @ts-ignore - Deno API
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    // @ts-ignore - Deno API
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseKey)
-    
-    // @ts-ignore - Deno API
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')!
-    const configuration = new Configuration({ apiKey: openaiApiKey })
-    const openai = new OpenAIApi(configuration)
-    
     // Step 1: Map concepts across subjects using GPT-4
-    const conceptMapping = await openai.createChatCompletion({
+    const conceptMapping = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
         {
-          role: 'system',
+          role: 'system' as const,
           content: `You are an expert curriculum designer. Given a learning goal, identify all relevant academic concepts from any subject that would help achieve this goal. Consider concepts from Math, Science, Literature, History, Art, Business, Technology, and Life Skills. Each concept should be essential or highly supportive of the learning goal.`
         },
         {
-          role: 'user',
+          role: 'user' as const,
           content: `Learning Goal: ${proposal.goal}\nObjectives: ${proposal.objectives.join(', ')}\n\nIdentify 20-50 specific concepts across all subjects that are relevant to this goal.`
         }
       ],
-      functions: [
+      tools: [
         {
-          name: 'map_concepts',
-          description: 'Map concepts across subjects for the learning goal',
-          parameters: {
-            type: 'object',
-            properties: {
-              concepts: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'string' },
-                    name: { type: 'string' },
-                    subject: { type: 'string' },
-                    description: { type: 'string' },
-                    relevance_hypothesis: { type: 'string' },
-                    prerequisites: { type: 'array', items: { type: 'string' } }
+          type: 'function' as const,
+          function: {
+            name: 'map_concepts',
+            description: 'Map concepts across subjects for the learning goal',
+            parameters: {
+              type: 'object',
+              properties: {
+                concepts: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string' },
+                      name: { type: 'string' },
+                      subject: { type: 'string' },
+                      description: { type: 'string' },
+                      relevance_hypothesis: { type: 'string' },
+                      prerequisites: { type: 'array', items: { type: 'string' } }
+                    }
                   }
-                }
-              },
-              subjects_involved: {
-                type: 'array',
-                items: { type: 'string' }
-              },
-              primary_subject: { type: 'string' }
+                },
+                subjects_involved: {
+                  type: 'array',
+                  items: { type: 'string' }
+                },
+                primary_subject: { type: 'string' }
+              }
             }
           }
         }
       ],
-      function_call: { name: 'map_concepts' }
+      tool_choice: { type: 'function' as const, function: { name: 'map_concepts' } }
     })
     
-    const mappedConcepts = JSON.parse(conceptMapping.data.choices[0].message?.function_call?.arguments || '{}')
+    const toolCall = conceptMapping.choices[0].message?.tool_calls?.[0]
+    const mappedConcepts = toolCall ? JSON.parse(toolCall.function.arguments) : { concepts: [] }
     
     // Step 2: Generate embeddings for concept search
     const conceptTexts = mappedConcepts.concepts.map((c: any) => 
       `${c.name} in ${c.subject}: ${c.description}. Relevance to "${proposal.goal}": ${c.relevance_hypothesis}`
     )
     
-    const embeddingResponse = await openai.createEmbedding({
+    const embeddingResponse = await openai.embeddings.create({
       model: 'text-embedding-ada-002',
       input: conceptTexts
     })
@@ -98,7 +90,7 @@ serve(async (req) => {
       concept,
       relevance_score: 0.80 + Math.random() * 0.20, // Simulate 80-100% relevance
       content_chunks: [], // Would come from Pinecone
-      embedding: embeddingResponse.data.data[idx].embedding
+      embedding: embeddingResponse.data[idx].embedding
     }))
     
     // Step 4: Create Thread in database

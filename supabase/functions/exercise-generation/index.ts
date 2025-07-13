@@ -3,7 +3,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 // @ts-ignore - Deno imports for Supabase Edge Functions
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 // @ts-ignore - Deno imports for Supabase Edge Functions
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0'
+import OpenAI from 'https://esm.sh/openai@4.28.0'
 import { corsHeaders } from '../_shared/cors.ts'
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -11,7 +11,7 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const openaiKey = Deno.env.get('OPENAI_API_KEY')!
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
-const openai = new OpenAIApi(new Configuration({ apiKey: openaiKey }))
+const openai = new OpenAI({ apiKey: openaiKey })
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -43,72 +43,75 @@ serve(async (req) => {
       : 'Create an initial exercise that tests understanding of the core concept.'
     
     // Generate personalized exercise
-    const exerciseCompletion = await openai.createChatCompletion({
+    const exerciseCompletion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
         {
-          role: 'system',
+          role: 'system' as const,
           content: `You are an expert at creating engaging, personalized exercises that test concept understanding while relating to student interests and Thread goals. ${complexityPrompt} The exercise MUST require students to explain their thought process step-by-step.`
         },
         {
-          role: 'user',
+          role: 'user' as const,
           content: `Create an exercise for:\n\nConcept: ${threadConcept.concept_name} (${threadConcept.subject})\nThread Goal: ${thread.goal}\nStudent Interests: ${JSON.stringify(profile.interests)}\nCareer Interest: ${profile.career_interests[0] || 'general'}\n\nThe exercise should:\n1. Directly relate to the Thread goal\n2. Use one of the student's interests as context\n3. Require step-by-step explanation\n4. ${isAdvanced ? 'Include multiple concepts or real-world complexity' : 'Focus on the core concept'}`
         }
       ],
-      functions: [
+      tools: [
         {
-          name: 'generate_exercise',
-          description: 'Generate a personalized exercise',
-          parameters: {
-            type: 'object',
-            properties: {
-              exercise_prompt: {
-                type: 'string',
-                description: 'The complete exercise prompt for the student'
-              },
-              context_setting: {
-                type: 'string',
-                description: 'The interest-based scenario'
-              },
-              expected_steps: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    step_number: { type: 'integer' },
-                    step_description: { type: 'string' },
-                    key_concept: { type: 'string' }
-                  }
+          type: 'function' as const,
+          function: {
+            name: 'generate_exercise',
+            description: 'Generate a personalized exercise',
+            parameters: {
+              type: 'object',
+              properties: {
+                exercise_prompt: {
+                  type: 'string',
+                  description: 'The complete exercise prompt for the student'
                 },
-                description: 'The logical steps expected in the solution'
-              },
-              thread_goal_integration: {
-                type: 'string',
-                description: 'How this exercise relates to the Thread goal'
-              },
-              cross_curricular_elements: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'Other subjects touched on'
-              },
-              success_criteria: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'What constitutes a successful response'
-              },
-              common_misconceptions: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'Common mistakes to watch for'
+                context_setting: {
+                  type: 'string',
+                  description: 'The interest-based scenario'
+                },
+                expected_steps: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      step_number: { type: 'integer' },
+                      step_description: { type: 'string' },
+                      key_concept: { type: 'string' }
+                    }
+                  },
+                  description: 'The logical steps expected in the solution'
+                },
+                thread_goal_integration: {
+                  type: 'string',
+                  description: 'How this exercise relates to the Thread goal'
+                },
+                cross_curricular_elements: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Other subjects touched on'
+                },
+                success_criteria: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'What constitutes a successful response'
+                },
+                common_misconceptions: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Common mistakes to watch for'
+                }
               }
             }
           }
         }
       ],
-      function_call: { name: 'generate_exercise' }
+      tool_choice: { type: 'function' as const, function: { name: 'generate_exercise' } }
     })
     
-    const exerciseData = JSON.parse(exerciseCompletion.data.choices[0].message?.function_call?.arguments || '{}')
+    const exerciseData = JSON.parse(exerciseCompletion.choices[0].message?.tool_calls?.[0]?.function.arguments || '{}')
     
     // Store the exercise in the database
     const { data: assessment, error: assessmentError } = await supabase
