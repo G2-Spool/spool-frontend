@@ -1,12 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../config/supabase';
+import { Json } from '../types/supabase';
 import toast from 'react-hot-toast';
-
-interface InterestWithDetails {
-  interest: string;
-  details: string;
-  discovered_at: string;
-}
 
 interface InterestWithDescription {
   interest: string;
@@ -29,30 +24,22 @@ export function useInterests(userId: string | undefined) {
 
       if (error) throw error;
       
-      // Convert stored interests format to display format
-      const storedInterests = (data?.interests as InterestWithDescription[]) || [];
-      return storedInterests.map((interest: InterestWithDescription) => ({
-        interest: interest.interest,
-        details: interest.description,
-        discovered_at: new Date().toISOString() // We don't store timestamps in the new format
-      })) as InterestWithDetails[];
+      // Return interests in the format expected by components
+      return (data?.interests as unknown as InterestWithDescription[]) || [];
     },
     enabled: !!userId,
   });
 
   const updateInterests = useMutation({
-    mutationFn: async (newInterests: InterestWithDetails[]) => {
+    mutationFn: async (newInterests: InterestWithDescription[]) => {
       if (!userId) throw new Error('No user ID');
       
-      // Convert display format back to storage format
-      const interestsToStore = newInterests.map((interest: InterestWithDetails) => ({
-        interest: interest.interest,
-        description: interest.details
-      }));
+      // Store interests directly in the expected format
+      const interestsToStore = newInterests;
       
       const { error } = await supabase
         .from('users')
-        .update({ interests: interestsToStore })
+        .update({ interests: interestsToStore as unknown as Json })
         .eq('id', userId);
 
       if (error) throw error;
@@ -77,7 +64,7 @@ export function useInterests(userId: string | undefined) {
       });
 
       if (error) throw error;
-      return data.interests as InterestWithDetails[];
+      return data.interests as InterestWithDescription[];
     },
     onSuccess: (interests) => {
       queryClient.setQueryData(['interests', userId], interests);
