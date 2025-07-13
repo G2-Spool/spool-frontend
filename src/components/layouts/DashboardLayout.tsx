@@ -7,6 +7,7 @@ import {
   X,
 } from 'lucide-react';
 import { Button } from '../atoms/Button';
+import { DarkModeToggle } from '../atoms/DarkModeToggle';
 import { SidebarNav } from '../molecules/SidebarNav';
 import { cn } from '../../utils/cn';
 
@@ -88,10 +89,21 @@ export const DashboardLayout: React.FC = () => {
 
               {/* Right side actions */}
               <div className="flex items-center gap-4">
+                <DarkModeToggle />
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleLogout}
+                  className="dark:hover:bg-gray-800 rounded flex items-center gap-2 hover:!text-red-500 dark:hover:!text-red-500"
+                  style={{
+                    '--hover-color': '#ef4444'
+                  } as React.CSSProperties}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#ef4444';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '';
+                  }}
                 >
                   <LogOut className="h-4 w-4" />
                   Logout

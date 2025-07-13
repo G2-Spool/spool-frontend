@@ -59,8 +59,8 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
   return (
     <div className="w-80 bg-white dark:bg-gray-900 overflow-y-auto">
       <div className="p-4">
-        <h2 className="text-lg font-semibold text-obsidian dark:text-gray-100 mb-4">
-          Thread Sections
+        <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100 mb-4 text-center">
+          Concepts
         </h2>
         
         <div className="space-y-2">
@@ -79,16 +79,16 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                 )}
               >
                 <div 
-                  className="pl-1.5 pr-2 py-1"
+                  className="px-0 py-1"
                   onClick={() => onSelectSection(section.id)}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-start gap-3 flex-1">
-                      <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+                      <div className="text-base font-medium text-gray-500 dark:text-gray-400 mt-0.5">
                         {index + 1}.
                       </div>
                       <h3 className={cn(
-                        "text-sm font-medium line-clamp-2 flex-1",
+                        "text-base font-medium line-clamp-2 flex-1",
                         isSelected ? "text-teal-900 dark:text-teal-200" : "text-obsidian dark:text-gray-100"
                       )}>
                         {section.title}
@@ -101,7 +101,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                         e.stopPropagation();
                         onToggleExpanded(section.id);
                       }}
-                      className="p-1.5 hover:bg-[#2d3748] rounded-full transition-colors duration-200 hover:scale-110"
+                      className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full transition-colors duration-200"
                     >
                       {isExpanded ? (
                         <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
@@ -111,7 +111,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                     </Button>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-xs">
+                  <div className="flex items-center gap-2 text-sm">
                     <div className={cn(
                       "flex items-center gap-1 px-2 py-0.5 rounded",
                       getRelevanceColor(section.relevanceScore)
@@ -139,12 +139,12 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                   
                   {isExpanded && (
                     <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-3 mb-2">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-2">
                         <MarkdownText text={section.text.substring(0, 150) + '...'} />
                       </p>
                       
                       {section.conceptIds && section.conceptIds.length > 0 && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                           <BookOpen className="h-3 w-3" />
                           <span>{section.conceptIds.length} related concepts</span>
                         </div>
@@ -162,7 +162,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Thread Summary
           </h3>
-          <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+          <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex justify-between">
               <span>Total Sections:</span>
               <span className="font-medium">{sections.length}</span>

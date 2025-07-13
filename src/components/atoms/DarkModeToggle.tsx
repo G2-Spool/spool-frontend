@@ -33,13 +33,13 @@ export const DarkModeToggle: React.FC = () => {
       variant="ghost"
       size="sm"
       onClick={toggleDarkMode}
-      className="p-2"
+      className="p-2 rounded"
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       {isDark ? (
-        <Sun className="h-5 w-5 text-yellow-500" />
+        <Moon className="h-5 w-5 text-gray-500" />
       ) : (
-        <Moon className="h-5 w-5 text-gray-600" />
+        <Sun className="h-5 w-5 text-gray-600" />
       )}
     </Button>
   );
