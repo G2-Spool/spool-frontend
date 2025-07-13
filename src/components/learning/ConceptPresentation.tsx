@@ -142,7 +142,7 @@ export function ConceptPresentation({ conceptId, className }: ConceptPresentatio
   const { data: exerciseData, isLoading, error } = useExerciseContent(conceptId);
   
   // Fetch all concepts for the thread to get all 4 hook titles
-  const threadId = exerciseData?.thread_id || 'd6046803-eece-42ba-9cbb-ab2eebd9c683'; // fallback to known thread_id
+  const threadId = 'd6046803-eece-42ba-9cbb-ab2eebd9c683'; // hardcoded thread_id as requested
   const { data: allConcepts } = useThreadConceptContent(threadId);
   
   // Show loading state
@@ -329,11 +329,11 @@ export function ConceptPresentation({ conceptId, className }: ConceptPresentatio
           {/* Section Separator */}
           <div className="w-full h-px bg-border opacity-50"></div>
 
-          {/* Section 3: What & How */}
+          {/* Section 3: Academic Approach */}
           <section className="space-y-6">
             <div className="space-y-2">
-              <h2 className="text-xl font-bold text-foreground">What & How</h2>
-              <p className="text-muted-foreground font-bold">The building blocks</p>
+              <h2 className="text-xl font-bold text-foreground">Academic Approach</h2>
+              <p className="text-muted-foreground font-bold">The structured methodology</p>
               <div className="w-full h-px bg-border"></div>
             </div>
 

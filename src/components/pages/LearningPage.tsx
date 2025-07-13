@@ -21,6 +21,7 @@ import { useUnifiedNavigation } from '@/hooks/useUnifiedNavigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { ChevronLeft } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { useThreadConcepts, useHardcodedThread, HARDCODED_THREAD_ID } from '@/hooks/useThreadData'
 
 interface ConceptItem {
   id: string
@@ -39,64 +40,26 @@ interface LearningPageProps {
   className?: string
 }
 
-// Mock concepts data for demonstration
-const mockConcepts: ConceptItem[] = [
-  {
-    id: 'introduction-to-functions',
-    title: 'Introduction to Functions',
-    description: 'Understanding the basic concept of functions and their importance',
-    completed: true,
-    locked: false,
-    progress: 100
-  },
-  {
-    id: 'solving-linear-equations',
-    title: 'Solving Two-Step Linear Equations',
-    description: 'Learn to solve equations like 2x + 5 = 15 step by step',
-    completed: false,
-    locked: false,
-    progress: 60
-  },
-  {
-    id: 'quadratic-functions',
-    title: 'Quadratic Functions',
-    description: 'Explore parabolas and quadratic equations',
-    completed: false,
-    locked: false,
-    progress: 0
-  },
-  {
-    id: 'exponential-functions',
-    title: 'Exponential Functions',
-    description: 'Understanding exponential growth and decay',
-    completed: false,
-    locked: true,
-    progress: 0
-  }
-]
 
-// Mock topic data
-const mockTopic = {
-  id: 'college-algebra',
-  title: 'College Algebra',
-  description: 'Fundamental algebraic concepts and problem-solving techniques',
-  category: 'Mathematics',
-  difficulty_level: 'intermediate'
-}
 
 export function LearningPage({ 
-  conceptId = 'solving-linear-equations', 
+  conceptId = 'probability', 
   conceptTitle, 
   topicId = 'college-algebra', 
   onBack 
 }: LearningPageProps) {
   const [currentConceptId, setCurrentConceptId] = useState(conceptId)
-  const [loading] = useState(false)
-  const [error] = useState<string | null>(null)
   const [startTime, setStartTime] = useState<number>(Date.now())
   
   useAuth()
   const { navigateToUrl } = useUnifiedNavigation()
+  
+  // Fetch thread and concept data from Supabase
+  const { data: thread, isLoading: threadLoading, error: threadError } = useHardcodedThread()
+  const { data: conceptsData, isLoading: conceptsLoading, error: conceptsError } = useThreadConcepts(HARDCODED_THREAD_ID)
+  
+  const loading = threadLoading || conceptsLoading
+  const error = threadError?.message || conceptsError?.message || null
 
   // Update current concept when prop changes
   useEffect(() => {
@@ -106,8 +69,27 @@ export function LearningPage({
     }
   }, [conceptId, currentConceptId])
 
+  // Transform concept data into ConceptItem format
+  const concepts: ConceptItem[] = (conceptsData || []).map((concept, index) => ({
+    id: concept.concept_id,
+    title: concept.concept_name,
+    description: concept.hook_title,
+    completed: index === 0, // First concept is completed
+    locked: false,
+    progress: index === 0 ? 100 : index === 1 ? 60 : 0 // Mock progress for demonstration
+  }))
+
+  // Create topic data from thread
+  const topic = thread ? {
+    id: thread.id,
+    title: thread.title,
+    description: thread.situation_description,
+    category: (thread.primary_skill_focus as any)?.[0] || 'Mathematics',
+    difficulty_level: 'intermediate'
+  } : null
+
   // Get current concept details
-  const currentConcept = mockConcepts.find(c => c.id === currentConceptId)
+  const currentConcept = concepts.find(c => c.id === currentConceptId)
 
   // Handle concept selection from sidebar
   const handleConceptSelect = async (id: string) => {
@@ -180,13 +162,13 @@ export function LearningPage({
               <ChevronLeft className="w-4 h-4" />
             </Button>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>{mockTopic.category}</span>
-              <span>•</span>
-              <span className="capitalize">{mockTopic.difficulty_level}</span>
-            </div>
+                          <span>{topic?.category || 'Mathematics'}</span>
+            <span>•</span>
+            <span className="capitalize">{topic?.difficulty_level || 'intermediate'}</span>
           </div>
-          <h1 className="text-2xl font-bold">{mockTopic.title}</h1>
-          <p className="text-muted-foreground mt-1">{mockTopic.description}</p>
+        </div>
+        <h1 className="text-2xl font-bold">{topic?.title || 'Learning Thread'}</h1>
+        <p className="text-muted-foreground mt-1">{topic?.description || ''}</p>
         </div>
 
         {/* Main content layout */}
@@ -194,7 +176,7 @@ export function LearningPage({
           {/* Sidebar - Concept navigation */}
           <div className="lg:col-span-1">
             <ConceptSidebar
-              concepts={mockConcepts}
+              concepts={concepts}
               currentConceptId={currentConceptId}
               onConceptSelect={handleConceptSelect}
               onBack={handleBack}

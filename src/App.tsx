@@ -19,6 +19,7 @@ import { ThreadPage } from './pages/ThreadPage';
 import { TopicPage } from './pages/TopicPage';
 import { TestThreadCreation } from './pages/TestThreadCreation';
 import { DebugExercises } from './pages/DebugExercises';
+import { TestSupabaseIntegration } from './pages/TestSupabaseIntegration';
 
 // Layouts
 import { AuthLayout } from './components/layouts/AuthLayout';
@@ -73,6 +74,7 @@ function App() {
                 <Route path="/thread/:threadId" element={<ThreadPage />} />
                 <Route path="/test-thread" element={<TestThreadCreation />} />
                 <Route path="/debug-exercises" element={<DebugExercises />} />
+                <Route path="/test-supabase" element={<TestSupabaseIntegration />} />
               </Route>
 
               {/* Fallback */}

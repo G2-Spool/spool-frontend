@@ -13,6 +13,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { useThread } from '../hooks/useThread';
+import { useHardcodedThread, useThreadConcepts, HARDCODED_THREAD_ID } from '../hooks/useThreadData';
 import { ThreadSectionsSidebar } from '../components/organisms/ThreadSectionsSidebar';
 import { ChatExerciseInterface } from '../components/learning/ChatExerciseInterface';
 import { ConceptPresentation } from '../components/learning/ConceptPresentation';
@@ -30,8 +31,31 @@ export const ThreadPage: React.FC = () => {
   const [sidebarActiveTab, setSidebarActiveTab] = useState<'concepts' | 'glossary'>('concepts');
   const [newTerms, setNewTerms] = useState<string[]>([]);
   
-  // Fetch thread data
-  const { data: thread, isLoading, error } = useThread(threadId || '');
+  // Fetch thread data - use hardcoded thread if it matches
+  const isHardcodedThread = threadId === HARDCODED_THREAD_ID;
+  const { data: regularThread, isLoading: regularLoading, error: regularError } = useThread(!isHardcodedThread ? (threadId || '') : '');
+  const { data: hardcodedThread, isLoading: hardcodedLoading, error: hardcodedError } = useHardcodedThread();
+  const { data: hardcodedConcepts, isLoading: conceptsLoading } = useThreadConcepts(HARDCODED_THREAD_ID);
+  
+  // Transform hardcoded data to match thread structure with sections
+  const transformedHardcodedThread = hardcodedThread && hardcodedConcepts ? {
+    ...hardcodedThread,
+    sections: hardcodedConcepts.map((concept, index) => ({
+      id: concept.concept_id,
+      title: concept.concept_name,
+      type: index === 0 ? 'hook' : index === 1 ? 'example' : index === 2 ? 'approach' : 'non-example',
+      text: concept.hook_content,
+      difficulty: 'intermediate',
+      relevanceScore: 0.8 + (Math.random() * 0.2), // Mock relevance score between 0.8-1.0
+      concepts: [concept.concept_name],
+      keyTerms: [],
+      estimatedMinutes: Math.floor(Math.random() * 10) + 15
+    }))
+  } : null;
+  
+  const thread = isHardcodedThread ? transformedHardcodedThread : regularThread;
+  const isLoading = isHardcodedThread ? (hardcodedLoading || conceptsLoading) : regularLoading;
+  const error = isHardcodedThread ? (hardcodedError || null) : regularError;
   
   // Get difficulty color to match sidebar
   const getDifficultyColor = (difficulty: string) => {

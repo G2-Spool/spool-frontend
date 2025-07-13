@@ -19,7 +19,7 @@ import type { LifeCategory } from '../../types';
 interface ConceptComponent {
   id: string;
   title: string;
-  type: 'hook' | 'examples' | 'what-how';
+  type: 'hook' | 'example' | 'approach' | 'non-example';
   contentType: 'video' | 'article' | 'interactive';
   duration?: string;
   url?: string;
@@ -31,9 +31,10 @@ export interface ConceptCardProps {
   description: string;
   category: LifeCategory;
   components: {
-    hookRelevance: ConceptComponent;
-    showMeExamples: ConceptComponent;
-    whatAndHow: ConceptComponent;
+    hook: ConceptComponent;
+    example: ConceptComponent;
+    approach: ConceptComponent;
+    nonExample: ConceptComponent;
   };
   completedComponents: string[];
   onComponentComplete: (componentId: string) => void;
@@ -49,8 +50,9 @@ const categoryColors: Record<LifeCategory, string> = {
 
 const componentIcons = {
   hook: Sparkles,
-  examples: Eye,
-  'what-how': BookOpen,
+  example: Eye,
+  approach: BookOpen,
+  'non-example': FileText,
 };
 
 const contentTypeIcons = {
@@ -59,11 +61,12 @@ const contentTypeIcons = {
   interactive: BookOpen,
 };
 
-const componentOrder = ['hookRelevance', 'showMeExamples', 'whatAndHow'] as const;
+const componentOrder = ['hook', 'example', 'approach', 'nonExample'] as const;
 const componentLabels = {
-  hookRelevance: 'Hook & Relevance',
-  showMeExamples: 'Show Me Examples',
-  whatAndHow: 'What & How',
+  hook: 'Hook & Relevance',
+  example: 'Show Me Examples',
+  approach: 'Academic Approach',
+  nonExample: 'What NOT to Do',
 };
 
 export const ConceptCard: React.FC<ConceptCardProps> = ({
@@ -84,7 +87,7 @@ export const ConceptCard: React.FC<ConceptCardProps> = ({
 
   const progress = (completedComponents.filter(id => 
     componentOrder.some(key => components[key].id === id)
-  ).length / 3) * 100;
+  ).length / 4) * 100;
 
   const handleComponentClick = (component: ConceptComponent) => {
     if (!isComponentCompleted(component.id) && component.url) {

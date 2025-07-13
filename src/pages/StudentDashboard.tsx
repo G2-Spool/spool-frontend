@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useActiveLearningPath, useStudentStats } from '../hooks/useLearningPaths';
 import { useInterests } from '../hooks/useInterests';
 import { useUserThreads } from '../hooks/useThread';
+import { useHardcodedThread, useThreadConcepts, HARDCODED_THREAD_ID } from '../hooks/useThreadData';
 import { Button } from '../components/atoms/Button';
 import { Card } from '../components/atoms/Card';
 import { ExpandableStatsCard } from '../components/molecules/ExpandableStatsCard';
@@ -41,54 +42,28 @@ export const StudentDashboard: React.FC = () => {
   const { data: stats, isLoading: statsLoading } = useStudentStats();
   const { interests, isLoading: interestsLoading } = useInterests(user?.id);
   const { isLoading: threadsLoading } = useUserThreads(user?.id || 'anonymous', 10);
+  
+  // Fetch the hardcoded thread and its concepts
+  const { data: hardcodedThread, isLoading: hardcodedThreadLoading } = useHardcodedThread();
+  const { data: hardcodedConcepts, isLoading: hardcodedConceptsLoading } = useThreadConcepts(HARDCODED_THREAD_ID);
 
-  // Sample threads for demonstration
-  const sampleThreads = [
-    {
-      threadId: 'blackjack-probability-guide',
-      userInput: 'What are the probabilities of winning at blackjack?',
-      analysis: 'Statistical analysis of blackjack outcomes and strategies',
-      concepts: [
-        { id: '1', title: 'Basic Probability Theory', estimatedMinutes: 18 },
-        { id: '2', title: 'Card Counting Fundamentals', estimatedMinutes: 22 },
-        { id: '3', title: 'House Edge Analysis', estimatedMinutes: 16 },
-        { id: '4', title: 'Optimal Strategy Tables', estimatedMinutes: 20 }
-      ],
-      createdAt: new Date().toISOString(),
-      estimatedReadTime: 76,
-      progress: 0
-    },
-    {
-      threadId: 'example-thread-001',
-      userInput: 'How do neural networks learn and make predictions?',
-      analysis: 'A comprehensive study of neural network fundamentals',
-      concepts: [
-        { id: '1', title: 'Neural Network Architecture', estimatedMinutes: 20 },
-        { id: '2', title: 'Backpropagation', estimatedMinutes: 25 },
-        { id: '3', title: 'Training Process', estimatedMinutes: 18 },
-        { id: '4', title: 'Activation Functions', estimatedMinutes: 15 }
-      ],
-      createdAt: new Date().toISOString(),
-      estimatedReadTime: 78,
-      progress: 42
-    },
-    {
-      threadId: 'sample-2',
-      userInput: 'How does photosynthesis work in plants?',
-      analysis: 'A comprehensive study of photosynthesis mechanisms',
-      concepts: [
-        { id: '1', title: 'Light Reactions', estimatedMinutes: 15 },
-        { id: '2', title: 'Calvin Cycle', estimatedMinutes: 20 },
-        { id: '3', title: 'Chloroplast Structure', estimatedMinutes: 12 }
-      ],
-      createdAt: new Date().toISOString(),
-      estimatedReadTime: 47,
-      progress: 67
-    }
-  ];
+  // Build thread data from hardcoded thread and concepts
+  const hardcodedThreadData = hardcodedThread && hardcodedConcepts ? {
+    threadId: hardcodedThread.id,
+    userInput: 'How can I make smart decisions at poker night using probability?',
+    analysis: hardcodedThread.situation_description,
+    concepts: hardcodedConcepts.map(concept => ({
+      id: concept.concept_id,
+      title: concept.concept_name,
+      estimatedMinutes: Math.floor(Math.random() * 10) + 15 // Mock estimated time
+    })),
+    createdAt: hardcodedThread.created_at || new Date().toISOString(),
+    estimatedReadTime: hardcodedConcepts.length * 20,
+    progress: 25 // Mock progress
+  } : null;
 
-  // Show all 3 sample threads for demonstration
-  const displayThreads = sampleThreads;
+  // Show the hardcoded thread if available, otherwise show loading
+  const displayThreads = hardcodedThreadData ? [hardcodedThreadData] : [];
 
   // Drag to scroll handlers
   const handleMouseDown = (e: React.MouseEvent) => {

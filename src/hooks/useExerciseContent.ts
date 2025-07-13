@@ -32,15 +32,14 @@ export const useExerciseContent = (sectionId: string) => {
       console.log('Fetching exercise content for sectionId:', sectionId);
       
       // Check if the sectionId is a valid UUID
-      if (!isValidUUID(sectionId)) {
-        console.log('SectionId is not a valid UUID, skipping database query:', sectionId);
-        return null;
-      }
+      const isUuid = isValidUUID(sectionId);
       
-      const { data, error } = await supabase
-        .from('concept_content')
-        .select('*')
-        .eq('id', sectionId);
+      // Query by either id or concept_id based on what we have
+      const query = isUuid
+        ? supabase.from('concept_content').select('*').eq('id', sectionId)
+        : supabase.from('concept_content').select('*').eq('concept_id', sectionId);
+      
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching exercise content:', error);
