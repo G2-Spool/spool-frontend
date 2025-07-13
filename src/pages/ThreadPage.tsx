@@ -24,6 +24,8 @@ import {
 import { useThread } from '../hooks/useThread';
 import { ThreadSectionsSidebar } from '../components/organisms/ThreadSectionsSidebar';
 import { TwoStageExercise } from '../components/organisms/TwoStageExercise';
+import { ChatExerciseInterface } from '../components/learning/ChatExerciseInterface';
+import { ConceptPresentation } from '../components/learning/ConceptPresentation';
 import { cn } from '../utils/cn';
 import { MarkdownText } from '../utils/markdown';
 
@@ -311,16 +313,33 @@ export const ThreadPage: React.FC = () => {
           {currentSection && (
             <div className="space-y-6 px-8 pb-8">
               {showExercise && currentSectionStatus === 'exercising' ? (
-                <TwoStageExercise
-                  conceptId={currentSection.id}
-                  conceptName={currentSection.title}
-                  conceptDescription={currentSection.text.substring(0, 200)}
-                  relevanceScore={currentSection.relevanceScore}
-                  estimatedMinutes={currentSection.estimatedMinutes}
-                  difficulty={currentSection.difficulty}
-                  studentProfile={mockStudentProfile}
-                  onComplete={handleExerciseComplete}
-                />
+                <div className="space-y-6">
+                  {/* Concept Presentation */}
+                  <ConceptPresentation
+                    conceptId={currentSection.id}
+                    conceptTitle={currentSection.title}
+                  />
+                  
+                  {/* Chat Exercise Interface */}
+                  <div style={{ backgroundColor: '#2d3748' }} className="rounded-lg">
+                    <div className="p-6">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="p-3 bg-gradient-to-br from-teal-100 to-blue-100 dark:from-teal-900/30 dark:to-blue-900/30 rounded-lg">
+                          <Brain className="h-6 w-6 text-teal-600 dark:text-teal-400" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-foreground">Interactive Exercise</h2>
+                          <p className="text-muted-foreground">Practice your understanding with AI-guided exercises</p>
+                        </div>
+                      </div>
+                      
+                      <ChatExerciseInterface
+                        conceptId={currentSection.id}
+                        conceptTitle={currentSection.title}
+                      />
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <>
                   <Card className="p-6 bg-gray-50 dark:bg-gray-800/80">

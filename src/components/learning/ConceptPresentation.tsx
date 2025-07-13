@@ -15,8 +15,6 @@
  * - Step-by-step workflow instructions
  */
 
-import { Card } from '@/components/atoms/Card'
-import { ExerciseSection } from './ExerciseSection'
 import { cn } from '@/utils/cn'
 import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
@@ -216,9 +214,9 @@ export function ConceptPresentation({ conceptId, conceptTitle, topicId, classNam
   }
 
   return (
-    <div className={cn("max-w-4xl mx-auto", className)}>
-      <Card className="bg-card border-border">
-        <div className="space-y-12 pb-8">
+    <div className={cn("w-full", className)}>
+      <div className="rounded-lg" style={{ backgroundColor: '#2d3748' }}>
+        <div className="space-y-12 p-8">
           {/* Section 1: Hook & Relevance */}
           <section className="space-y-6">
             <div className="space-y-2">
@@ -381,15 +379,8 @@ export function ConceptPresentation({ conceptId, conceptTitle, topicId, classNam
               </div>
             </div>
           </section>
-
-          {/* Exercise Section */}
-          <ExerciseSection 
-            conceptId={conceptId} 
-            conceptTitle={conceptTitle || conceptData.title}
-            topicId={topicId}
-          />
         </div>
-      </Card>
+      </div>
     </div>
   )
 } 
