@@ -182,6 +182,8 @@ interface ChatExerciseInterfaceProps {
   conceptTitle?: string
   topicId?: string
   className?: string
+  onSwitchToGlossary?: () => void
+  onNewTerm?: (term: string) => void
 }
 
 // Response Highlight Component
@@ -675,191 +677,7 @@ const FormattedMessage: React.FC<{
   )
 }
 
-// Vocabulary drawer component
-const VocabularyDrawer: React.FC<{
-  isOpen: boolean
-  onClose: () => void
-  newTerms: string[]
-  onClearNewTerms: () => void
-  setDrawerOpen: (open: boolean) => void
-}> = ({ isOpen, onClose, newTerms, onClearNewTerms, setDrawerOpen }) => {
-  const drawerRef = useRef<HTMLDivElement>(null)
-  const [shouldAnimate, setShouldAnimate] = useState(false)
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (drawerRef.current && !drawerRef.current.contains(event.target as Node)) {
-        onClose()
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isOpen, onClose])
-
-  useEffect(() => {
-    if (isOpen && newTerms.length > 0) {
-      setShouldAnimate(true)
-      
-      const timer = setTimeout(() => {
-        setShouldAnimate(false)
-        onClearNewTerms()
-      }, 4100)
-      
-      return () => clearTimeout(timer)
-    }
-  }, [isOpen, newTerms.length, onClearNewTerms])
-
-  return (
-    <>
-      {/* Drawer Tab */}
-      {!isOpen && (
-        <div 
-          className="fixed right-0 z-40 transition-all duration-300"
-          style={{ bottom: '15%', transform: 'translateY(50%)' }}
-        >
-          <Button
-            variant="ghost"
-            onClick={() => setDrawerOpen(true)}
-            className="bg-card border border-border rounded-l-lg px-2 py-8 text-foreground text-sm font-medium transition-all duration-300 hover:bg-accent border-r-0 opacity-80"
-          >
-            <div className="flex flex-col items-center space-y-2">
-              <span className="transform -rotate-90 whitespace-nowrap">Terms</span>
-              {newTerms.length > 0 && (
-                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-              )}
-            </div>
-          </Button>
-        </div>
-      )}
-
-      {/* Drawer Content */}
-      <div 
-        ref={drawerRef}
-        className={cn(
-          "fixed top-0 right-0 h-full w-[30%] z-30 transition-transform duration-300 overflow-y-auto",
-          isOpen ? "translate-x-0" : "translate-x-full"
-        )}
-        style={{ backgroundColor: '#1e2430', borderLeft: '1px solid #374151' }}
-      >
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-foreground">Vocabulary & Terms</h3>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-
-          <div className="space-y-6">
-            {/* Vocabulary Section */}
-            <div>
-              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
-                Vocabulary
-              </h4>
-              <div className="space-y-0">
-                {vocabularyTerms.filter(term => term.type === 'vocabulary').map((vocab, index, arr) => (
-                  <div key={vocab.term}>
-                    <div 
-                      className={cn(
-                        "p-3 transition-all duration-300 hover:bg-accent/50",
-                        newTerms.includes(vocab.term) && shouldAnimate && "term-highlight-active"
-                      )}
-                      style={{
-                        animationDelay: newTerms.includes(vocab.term) && shouldAnimate ? `${index * 0.1}s` : '0s'
-                      }}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0 bg-[#4FD1C5]" />
-                        <div>
-                          <h5 className="font-semibold text-foreground mb-1">{vocab.term}</h5>
-                          <p className="text-sm text-muted-foreground leading-relaxed">{vocab.definition}</p>
-                        </div>
-                      </div>
-                    </div>
-                    {index < arr.length - 1 && (
-                      <div className="mx-3" style={{ borderBottom: '1px solid #2d3748' }}></div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Equations Section */}
-            <div>
-              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
-                Equations
-              </h4>
-              <div className="space-y-0">
-                {vocabularyTerms.filter(term => term.type === 'equation').map((vocab, index, arr) => (
-                  <div key={vocab.term}>
-                    <div 
-                      className={cn(
-                        "p-3 transition-all duration-300 hover:bg-accent/50",
-                        newTerms.includes(vocab.term) && shouldAnimate && "term-highlight-active"
-                      )}
-                      style={{
-                        animationDelay: newTerms.includes(vocab.term) && shouldAnimate ? `${index * 0.1}s` : '0s'
-                      }}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0 bg-[#805AD5]" />
-                        <div>
-                          <h5 className="font-semibold text-foreground mb-1">{vocab.term}</h5>
-                          <p className="text-sm text-muted-foreground leading-relaxed">{vocab.definition}</p>
-                        </div>
-                      </div>
-                    </div>
-                    {index < arr.length - 1 && (
-                      <div className="mx-3" style={{ borderBottom: '1px solid #2d3748' }}></div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Concepts Section */}
-            <div>
-              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
-                Concepts
-              </h4>
-              <div className="space-y-0">
-                {vocabularyTerms.filter(term => term.type === 'concept').map((vocab, index, arr) => (
-                  <div key={vocab.term}>
-                    <div 
-                      className={cn(
-                        "p-3 transition-all duration-300 hover:bg-accent/50",
-                        newTerms.includes(vocab.term) && shouldAnimate && "term-highlight-active"
-                      )}
-                      style={{
-                        animationDelay: newTerms.includes(vocab.term) && shouldAnimate ? `${index * 0.1}s` : '0s'
-                      }}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0 bg-[#ED64A6]" />
-                        <div>
-                          <h5 className="font-semibold text-foreground mb-1">{vocab.term}</h5>
-                          <p className="text-sm text-muted-foreground leading-relaxed">{vocab.definition}</p>
-                        </div>
-                      </div>
-                    </div>
-                    {index < arr.length - 1 && (
-                      <div className="mx-3" style={{ borderBottom: '1px solid #2d3748' }}></div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  )
-}
 
 // Helper function to get term counts
 const getTermCounts = () => {
@@ -871,15 +689,13 @@ const getTermCounts = () => {
 }
 
 // Main component
-export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
+export function ChatExerciseInterface({ onSwitchToGlossary, onNewTerm }: ChatExerciseInterfaceProps) {
   const [exercises, setExercises] = useState<Exercise[]>(
     mockExercises.map(ex => ({ ...ex, isExpanded: true }))
   )
-  const [drawerOpen, setDrawerOpen] = useState(false)
   const [newTerms, setNewTerms] = useState<string[]>([])
   const [showHintTooltip, setShowHintTooltip] = useState(false)
   const [hintTooltipTimer, setHintTooltipTimer] = useState<NodeJS.Timeout | null>(null)
-  const [jumpToExerciseVisible, setJumpToExerciseVisible] = useState(false)
   const subExerciseCreationInProgress = useRef<Set<string>>(new Set())
   const [buttonTooltips, setButtonTooltips] = useState<{
     vocab: boolean
@@ -912,22 +728,7 @@ export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
     }
   }
 
-  // Scroll detection for jump to exercise button
-  useEffect(() => {
-    const handleScroll = () => {
-      if (chatContainerRef.current) {
-        const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current
-        const isScrolledUp = scrollTop < scrollHeight - clientHeight - 200
-        setJumpToExerciseVisible(isScrolledUp)
-      }
-    }
 
-    const container = chatContainerRef.current
-    if (container) {
-      container.addEventListener('scroll', handleScroll)
-      return () => container.removeEventListener('scroll', handleScroll)
-    }
-  }, [])
 
   // Manage typing queue
   useEffect(() => {
@@ -956,20 +757,7 @@ export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
     }
   }, [exercises])
 
-  // Auto-scroll to bottom when new messages arrive
-  const scrollToBottom = () => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
-    }
-  }
 
-  // Jump to latest exercise
-  const jumpToLatestExercise = () => {
-    const activeExercise = exercises.find(ex => ex.status === 'active')
-    if (activeExercise && inputRefs.current[activeExercise.id]) {
-      inputRefs.current[activeExercise.id]?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-    }
-  }
 
   // Handle sending student response
   const handleSendMessage = async (exerciseId: string) => {
@@ -997,8 +785,6 @@ export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
     setExercises(prev => prev.map(ex => 
       ex.id === exerciseId ? { ...ex, isTyping: true } : ex
     ))
-    
-    setTimeout(scrollToBottom, 100)
 
     setTimeout(() => {
       setExercises(prev => {
@@ -1074,8 +860,6 @@ export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
         if (detectedTerms.length > 0) {
           setNewTerms(prev => [...prev, ...detectedTerms])
         }
-
-        setTimeout(scrollToBottom, 100)
 
         if (shouldCreateSubExercise) {
           if (!subExerciseCreationInProgress.current.has(exerciseId)) {
@@ -1173,7 +957,7 @@ export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
           setNewTerms(prev => [...prev, ...detectedTerms])
         }
 
-        setTimeout(scrollToBottom, 100)
+
         return updatedExercises
       })
       
@@ -1265,30 +1049,9 @@ export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
 
   return (
     <div className="w-full h-full" style={{ backgroundColor: '#2d3748' }}>
-      {/* Jump to Exercise Button */}
-      {jumpToExerciseVisible && (
-        <div className="fixed bottom-4 right-4 z-20">
-          <Button
-            onClick={jumpToLatestExercise}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
-          >
-            <ChevronDown className="w-4 h-4 mr-2" />
-            Jump to Exercise
-          </Button>
-        </div>
-      )}
 
-      {/* Vocabulary Drawer */}
-      <VocabularyDrawer
-        isOpen={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        newTerms={newTerms}
-        onClearNewTerms={() => {
-          setNewTerms([])
-          setDrawerOpen(true)
-        }}
-        setDrawerOpen={setDrawerOpen}
-      />
+
+
 
       {/* Render all exercises */}
       {exercises.map((exercise, index) => (
@@ -1331,7 +1094,7 @@ export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
                           variant="ghost"
                           onClick={(e) => {
                             e.stopPropagation()
-                            setDrawerOpen(true)
+                            onSwitchToGlossary?.()
                           }}
                           onMouseEnter={() => handleButtonTooltip('vocab', true)}
                           onMouseLeave={() => handleButtonTooltip('vocab', false)}
@@ -1355,7 +1118,7 @@ export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
                           variant="ghost"
                           onClick={(e) => {
                             e.stopPropagation()
-                            setDrawerOpen(true)
+                            onSwitchToGlossary?.()
                           }}
                           onMouseEnter={() => handleButtonTooltip('equations', true)}
                           onMouseLeave={() => handleButtonTooltip('equations', false)}
@@ -1379,7 +1142,7 @@ export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
                           variant="ghost"
                           onClick={(e) => {
                             e.stopPropagation()
-                            setDrawerOpen(true)
+                            onSwitchToGlossary?.()
                           }}
                           onMouseEnter={() => handleButtonTooltip('concepts', true)}
                           onMouseLeave={() => handleButtonTooltip('concepts', false)}
@@ -1500,7 +1263,8 @@ export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
                                           speed={100}
                                           parseVocabulary={(text) => parseVocabularyTermsGeneric(text, (term) => {
                                             setNewTerms(prev => [...prev, term])
-                                            setDrawerOpen(true)
+                                            onNewTerm?.(term)
+                                            onSwitchToGlossary?.()
                                           })}
                                           onComplete={() => {
                                             setExercises(prev => prev.map(ex => 
@@ -1524,7 +1288,8 @@ export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
                                           content={message.content.trim()} 
                                           parseVocabulary={(text) => parseVocabularyTermsGeneric(text, (term) => {
                                             setNewTerms(prev => [...prev, term])
-                                            setDrawerOpen(true)
+                                            onNewTerm?.(term)
+                                            onSwitchToGlossary?.()
                                           })} 
                                         />
                                       ) : (

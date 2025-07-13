@@ -68,5 +68,14 @@
       "react": "$react",
       "react-dom": "$react-dom"
     }
-  }
+  },
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "main": "create_shpoolbot_user.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

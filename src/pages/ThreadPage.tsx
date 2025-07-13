@@ -38,6 +38,8 @@ export const ThreadPage: React.FC = () => {
   const [completedSections] = useState<Set<string>>(new Set());
   const [sectionProgress, setSectionProgress] = useState<Record<string, 'reading' | 'exercising' | 'completed'>>({});
   const [showLearningTip, setShowLearningTip] = useState(true);
+  const [sidebarActiveTab, setSidebarActiveTab] = useState<'concepts' | 'glossary'>('concepts');
+  const [newTerms, setNewTerms] = useState<string[]>([]);
   
   // Fetch thread data
   const { data: thread, isLoading, error } = useThread(threadId || '');
@@ -89,6 +91,7 @@ export const ThreadPage: React.FC = () => {
     if (selectedSection) {
       setSectionProgress(prev => ({ ...prev, [selectedSection]: 'exercising' }));
       setShowExercise(true);
+      setSidebarActiveTab('concepts'); // Start on concepts tab
     }
   };
 
@@ -163,7 +166,7 @@ export const ThreadPage: React.FC = () => {
   return (
     <div className="flex h-full bg-gray-50 dark:bg-gray-900">
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto" id="main-content">
+      <div className="flex-1 overflow-y-auto">
         <div className="w-full">
           {/* Header */}
           <div className="mb-8 px-8 pt-8">
@@ -174,6 +177,8 @@ export const ThreadPage: React.FC = () => {
                 if (showExercise) {
                   // Exit exercise mode and return to section overview
                   setShowExercise(false);
+                  setSidebarActiveTab('concepts'); // Reset to concepts tab
+                  setNewTerms([]); // Clear new terms
                   if (selectedSection) {
                     setSectionProgress(prev => ({ ...prev, [selectedSection]: 'reading' }));
                   }
@@ -329,6 +334,8 @@ export const ThreadPage: React.FC = () => {
                       <ChatExerciseInterface
                         conceptId={currentSection.id}
                         conceptTitle={currentSection.title}
+                        onSwitchToGlossary={() => setSidebarActiveTab('glossary')}
+                        onNewTerm={(term) => setNewTerms(prev => [...prev, term])}
                       />
                     </div>
                   </div>
@@ -577,6 +584,11 @@ export const ThreadPage: React.FC = () => {
         }}
         expandedSections={expandedSections}
         onToggleExpanded={toggleSectionExpanded}
+        isExerciseMode={showExercise}
+        newTerms={newTerms}
+        onClearNewTerms={() => setNewTerms([])}
+        activeTab={sidebarActiveTab}
+        onSetActiveTab={setSidebarActiveTab}
       />
 
       {/* Floating Exercise CTA - Removed */}
