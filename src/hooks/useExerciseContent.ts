@@ -1,8 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../config/supabase';
-import { Database } from '../types/supabase';
-
-type ConceptContentRow = Database['public']['Tables']['concept_content']['Row'];
 
 export interface ExerciseContent {
   id: string;
