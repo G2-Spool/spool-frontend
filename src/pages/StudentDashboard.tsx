@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLearningPaths, useActiveLearningPath, useStudentStats } from '../hooks/useLearningPaths';
+import { useInterests } from '../hooks/useInterests';
 import { Button } from '../components/atoms/Button';
 import { Card } from '../components/atoms/Card';
 import { Badge } from '../components/atoms/Badge';
 import { LearningPathCard } from '../components/molecules/LearningPathCard';
 import { ExpandableStatsCard } from '../components/molecules/ExpandableStatsCard';
 import { StreakDisplay } from '../components/molecules/StreakDisplay';
-import { InterestBubble } from '../components/molecules/InterestBubble';
+import { InterestDetailCard } from '../components/molecules/InterestDetailCard';
 import { LearningPathSkeleton } from '../components/LoadingStates/LearningPathSkeleton';
-import { InterviewModal } from '../components/organisms/InterviewModal';
+import { InterestDiscoveryModal } from '../components/InterestDiscoveryModal';
 import { 
   BookOpen, 
   Trophy, 
@@ -19,6 +20,7 @@ import {
   Zap,
   Plus,
   Sparkles,
+  MessageCircle,
 } from 'lucide-react';
 import type { LifeCategory } from '../types';
 
@@ -27,13 +29,13 @@ export const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { studentProfile, user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<LifeCategory | 'all'>('all');
-  const [, ] = useState(false);
-  const [showInterviewModal, setShowInterviewModal] = useState(false);
+  const [showInterestModal, setShowInterestModal] = useState(false);
   
   // Fetch real data from API
   const { data: learningPaths, isLoading: pathsLoading } = useLearningPaths();
   const { data: activePath, isLoading: activePathLoading } = useActiveLearningPath();
   const { data: stats, isLoading: statsLoading } = useStudentStats();
+  const { interests, isLoading: interestsLoading } = useInterests(studentProfile?.id);
 
   if (!studentProfile || !user) {
     return null;
@@ -58,10 +60,7 @@ export const StudentDashboard: React.FC = () => {
         <Button
           variant="primary"
           size="lg"
-          onClick={() => {
-            console.log('🎯 NEW THREAD BUTTON CLICKED - Opening interview modal');
-            setShowInterviewModal(true);
-          }}
+          onClick={() => navigate('/threads/new')}
           className="flex items-center gap-3 px-6 py-3"
         >
           <Plus className="h-5 w-5" />
@@ -171,34 +170,57 @@ export const StudentDashboard: React.FC = () => {
         </div>
       ) : null}
 
-      {/* Interests Section */}
+      {/* Interests Section - Now shows detailed interest cards */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100 mb-4">Your Interests</h2>
-        <Card>
-          <div className="flex flex-wrap gap-3">
-            {studentProfile.interests.map((interest, index) => (
-              <InterestBubble
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-obsidian dark:text-gray-100">Your Interests</h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowInterestModal(true)}
+            className="flex items-center gap-2"
+          >
+            <MessageCircle className="h-4 w-4" />
+            Discover More
+          </Button>
+        </div>
+        
+        {interestsLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="h-48 animate-pulse bg-gray-100 dark:bg-gray-800">
+                <div className="w-full h-full" />
+              </Card>
+            ))}
+          </div>
+        ) : interests.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {interests.map((interest, index) => (
+              <InterestDetailCard
                 key={index}
-                interest={interest.interest}
-                category={interest.category}
-                strength={interest.strength}
-                onClick={() => setSelectedCategory(interest.category)}
+                interest={interest}
+                onExplore={(interestName) => {
+                  // Navigate to a search or filtered view based on the interest
+                  navigate(`/threads?interest=${encodeURIComponent(interestName)}`);
+                }}
               />
             ))}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                console.log('🎯 DISCOVER MORE BUTTON CLICKED - Opening interview modal');
-                setShowInterviewModal(true);
-              }}
-              className="rounded-full border-2 border-dashed"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Discover More
-            </Button>
           </div>
-        </Card>
+        ) : (
+          <Card className="text-center py-12">
+            <Sparkles className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Let's discover what interests you!
+            </p>
+            <Button
+              variant="primary"
+              onClick={() => setShowInterestModal(true)}
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Start Chat
+            </Button>
+          </Card>
+        )}
       </div>
 
       {/* Learning Paths */}
@@ -268,10 +290,7 @@ export const StudentDashboard: React.FC = () => {
                 <p className="text-gray-600 dark:text-gray-400 mb-4">No learning paths in this category yet.</p>
                 <Button
                   variant="primary"
-                  onClick={() => {
-                    console.log('🎯 EMPTY STATE BUTTON CLICKED - Opening interview modal');
-                    setShowInterviewModal(true);
-                  }}
+                  onClick={() => setShowInterestModal(true)}
                 >
                   <Zap className="h-4 w-4 mr-2" />
                   Discover Interests
@@ -282,14 +301,14 @@ export const StudentDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* Interview Modal */}
-      <InterviewModal
-        isOpen={showInterviewModal}
-        onClose={() => setShowInterviewModal(false)}
-        onInterestsExtracted={(interests) => {
-          console.log('Interests extracted:', interests);
-          // Update local state if needed
-          // TODO: Implement profile update functionality when available
+      {/* Interest Discovery Modal */}
+      <InterestDiscoveryModal
+        isOpen={showInterestModal}
+        onClose={() => setShowInterestModal(false)}
+        studentId={studentProfile.id}
+        onInterestsUpdated={(interests) => {
+          console.log('Interests updated:', interests);
+          // The interests will be automatically refetched by the useInterests hook
         }}
       />
     </div>

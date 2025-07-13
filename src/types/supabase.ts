@@ -122,6 +122,7 @@ export type Database = {
           career_interests: string[] | null
           completed_threads_count: number | null
           created_at: string | null
+          detailed_interests: Json | null
           first_name: string | null
           grade_level: string | null
           id: string
@@ -139,6 +140,7 @@ export type Database = {
           career_interests?: string[] | null
           completed_threads_count?: number | null
           created_at?: string | null
+          detailed_interests?: Json | null
           first_name?: string | null
           grade_level?: string | null
           id?: string
@@ -156,6 +158,7 @@ export type Database = {
           career_interests?: string[] | null
           completed_threads_count?: number | null
           created_at?: string | null
+          detailed_interests?: Json | null
           first_name?: string | null
           grade_level?: string | null
           id?: string
