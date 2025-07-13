@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Loader2, ArrowRight } from 'lucide-react';
+import { X, Sparkles, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../config/supabase';
 import toast from 'react-hot-toast';
