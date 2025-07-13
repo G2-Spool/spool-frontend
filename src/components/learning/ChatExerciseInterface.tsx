@@ -256,11 +256,11 @@ const ResponseHighlight: React.FC<{
             opacity: showTooltip ? 1 : 0
           }}
         >
-          <div className="px-3 py-2 rounded-lg shadow-lg whitespace-nowrap" style={{ backgroundColor: '#4a5568', border: '1px solid #374151' }}>
+          <div className="px-3 py-2 rounded-lg shadow-lg whitespace-nowrap" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
             <p className="text-sm text-white">{tooltip}</p>
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-              <div className="w-2 h-2 rotate-45" style={{ backgroundColor: '#4a5568', borderRight: '1px solid #374151', borderBottom: '1px solid #374151' }}></div>
-            </div>
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                <div className="w-2 h-2 rotate-45" style={{ backgroundColor: '#5a6478', borderRight: '1px solid #374151', borderBottom: '1px solid #374151' }}></div>
+              </div>
           </div>
         </div>,
         document.body
@@ -584,7 +584,7 @@ const VocabularyHighlight: React.FC<{
             opacity: showTooltip ? 1 : 0
           }}
         >
-                      <div className="relative rounded-lg shadow-xl px-4 py-3 max-w-sm w-64" style={{ backgroundColor: '#4a5568', border: '1px solid #374151' }}>
+                      <div className="relative rounded-lg shadow-xl px-4 py-3 max-w-sm w-64" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
             <div className="flex items-center gap-2 mb-2">
               <div className={cn(
                 "w-2 h-2 rounded-full",
@@ -601,7 +601,7 @@ const VocabularyHighlight: React.FC<{
             <p className="text-xs text-gray-500 mt-2 italic">Click to view in context</p>
             
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-px">
-              <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]" style={{ borderTopColor: '#4a5568' }}></div>
+              <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]" style={{ borderTopColor: '#5a6478' }}></div>
               <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] -mt-[7px]" style={{ borderTopColor: '#374151' }}></div>
             </div>
           </div>
@@ -657,10 +657,10 @@ const FormattedMessage: React.FC<{
         code: (props: { inline?: boolean; children?: React.ReactNode }) => {
           const { inline, children } = props
           if (inline) {
-            return <code className="px-1 py-0.5 bg-muted rounded text-sm">{children}</code>
+            return <code className="px-1 py-0.5 rounded text-sm" style={{ backgroundColor: '#4a5568' }}>{children}</code>
           }
           return (
-            <pre className="my-2 p-3 bg-muted rounded overflow-x-auto">
+            <pre className="my-2 p-3 rounded overflow-x-auto" style={{ backgroundColor: '#4a5568' }}>
               <code>{children}</code>
             </pre>
           )
@@ -1266,7 +1266,7 @@ export function ChatExerciseInterface({
   }
 
   return (
-    <>
+    <div className="w-full h-full" style={{ backgroundColor: '#2d3748' }}>
       {/* Jump to Exercise Button */}
       {jumpToExerciseVisible && (
         <div className="fixed bottom-4 right-4 z-20">
@@ -1295,10 +1295,10 @@ export function ChatExerciseInterface({
       {/* Render all exercises */}
       {exercises.map((exercise, index) => (
         <div key={exercise.id} className={cn(
-          "bg-card rounded-lg overflow-visible",
+          "rounded-lg overflow-visible",
           index === 0 && "mt-8",
           index > 0 && "mt-4"
-        )}>
+        )} style={{ backgroundColor: '#2d3748' }}>
                 {/* Header */}
                 <div 
                   className={cn(
@@ -1345,7 +1345,7 @@ export function ChatExerciseInterface({
                           <BookOpen className="w-5 h-5 text-muted-foreground group-hover:text-foreground ml-3" />
                         </Button>
                         {buttonTooltips.vocab && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-sm text-popover-foreground whitespace-nowrap" style={{ backgroundColor: '#4a5568', border: '1px solid #374151' }}>
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-sm text-popover-foreground whitespace-nowrap" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
                             Vocab
                           </div>
                         )}
@@ -1369,7 +1369,7 @@ export function ChatExerciseInterface({
                           <Sigma className="w-5 h-5 text-muted-foreground group-hover:text-foreground ml-3" />
                         </Button>
                         {buttonTooltips.equations && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-sm text-popover-foreground whitespace-nowrap" style={{ backgroundColor: '#4a5568', border: '1px solid #374151' }}>
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-sm text-popover-foreground whitespace-nowrap" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
                             Formulas
                           </div>
                         )}
@@ -1393,7 +1393,7 @@ export function ChatExerciseInterface({
                           <Brain className="w-5 h-5 text-muted-foreground group-hover:text-foreground ml-3" />
                         </Button>
                         {buttonTooltips.concepts && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-sm text-popover-foreground whitespace-nowrap" style={{ backgroundColor: '#4a5568', border: '1px solid #374151' }}>
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-sm text-popover-foreground whitespace-nowrap" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
                             Concepts
                           </div>
                         )}
@@ -1488,10 +1488,10 @@ export function ChatExerciseInterface({
                                   "rounded-lg px-4 py-3 relative",
                                   message.type === 'student' 
                                     ? "text-primary-foreground ml-auto min-w-[60%] max-w-[85%]" 
-                                    : "bg-muted text-foreground max-w-[95%]",
+                                    : "text-foreground max-w-[95%]",
                                   isSubExercise && "ml-6"
                                 )}
-                                style={message.type === 'student' ? { backgroundColor: '#2d3748' } : {}}>
+                                style={message.type === 'student' ? { backgroundColor: '#2d3748' } : { backgroundColor: '#3a4a5c' }}>
                                     <div className={cn(
                                       "leading-relaxed",
                                       message.type === 'student' && "whitespace-pre-wrap"
@@ -1547,7 +1547,7 @@ export function ChatExerciseInterface({
                         {/* Typing Indicator */}
                         {exercise.isTyping && (
                           <div className="flex justify-start">
-                            <div className="bg-muted border border-border rounded-lg px-4 py-3">
+                            <div className="border border-border rounded-lg px-4 py-3" style={{ backgroundColor: '#3a4a5c' }}>
                               <TypingIndicator />
                             </div>
                           </div>
@@ -1565,6 +1565,11 @@ export function ChatExerciseInterface({
                                 placeholder="Explain your step-by-step approach..."
                                 className="min-h-[100px] resize-none pr-20"
                                 disabled={exercise.isLoading}
+                                style={{
+                                  backgroundColor: '#2d3748',
+                                  color: '#e2e8f0',
+                                  borderColor: '#4a5568'
+                                }}
                               />
                               
                               {/* Hint Button */}
@@ -1573,7 +1578,7 @@ export function ChatExerciseInterface({
                                   onClick={() => handleHint(exercise.id)}
                                   variant="ghost"
                                   size="sm"
-                                  className="h-8 w-8 p-0 text-muted-foreground hover:text-yellow-500 rounded-lg"
+                                  className="h-8 w-8 p-0 text-muted-foreground rounded-lg hover:!bg-yellow-500/20 hover:!text-yellow-400"
                                   onMouseEnter={() => {
                                     const timer = setTimeout(() => {
                                       setShowHintTooltip(true)
@@ -1591,7 +1596,7 @@ export function ChatExerciseInterface({
                                 </Button>
                                 
                                 {showHintTooltip && (
-                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 rounded text-sm text-popover-foreground whitespace-nowrap" style={{ backgroundColor: '#4a5568', border: '1px solid #374151' }}>
+                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 rounded text-sm text-popover-foreground whitespace-nowrap" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
                                     Need help?
                                   </div>
                                 )}
@@ -1622,6 +1627,6 @@ export function ChatExerciseInterface({
                 )}
             </div>
         ))}
-    </>
+    </div>
   )
 } 

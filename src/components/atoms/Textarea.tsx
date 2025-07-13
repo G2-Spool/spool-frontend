@@ -17,6 +17,7 @@ interface TextareaProps {
   disabled?: boolean
   rows?: number
   autoResize?: boolean
+  style?: React.CSSProperties
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(

@@ -10,6 +10,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import ThreadGraph from './ThreadGraph';
+import { cn } from '../../utils/cn';
 
 interface ThreadCardProps {
   threadId: string;
@@ -83,83 +84,120 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   const handleGraphClose = () => {
     setIsGraphVisible(false);
   };
+
+  // Thread color gradient
+  const threadColor = "linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)";
   
   return (
     <>
       <Link
         to={`/thread/${threadId}`}
-        className="block hover:scale-[1.02] transition-transform"
+        className="block"
       >
-        <Card 
+        <div
           ref={cardRef}
-          className="h-full hover:shadow-md transition-shadow border-l-4 border-l-personal"
+          className={cn(
+            "w-80 flex-shrink-0 cursor-pointer group relative",
+            "transition-all duration-200 ease-out",
+            "hover:shadow-lg hover:shadow-black/5",
+            "active:scale-98",
+            "rounded-2xl overflow-hidden",
+            "border border-gray-300 dark:border-gray-700",
+          )}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <div className="p-5">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-personal" />
-              <span className="text-sm font-medium text-personal">Learning Thread</span>
-            </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">{formatTimeAgo(createdAt)}</span>
-          </div>
-          
-          {/* User Query */}
-          <div className="mb-3">
-            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2 italic">
-              "{userInput}"
-            </p>
-          </div>
-          
-          {/* AI Analysis Summary */}
-          <div className="mb-3 p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg">
-            <div className="flex items-start gap-2">
-              <Brain className="h-4 w-4 text-teal-600 dark:text-teal-400 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-xs text-teal-800 dark:text-teal-300 line-clamp-2">
-                  {analysis.summary}
+          <div className="relative z-10 bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+            {/* Colored header section */}
+            <div 
+              className="h-40 p-5 text-white relative overflow-hidden" 
+              style={{ background: threadColor }}
+            >
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-white/15 transition-colors duration-200" />
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-2">
+                  <MessageSquare className="h-5 w-5 text-white" />
+                  <span className="text-sm font-medium text-white opacity-90">{formatTimeAgo(createdAt)}</span>
+                </div>
+                <h3 className="font-semibold text-xl leading-tight mb-2">
+                  Learning Thread
+                </h3>
+                <p className="text-base opacity-90 line-clamp-2 italic">
+                  "{userInput}"
                 </p>
               </div>
             </div>
-          </div>
-          
-          {/* Subject Tags */}
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {analysis.subjects.slice(0, 2).map((subject, idx) => (
-              <Badge key={idx} variant="primary" size="sm">
-                {subject}
-              </Badge>
-            ))}
-            {analysis.topics.slice(0, 2).map((topic, idx) => (
-              <Badge key={idx} variant="default" size="sm">
-                {topic}
-              </Badge>
-            ))}
-            {analysis.subjects.length + analysis.topics.length > 4 && (
-              <Badge variant="default" size="sm">
-                +{analysis.subjects.length + analysis.topics.length - 4}
-              </Badge>
-            )}
-          </div>
-          
-          {/* Footer */}
-          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1">
-                <Sparkles className="h-4 w-4" />
-                <span>{sectionCount} sections</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>{estimatedReadTime} min</span>
+            
+            {/* Stats section with enhanced background */}
+            <div className="relative transition-colors duration-200" style={{ backgroundColor: '#1a202c' }}>
+              <div className="absolute inset-0 bg-transparent group-hover:bg-white/[0.075] transition-colors duration-200" />
+              <div className="relative z-10 px-3 py-4 space-y-4">
+                
+                {/* AI Analysis Summary */}
+                <div className="p-3 bg-teal-900/40 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <Brain className="h-4 w-4 text-teal-400 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs text-teal-300 line-clamp-2">
+                        {analysis.summary}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Subject Tags */}
+                <div className="flex flex-wrap gap-1.5">
+                  {analysis.subjects.slice(0, 2).map((subject, idx) => (
+                    <Badge key={idx} variant="primary" size="sm">
+                      {subject}
+                    </Badge>
+                  ))}
+                  {analysis.topics.slice(0, 2).map((topic, idx) => (
+                    <Badge key={idx} variant="default" size="sm">
+                      {topic}
+                    </Badge>
+                  ))}
+                  {analysis.subjects.length + analysis.topics.length > 4 && (
+                    <Badge variant="default" size="sm">
+                      +{analysis.subjects.length + analysis.topics.length - 4}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Stats section */}
+                <div className="flex justify-around items-center text-base pt-2">
+                  <div className="text-center">
+                    <div className="font-bold text-white text-2xl">
+                      {sectionCount}
+                    </div>
+                    <div className="text-gray-300 text-sm">
+                      Sections
+                    </div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="font-bold text-white text-2xl">
+                      {estimatedReadTime}
+                    </div>
+                    <div className="text-gray-300 text-sm">
+                      Minutes
+                    </div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="font-bold text-white text-2xl flex items-center justify-center">
+                      <ArrowRight className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="text-gray-300 text-sm">
+                      Continue
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <ArrowRight className="h-4 w-4 text-personal" />
           </div>
-          </div>
-        </Card>
+        </div>
       </Link>
 
       {/* ThreadGraph overlay */}

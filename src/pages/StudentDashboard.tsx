@@ -46,10 +46,24 @@ export const StudentDashboard: React.FC = () => {
   // Sample threads for demonstration
   const sampleThreads = [
     {
+      threadId: 'blackjack-probability-guide',
+      userInput: 'What are the probabilities of winning at blackjack?',
+      analysis: 'Statistical analysis of blackjack outcomes and strategies',
+      concepts: [
+        { id: '1', title: 'Basic Probability Theory', estimatedMinutes: 18 },
+        { id: '2', title: 'Card Counting Fundamentals', estimatedMinutes: 22 },
+        { id: '3', title: 'House Edge Analysis', estimatedMinutes: 16 },
+        { id: '4', title: 'Optimal Strategy Tables', estimatedMinutes: 20 }
+      ],
+      createdAt: new Date().toISOString(),
+      estimatedReadTime: 76,
+      progress: 0
+    },
+    {
       threadId: 'example-thread-001',
       userInput: 'How do neural networks learn and make predictions?',
       analysis: 'A comprehensive study of neural network fundamentals',
-      sections: [
+      concepts: [
         { id: '1', title: 'Neural Network Architecture', estimatedMinutes: 20 },
         { id: '2', title: 'Backpropagation', estimatedMinutes: 25 },
         { id: '3', title: 'Training Process', estimatedMinutes: 18 },
@@ -63,7 +77,7 @@ export const StudentDashboard: React.FC = () => {
       threadId: 'sample-2',
       userInput: 'How does photosynthesis work in plants?',
       analysis: 'A comprehensive study of photosynthesis mechanisms',
-      sections: [
+      concepts: [
         { id: '1', title: 'Light Reactions', estimatedMinutes: 15 },
         { id: '2', title: 'Calvin Cycle', estimatedMinutes: 20 },
         { id: '3', title: 'Chloroplast Structure', estimatedMinutes: 12 }
@@ -71,21 +85,6 @@ export const StudentDashboard: React.FC = () => {
       createdAt: new Date().toISOString(),
       estimatedReadTime: 47,
       progress: 67
-    },
-    {
-      threadId: 'sample-4',
-      userInput: 'How does quantum mechanics explain atomic behavior?',
-      analysis: 'Fundamentals of quantum theory and atomic structure',
-      sections: [
-        { id: '1', title: 'Wave-Particle Duality', estimatedMinutes: 22 },
-        { id: '2', title: 'Schrödinger Equation', estimatedMinutes: 28 },
-        { id: '3', title: 'Quantum Numbers', estimatedMinutes: 16 },
-        { id: '4', title: 'Electron Orbitals', estimatedMinutes: 20 },
-        { id: '5', title: 'Uncertainty Principle', estimatedMinutes: 14 }
-      ],
-      createdAt: new Date().toISOString(),
-      estimatedReadTime: 100,
-      progress: 80
     }
   ];
 
@@ -388,7 +387,7 @@ export const StudentDashboard: React.FC = () => {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-white/80 text-xs select-none">
-                          {thread.sections.length} Sections
+                          {thread.concepts.length} Concepts
                         </span>
                         <span className="text-white/80 text-xs font-semibold select-none">
                           {(thread as any).progress || 0}% Complete
