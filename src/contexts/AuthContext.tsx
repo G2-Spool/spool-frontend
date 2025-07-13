@@ -70,8 +70,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
 
   const fetchUserData = async () => {
+    // Prevent duplicate fetches
+    if (isFetching) {
+      console.log('Already fetching user data, skipping...');
+      return;
+    }
+    
+    setIsFetching(true);
+    
     try {
       console.log('Fetching user data...');
       const { data: { user: supabaseUser }, error } = await supabase.auth.getUser();
@@ -115,15 +124,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Error in fetchUserData:', error);
       setUser(null);
       setStudentProfile(null);
+    } finally {
+      setIsFetching(false);
     }
   };
 
   useEffect(() => {
+    let mounted = true;
+    
     // Check for existing session
     const initAuth = async () => {
-      try {
+      if (mounted) {
         await fetchUserData();
-      } finally {
         setIsLoading(false);
       }
     };
@@ -134,9 +146,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session?.user?.id);
       
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        await fetchUserData();
+      if (!mounted) return;
+      
+      if (event === 'SIGNED_IN') {
+        // Only fetch if we don't already have user data
+        if (!user || user.id !== session?.user?.id) {
+          await fetchUserData();
+        }
         setIsLoading(false);
+      } else if (event === 'TOKEN_REFRESHED') {
+        // Token refresh doesn't require re-fetching user data
+        console.log('Token refreshed');
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setStudentProfile(null);
@@ -145,9 +165,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, []); // Remove dependency on user to prevent loops
 
   const login = async (email: string, password: string) => {
     try {
@@ -165,9 +186,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (data.user) {
         console.log('Login successful, user:', data.user.id);
-        // The auth state change listener will handle updating the user state
-        // But we'll also manually fetch to ensure immediate update
-        await fetchUserData();
+        // Don't fetch here - let the auth state change handle it
       }
     } catch (error: any) {
       console.error('Login error caught:', error);
