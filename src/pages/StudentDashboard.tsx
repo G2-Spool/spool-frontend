@@ -39,7 +39,7 @@ export const StudentDashboard: React.FC = () => {
   // Fetch real data from API
   const { data: activePath, isLoading: activePathLoading } = useActiveLearningPath();
   const { data: stats, isLoading: statsLoading } = useStudentStats();
-  const { interests, isLoading: interestsLoading } = useInterests(studentProfile?.id);
+  const { interests, isLoading: interestsLoading } = useInterests(user?.id);
   const { isLoading: threadsLoading } = useUserThreads(user?.id || 'anonymous', 10);
 
   // Sample threads for demonstration
@@ -483,7 +483,7 @@ export const StudentDashboard: React.FC = () => {
       <InterestDiscoveryModal
         isOpen={showInterestModal}
         onClose={() => setShowInterestModal(false)}
-        studentId={studentProfile.id}
+        studentId={user?.id || ''}
         onInterestsUpdated={(interests) => {
           console.log('Interests updated:', interests);
           // The interests will be automatically refetched by the useInterests hook

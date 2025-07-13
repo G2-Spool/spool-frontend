@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from '../atoms/Card';
 import { Button } from '../atoms/Button';
 import { 
   ChevronDown,
   ChevronUp,
   TrendingUp,
-  Clock,
-  BookOpen
+  Clock
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { MarkdownText } from '../../utils/markdown';

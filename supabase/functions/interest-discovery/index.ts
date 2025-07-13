@@ -13,15 +13,9 @@ const openaiKey = Deno.env.get('OPENAI_API_KEY')!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 const openai = new OpenAI({ apiKey: openaiKey })
 
-interface ChatMessage {
-  role: 'user' | 'assistant'
-  content: string
-}
-
-interface InterestWithDetails {
+interface InterestWithDescription {
   interest: string
-  details: string
-  discovered_at: string
+  description: string
 }
 
 serve(async (req) => {
@@ -30,168 +24,156 @@ serve(async (req) => {
   }
 
   try {
-    const { action, studentId, messages, newMessage } = await req.json()
+    const { action, studentId, text } = await req.json()
     
-    switch (action) {
-      case 'start_session': {
-        // Initialize a new chat session
-        const initialMessage = "Hi! I'm here to learn about what interests you. Tell me about some activities you enjoy, hobbies you have, or things you're curious about. The more you share, the better I can personalize your learning experience!"
-        
-        return new Response(
-          JSON.stringify({ 
-            success: true, 
-            message: initialMessage,
-            sessionId: crypto.randomUUID()
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
+    if (action === 'extract_interests') {
+      console.log('Extracting interests for user:', studentId, 'from text:', text)
       
-      case 'process_message': {
-        // Add user message to conversation
-        const updatedMessages: ChatMessage[] = [...(messages || []), { role: 'user', content: newMessage }]
-        
-        // Create OpenAI messages with system prompt
-        const openaiMessages = [
+      // Use OpenAI to extract interests from the provided text
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4',
+        messages: [
           {
-            role: 'system' as const,
-            content: `You are a friendly AI assistant helping discover a student's interests. Your goal is to have a natural conversation that uncovers specific interests along with details about why they enjoy them. Ask follow-up questions to understand the specific aspects they find interesting. Keep responses conversational and encouraging. Focus on hobbies, activities, subjects they enjoy, and things they're curious about.`
+            role: 'system',
+            content: `You are an expert at extracting interests from text. Extract specific interests and hobbies mentioned in the text along with detailed descriptions about why the person enjoys them or what specific aspects they find interesting. Focus on concrete activities, subjects, hobbies, and interests.`
           },
-          ...updatedMessages
-        ]
-        
-        // Get AI response
-        const completion = await openai.chat.completions.create({
-          model: 'gpt-4',
-          messages: openaiMessages,
-          temperature: 0.7,
-          max_tokens: 150
-        })
-        
-        const aiResponse = completion.choices[0].message?.content || ''
-        updatedMessages.push({ role: 'assistant', content: aiResponse })
-        
-        // Extract interests from the conversation so far
-        const extractionCompletion = await openai.chat.completions.create({
-          model: 'gpt-4',
-          messages: [
-            {
-              role: 'system' as const,
-              content: `Extract specific interests with details from the conversation. For each interest mentioned, capture what it is and why the student finds it interesting or what specific aspect they enjoy about it.`
-            },
-            {
-              role: 'user' as const,
-              content: `Extract interests with details from this conversation:\n\n${JSON.stringify(updatedMessages)}`
-            }
-          ],
-          tools: [
-            {
-              type: 'function' as const,
-              function: {
-                name: 'extract_interests',
-                description: 'Extract interests with specific details',
-                parameters: {
-                  type: 'object',
-                  properties: {
-                    interests: {
-                      type: 'array',
-                      items: {
-                        type: 'object',
-                        properties: {
-                          interest: {
-                            type: 'string',
-                            description: 'The specific interest or activity (e.g., "basketball", "cooking", "robotics")'
-                          },
-                          details: {
-                            type: 'string',
-                            description: 'Specific details about why they enjoy it or what aspect interests them'
-                          }
+          {
+            role: 'user',
+            content: `Extract interests from this text and provide a detailed description for each:\n\n${text}`
+          }
+        ],
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'extract_interests',
+              description: 'Extract interests with detailed descriptions',
+              parameters: {
+                type: 'object',
+                properties: {
+                  interests: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        interest: {
+                          type: 'string',
+                          description: 'The specific interest or activity (e.g., "basketball", "cooking", "artificial intelligence")'
                         },
-                        required: ['interest', 'details']
-                      }
+                        description: {
+                          type: 'string',
+                          description: 'Detailed description of why they enjoy it or what specific aspect interests them'
+                        }
+                      },
+                      required: ['interest', 'description']
                     }
-                  },
-                  required: ['interests']
-                }
+                  }
+                },
+                required: ['interests']
               }
             }
-          ],
-          tool_choice: { type: 'function' as const, function: { name: 'extract_interests' } }
-        })
-        
-        const toolCall = extractionCompletion.choices[0].message?.tool_calls?.[0]
-        const extractedData = toolCall ? JSON.parse(toolCall.function.arguments) : { interests: [] }
-        
-        // Get existing detailed interests
-        const { data: profile } = await supabase
-          .from('student_profiles')
-          .select('detailed_interests')
-          .eq('id', studentId)
-          .single()
-        
-        const existingInterests = profile?.detailed_interests || []
-        
-        // Add new interests with timestamps
-        const newInterests: InterestWithDetails[] = extractedData.interests.map((item: any) => ({
-          ...item,
-          discovered_at: new Date().toISOString()
-        }))
-        
-        // Merge with existing interests (avoid duplicates)
-        const existingInterestNames = existingInterests.map((i: any) => i.interest.toLowerCase())
-        const uniqueNewInterests = newInterests.filter(
-          (ni: InterestWithDetails) => !existingInterestNames.includes(ni.interest.toLowerCase())
-        )
-        
-        const allInterests = [...existingInterests, ...uniqueNewInterests]
-        
-        // Update student profile with new interests
-        if (uniqueNewInterests.length > 0) {
-          await supabase
-            .from('student_profiles')
-            .update({ 
-              detailed_interests: allInterests,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', studentId)
-        }
-        
-        // Check if we have enough interests to conclude
-        const shouldConclude = allInterests.length >= 5 && updatedMessages.length >= 8
-        
+          }
+        ],
+        tool_choice: { type: 'function', function: { name: 'extract_interests' } },
+        temperature: 0.3
+      })
+      
+      const toolCall = completion.choices[0].message?.tool_calls?.[0]
+      
+      if (!toolCall) {
+        throw new Error('Failed to extract interests from text')
+      }
+      
+      const extractedData = JSON.parse(toolCall.function.arguments)
+      const extractedInterests: InterestWithDescription[] = extractedData.interests || []
+      
+      console.log('Extracted interests:', extractedInterests)
+      
+      if (extractedInterests.length === 0) {
         return new Response(
           JSON.stringify({ 
-            success: true,
-            message: aiResponse,
-            messages: updatedMessages,
-            extractedInterests: allInterests,
-            newInterestsFound: uniqueNewInterests.length,
-            shouldConclude
+            success: false, 
+            error: 'No interests found in the provided text' 
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
       
-      case 'get_interests': {
-        // Get all interests for a student
-        const { data: profile } = await supabase
-          .from('student_profiles')
-          .select('detailed_interests')
-          .eq('id', studentId)
-          .single()
-        
-        return new Response(
-          JSON.stringify({ 
-            success: true,
-            interests: profile?.detailed_interests || []
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
+      // Get existing interests from the users table
+      const { data: user, error: getUserError } = await supabase
+        .from('users')
+        .select('interests')
+        .eq('id', studentId)
+        .single()
+      
+      if (getUserError) {
+        console.error('Error getting user:', getUserError)
+        throw new Error('Failed to get user data')
       }
       
-      default:
-        throw new Error('Invalid action')
+      const existingInterests = user?.interests || []
+      console.log('Existing interests:', existingInterests)
+      
+      // Merge with existing interests (avoid duplicates based on interest name)
+      const existingInterestNames = existingInterests.map((i: InterestWithDescription) => 
+        i.interest.toLowerCase()
+      )
+      
+      const uniqueNewInterests = extractedInterests.filter(
+        (newInterest: InterestWithDescription) => 
+          !existingInterestNames.includes(newInterest.interest.toLowerCase())
+      )
+      
+      const allInterests = [...existingInterests, ...uniqueNewInterests]
+      
+      console.log('All interests after merge:', allInterests)
+      
+      // Update the users table with the new interests
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ interests: allInterests })
+        .eq('id', studentId)
+      
+      if (updateError) {
+        console.error('Error updating user interests:', updateError)
+        throw new Error('Failed to update user interests')
+      }
+      
+      console.log('Successfully updated user interests')
+      
+      // Return the interests in the expected format for the modal
+      const interestsWithDetails = uniqueNewInterests.map((interest: InterestWithDescription) => ({
+        interest: interest.interest,
+        details: interest.description,
+        discovered_at: new Date().toISOString()
+      }))
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          interests: interestsWithDetails,
+          totalInterests: allInterests.length
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
+    
+    // Handle other actions (keeping existing functionality for backwards compatibility)
+    if (action === 'start_session') {
+      const initialMessage = "Hi! I'm here to learn about what interests you. Tell me about some activities you enjoy, hobbies you have, or things you're curious about. The more you share, the better I can personalize your learning experience!"
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: initialMessage,
+          sessionId: crypto.randomUUID()
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    
+    throw new Error('Invalid action')
+    
   } catch (error) {
     console.error('Interest discovery error:', error)
     return new Response(

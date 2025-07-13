@@ -28,6 +28,7 @@ import { useUnifiedNavigation } from '@/hooks/useUnifiedNavigation'
 import { useStudyStreak } from '@/hooks/useStudyStreak'
 import { useAchievements } from '@/hooks/useAchievements'
 import { useAuth } from '@/contexts/AuthContext'
+import { useInterests } from '@/hooks/useInterests'
 import { useState, useEffect } from 'react'
 
 interface UserProfile {
@@ -81,6 +82,7 @@ const mockClasses = [
 export function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile>(defaultProfile)
   const { user } = useAuth()
+  const { interests } = useInterests(user?.id)
   const { navigateToUrl } = useUnifiedNavigation()
   const { studyStreak } = useStudyStreak()
   const { getRecentAchievements, checkAchievements } = useAchievements()
@@ -187,7 +189,7 @@ export function DashboardPage() {
                 classes={mockClasses}
                 onClassClick={handleClassClick}
               />
-              <InterestsCard interests={userProfile.interests} />
+              <InterestsCard interests={interests || []} />
             </div>
 
             {/* Quick Actions and Achievements */}

@@ -436,27 +436,27 @@ export type Database = {
           default_difficulty_level: string | null
           email: string
           id: string
+          interests: Json | null
           name: string
           preferred_voice_personality: string | null
-          primary_interest: string | null
         }
         Insert: {
           created_at?: string | null
           default_difficulty_level?: string | null
           email: string
           id?: string
+          interests?: Json | null
           name: string
           preferred_voice_personality?: string | null
-          primary_interest?: string | null
         }
         Update: {
           created_at?: string | null
           default_difficulty_level?: string | null
           email?: string
           id?: string
+          interests?: Json | null
           name?: string
           preferred_voice_personality?: string | null
-          primary_interest?: string | null
         }
         Relationships: [
           {

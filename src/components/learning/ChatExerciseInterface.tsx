@@ -13,7 +13,6 @@ import {
   Send, 
   Loader2, 
   Lightbulb, 
-  X,
   BookOpen,
   Sigma,
   Brain
@@ -693,7 +692,7 @@ export function ChatExerciseInterface({ onSwitchToGlossary, onNewTerm }: ChatExe
   const [exercises, setExercises] = useState<Exercise[]>(
     mockExercises.map(ex => ({ ...ex, isExpanded: true }))
   )
-  const [newTerms, setNewTerms] = useState<string[]>([])
+  const [, setNewTerms] = useState<string[]>([])
   const [showHintTooltip, setShowHintTooltip] = useState(false)
   const [hintTooltipTimer, setHintTooltipTimer] = useState<NodeJS.Timeout | null>(null)
   const subExerciseCreationInProgress = useRef<Set<string>>(new Set())
@@ -711,6 +710,13 @@ export function ChatExerciseInterface({ onSwitchToGlossary, onNewTerm }: ChatExe
   const chatContainerRef = useRef<HTMLDivElement>(null)
   const inputRefs = useRef<{ [key: string]: HTMLTextAreaElement | null }>({})
   const { vocabularyCount, equationCount, conceptCount } = getTermCounts()
+
+  // Scroll to bottom helper
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+    }
+  }
 
   // Button tooltip handlers
   const handleButtonTooltip = (type: 'vocab' | 'equations' | 'concepts', show: boolean) => {

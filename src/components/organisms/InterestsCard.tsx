@@ -9,8 +9,13 @@ import { Card } from '@/components/atoms/Card'
 import { Badge } from '@/components/atoms/Badge'
 import { cn } from '@/utils/cn'
 
+interface InterestWithDescription {
+  interest: string
+  description: string
+}
+
 interface InterestsCardProps {
-  interests: string[]
+  interests: InterestWithDescription[]
   className?: string
 }
 
@@ -26,14 +31,15 @@ export function InterestsCard({ interests, className }: InterestsCardProps) {
         </div>
         
         <div className="flex flex-wrap gap-2">
-          {interests.map((interest, index) => (
-            <Badge
-              key={index}
-              variant="default"
-              className="px-3 py-1"
-            >
-              {interest}
-            </Badge>
+          {interests.map((interestObj, index) => (
+            <div key={index} title={interestObj.description}>
+              <Badge
+                variant="default"
+                className="px-3 py-1"
+              >
+                {interestObj.interest}
+              </Badge>
+            </div>
           ))}
         </div>
         
