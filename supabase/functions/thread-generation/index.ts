@@ -4,14 +4,35 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 // @ts-ignore - Deno imports for Supabase Edge Functions
 import OpenAI from 'https://esm.sh/openai@4.28.0'
+// @ts-ignore - Deno imports for Pinecone
+import { Pinecone } from 'https://esm.sh/@pinecone-database/pinecone@2.0.1'
 import { corsHeaders } from '../_shared/cors.ts'
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const openaiKey = Deno.env.get('OPENAI_API_KEY')!
+const pineconeApiKey = Deno.env.get('PINECONE_API_KEY')!
+const pineconeIndexName = Deno.env.get('PINECONE_INDEX_NAME') || 'spool-textbook-embeddings'
+const pineconeNamespace = Deno.env.get('PINECONE_NAMESPACE') || 'production'
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 const openai = new OpenAI({ apiKey: openaiKey })
+
+// Initialize Pinecone client (optional - will work without it)
+let pinecone: Pinecone | null = null
+try {
+  if (pineconeApiKey) {
+    pinecone = new Pinecone({
+      apiKey: pineconeApiKey,
+    })
+    console.log('✅ Pinecone client initialized')
+  } else {
+    console.log('⚠️ Pinecone API key not found - content search will be skipped')
+  }
+} catch (error) {
+  console.error('❌ Failed to initialize Pinecone:', error)
+  pinecone = null
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -19,6 +40,11 @@ serve(async (req) => {
   }
 
   try {
+    // Check if Pinecone is configured
+    if (!pineconeApiKey) {
+      console.warn('⚠️ PINECONE_API_KEY not set, will skip content search')
+    }
+    
     const { proposal, studentProfileId } = await req.json()
     
     // Step 1: Map concepts across subjects using GPT-4
@@ -73,10 +99,22 @@ serve(async (req) => {
     const toolCall = conceptMapping.choices[0].message?.tool_calls?.[0]
     const mappedConcepts = toolCall ? JSON.parse(toolCall.function.arguments) : { concepts: [] }
     
+    // Check if we have concepts to work with
+    if (!mappedConcepts.concepts || mappedConcepts.concepts.length === 0) {
+      console.error('❌ No concepts mapped from learning goal')
+      throw new Error('Unable to map concepts for the learning goal. Please try rephrasing your goal.')
+    }
+    
     // Step 2: Generate embeddings for concept search
     const conceptTexts = mappedConcepts.concepts.map((c: any) => 
       `${c.name} in ${c.subject}: ${c.description}. Relevance to "${proposal.goal}": ${c.relevance_hypothesis}`
     )
+    
+    // Ensure we have texts to embed
+    if (conceptTexts.length === 0) {
+      console.error('❌ No concept texts to embed')
+      throw new Error('No concepts available for embedding')
+    }
     
     const embeddingResponse = await openai.embeddings.create({
       model: 'text-embedding-ada-002',
@@ -84,39 +122,117 @@ serve(async (req) => {
     })
     
     // Step 3: Search Pinecone for relevant content (80% threshold)
-    // Note: In production, you would initialize and query Pinecone here
-    // For now, we'll simulate the results
-    const relevantContent = mappedConcepts.concepts.map((concept: any, idx: number) => ({
-      concept,
-      relevance_score: 0.80 + Math.random() * 0.20, // Simulate 80-100% relevance
-      content_chunks: [], // Would come from Pinecone
-      embedding: embeddingResponse.data[idx].embedding
-    }))
+    let relevantContent: any[];
+    
+    if (pineconeApiKey && pinecone) {
+      console.log('🔍 Searching Pinecone for relevant content...')
+      
+      // Get Pinecone index
+      const index = pinecone.index(pineconeIndexName)
+      
+      // Search for each concept's relevant content
+      const searchPromises = mappedConcepts.concepts.map(async (concept: any, idx: number) => {
+        const embedding = embeddingResponse.data[idx].embedding
+        
+        try {
+          // Query Pinecone for similar content
+          const queryResponse = await index.namespace(pineconeNamespace).query({
+            vector: embedding,
+            topK: 5, // Get top 5 most relevant chunks per concept
+            includeMetadata: true,
+            filter: {
+              // Can add filters here if needed, e.g., by subject or difficulty
+            }
+          })
+          
+          // Filter results by 80% relevance threshold
+          const relevantMatches = queryResponse.matches?.filter(
+            match => (match.score || 0) >= 0.80
+          ) || []
+          
+          console.log(`✅ Found ${relevantMatches.length} relevant chunks for concept: ${concept.name}`)
+          
+          return {
+            concept,
+            relevance_score: relevantMatches.length > 0 
+              ? relevantMatches[0].score || 0.80 
+              : 0.80,
+            content_chunks: relevantMatches.map(match => ({
+              id: match.id,
+              score: match.score,
+              metadata: match.metadata,
+              text: match.metadata?.searchableText || match.metadata?.text || ''
+            })),
+            embedding: embedding
+          }
+        } catch (searchError) {
+          console.error(`❌ Pinecone search error for concept ${concept.name}:`, searchError)
+          // Return with empty content chunks on error
+          return {
+            concept,
+            relevance_score: 0.80,
+            content_chunks: [],
+            embedding: embedding
+          }
+        }
+      })
+      
+      // Wait for all searches to complete
+      relevantContent = await Promise.all(searchPromises)
+      
+      console.log(`📊 Total content chunks found: ${relevantContent.reduce((sum, item) => sum + item.content_chunks.length, 0)}`)
+    } else {
+      // Fallback if Pinecone is not configured
+      console.log('⚠️ Skipping Pinecone search - using concept mapping only')
+      relevantContent = mappedConcepts.concepts.map((concept: any, idx: number) => ({
+        concept,
+        relevance_score: 0.85, // Default relevance
+        content_chunks: [],
+        embedding: embeddingResponse.data[idx].embedding
+      }))
+    }
     
     // Step 4: Create Thread in database
     const { data: thread, error: threadError } = await supabase
-      .from('learning_threads')
+      .from('threads')
       .insert({
-        student_profile_id: studentProfileId,
-        goal: proposal.goal,
-        goal_extracted_at: new Date().toISOString(),
-        goal_confidence_score: proposal.confidence_score,
+        user_id: studentProfileId,
         title: proposal.suggested_title,
-        description: `A personalized learning journey to ${proposal.goal}`,
-        estimated_concepts: relevantContent.length,
-        estimated_hours: Math.floor(relevantContent.length * 2.5),
-        subjects_involved: mappedConcepts.subjects_involved,
-        primary_subject: mappedConcepts.primary_subject,
-        complexity_score: 0.7,
+        situation_title: `Learning Journey: ${proposal.goal}`,
+        situation_description: `A personalized learning journey to ${proposal.goal}`,
+        concepts: relevantContent.map(item => ({
+          id: item.concept.id,
+          name: item.concept.name,
+          relevance: item.relevance_score
+        })),
+        primary_skill_focus: {
+          skill: mappedConcepts.primary_subject || 'Cross-curricular',
+          description: `Focused on ${proposal.goal}`
+        },
         status: 'active',
-        concepts_total: relevantContent.length
+        current_concept_id: relevantContent[0]?.concept.id || 'probability',
+        // New fields for Pinecone integration
+        mapped_concepts: mappedConcepts,
+        content_chunks: relevantContent.map(item => ({
+          concept_id: item.concept.id,
+          concept_name: item.concept.name,
+          chunks: item.content_chunks
+        })),
+        concept_embeddings: relevantContent.map(item => ({
+          concept_id: item.concept.id,
+          concept_name: item.concept.name,
+          embedding_preview: item.embedding.slice(0, 10) // Store only first 10 values for debugging
+        }))
       })
       .select()
       .single()
     
-    if (threadError) throw threadError
+    if (threadError) {
+      console.error('❌ Database error:', threadError)
+      throw new Error(`Database error: ${threadError.message}`)
+    }
     
-    // Step 5: Create thread concepts with proper sequencing
+    // Step 5: Create thread concepts array for response (no separate table needed)
     const threadConcepts = relevantContent
       .sort((a, b) => {
         // Sort by prerequisites and relevance
@@ -125,7 +241,6 @@ serve(async (req) => {
         return b.relevance_score - a.relevance_score
       })
       .map((item, idx) => ({
-        thread_id: thread.id,
         concept_id: item.concept.id,
         concept_name: item.concept.name,
         subject: item.concept.subject,
@@ -134,14 +249,9 @@ serve(async (req) => {
         sequence_order: idx + 1,
         is_core_concept: item.relevance_score >= 0.90,
         prerequisite_concept_ids: item.concept.prerequisites,
-        status: idx === 0 ? 'available' : 'pending'
+        status: idx === 0 ? 'available' : 'pending',
+        has_content: item.content_chunks.length > 0
       }))
-    
-    const { error: conceptsError } = await supabase
-      .from('thread_concepts')
-      .insert(threadConcepts)
-    
-    if (conceptsError) throw conceptsError
     
     // Step 6: Create thread graph in Neo4j (simulated for now)
     // In production, you would create the graph structure in Neo4j here
@@ -152,19 +262,25 @@ serve(async (req) => {
         thread: {
           id: thread.id,
           title: thread.title,
-          goal: thread.goal,
+          goal: thread.situation_title,
           concepts_count: threadConcepts.length,
           subjects: mappedConcepts.subjects_involved,
-          estimated_hours: thread.estimated_hours,
+          estimated_hours: Math.floor(threadConcepts.length * 2.5),
           visualization_data: {
             nodes: threadConcepts.map(tc => ({
               id: tc.concept_id,
               name: tc.concept_name,
               subject: tc.subject,
               relevance: tc.relevance_score,
-              sequence: tc.sequence_order
+              sequence: tc.sequence_order,
+              hasContent: tc.has_content || false
             })),
             edges: [] // Would include prerequisite relationships
+          },
+          content_summary: {
+            total_chunks: relevantContent.reduce((sum, item) => sum + item.content_chunks.length, 0),
+            concepts_with_content: relevantContent.filter(item => item.content_chunks.length > 0).length,
+            concepts_without_content: relevantContent.filter(item => item.content_chunks.length === 0).length
           }
         }
       }),
@@ -174,9 +290,12 @@ serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error('Thread generation error:', error)
+    console.error('❌ Thread generation error:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.toString() 
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
