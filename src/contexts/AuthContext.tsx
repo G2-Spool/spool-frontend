@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
 
   // Process session and set user data
-  const processSession = (session: Session | null) => {
+  const processSession = async (session: Session | null) => {
     console.log('Processing session:', session?.user?.id);
     
     if (!session || !session.user) {
@@ -79,23 +79,59 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
 
-    // Map Supabase user to our User type
-    const userData: User = {
-      id: session.user.id,
-      email: session.user.email || '',
-      role: 'student',
-      isActive: true,
-      emailVerified: session.user.email_confirmed_at !== null,
-      createdAt: new Date(session.user.created_at || Date.now()),
-      updatedAt: new Date(),
-    };
+    try {
+      // Fetch user data from the users table
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
 
-    console.log('Setting user data:', userData);
-    setUser(userData);
+      if (error) {
+        console.error('Error fetching user from users table:', error);
+        // Fall back to auth session data if users table fetch fails
+        const fallbackUserData: User = {
+          id: session.user.id,
+          email: session.user.email || '',
+          role: 'student',
+          isActive: true,
+          emailVerified: session.user.email_confirmed_at !== null,
+          createdAt: new Date(session.user.created_at || Date.now()),
+          updatedAt: new Date(),
+        };
+        setUser(fallbackUserData);
+      } else {
+        // Map database user to our User type
+        const user: User = {
+          id: userData.id,
+          email: userData.email,
+          role: 'student',
+          isActive: true,
+          emailVerified: session.user.email_confirmed_at !== null,
+          createdAt: new Date(userData.created_at || Date.now()),
+          updatedAt: new Date(),
+        };
+        setUser(user);
+      }
+    } catch (error) {
+      console.error('Error processing session:', error);
+      // Fall back to auth session data
+      const fallbackUserData: User = {
+        id: session.user.id,
+        email: session.user.email || '',
+        role: 'student',
+        isActive: true,
+        emailVerified: session.user.email_confirmed_at !== null,
+        createdAt: new Date(session.user.created_at || Date.now()),
+        updatedAt: new Date(),
+      };
+      setUser(fallbackUserData);
+    }
+
     setSession(session);
     
     // Set mock student profile
-    const profileWithUserId = { ...mockStudentProfile, userId: userData.id, id: userData.id };
+    const profileWithUserId = { ...mockStudentProfile, userId: session.user.id, id: session.user.id };
     setStudentProfile(profileWithUserId);
     console.log('User and profile set successfully');
   };
@@ -144,7 +180,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
           
           if (mounted) {
-            processSession(refreshedSession || session);
+            await processSession(refreshedSession || session);
             setIsLoading(false);
             console.log('Auth initialization complete');
           }
@@ -152,7 +188,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // No session found
           console.log('No session found');
           if (mounted) {
-            processSession(null);
+            await processSession(null);
             setIsLoading(false);
           }
         }
@@ -172,13 +208,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log('Auth state changed:', _event, session?.user?.id);
       
       if (!mounted) return;
 
       // Process the new session
-      processSession(session);
+      await processSession(session);
       
       // Don't change loading state here - it's already handled by initializeAuth
     });
@@ -209,7 +245,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (data.user && data.session) {
         console.log('Login successful, processing session');
         // Process the session immediately
-        processSession(data.session);
+        await processSession(data.session);
       }
     } catch (error: any) {
       console.error('Login error caught:', error);
