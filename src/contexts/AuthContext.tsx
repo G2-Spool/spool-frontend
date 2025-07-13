@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../config/supabase';
-import { AuthError } from '@supabase/supabase-js';
+import { AuthError, Session } from '@supabase/supabase-js';
 import type { User, StudentProfile } from '../types';
 
 interface AuthContextType {
@@ -70,102 +70,81 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isFetching, setIsFetching] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
 
-  const fetchUserData = async () => {
-    // Prevent duplicate fetches
-    if (isFetching) {
-      console.log('Already fetching user data, skipping...');
-      return;
-    }
+  // Process session and set user data
+  const processSession = (session: Session | null) => {
+    console.log('Processing session:', session?.user?.id);
     
-    setIsFetching(true);
-    
-    try {
-      console.log('Fetching user data...');
-      const { data: { user: supabaseUser }, error } = await supabase.auth.getUser();
-      
-      console.log('getUser response:', { user: supabaseUser?.id, error });
-      
-      if (error) {
-        console.error('Error getting user:', error);
-        setUser(null);
-        setStudentProfile(null);
-        setIsFetching(false);
-        return;
-      }
-      
-      if (!supabaseUser) {
-        console.log('No user found');
-        setUser(null);
-        setStudentProfile(null);
-        setIsFetching(false);
-        return;
-      }
-      
-      console.log('Supabase user found:', supabaseUser.id);
-      
-      // Map Supabase user to our User type
-      const userData: User = {
-        id: supabaseUser.id,
-        email: supabaseUser.email || '',
-        role: 'student', // Always student for individual learners
-        isActive: true,
-        emailVerified: supabaseUser.email_confirmed_at !== null,
-        createdAt: new Date(supabaseUser.created_at || Date.now()),
-        updatedAt: new Date(),
-      };
-      
-      console.log('Setting user data:', userData);
-      setUser(userData);
-      
-      // Fetch student profile
-      // In production, this would be an API call
-      // const profile = await fetchStudentProfile(userData.id);
-      // For now, use mock data
-      console.log('Setting mock student profile');
-      setStudentProfile(mockStudentProfile);
-      console.log('User and profile set successfully');
-      setIsFetching(false);
-    } catch (error) {
-      console.error('Error in fetchUserData:', error);
+    if (!session || !session.user) {
+      console.log('No session or user, clearing state');
       setUser(null);
       setStudentProfile(null);
-      setIsFetching(false);
+      setSession(null);
+      return;
     }
+
+    // Map Supabase user to our User type
+    const userData: User = {
+      id: session.user.id,
+      email: session.user.email || '',
+      role: 'student',
+      isActive: true,
+      emailVerified: session.user.email_confirmed_at !== null,
+      createdAt: new Date(session.user.created_at || Date.now()),
+      updatedAt: new Date(),
+    };
+
+    console.log('Setting user data:', userData);
+    setUser(userData);
+    setSession(session);
+    
+    // Set mock student profile
+    const profileWithUserId = { ...mockStudentProfile, userId: userData.id, id: userData.id };
+    setStudentProfile(profileWithUserId);
+    console.log('User and profile set successfully');
   };
 
   useEffect(() => {
     let mounted = true;
-    
-    // Check for existing session
-    const initAuth = async () => {
-      if (mounted) {
-        await fetchUserData();
+
+    // Initialize auth state
+    const initializeAuth = async () => {
+      try {
+        console.log('Initializing auth...');
+        
+        // Get the initial session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setIsLoading(false);
+          return;
+        }
+
+        if (mounted) {
+          processSession(session);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to initialize auth:', error);
         setIsLoading(false);
       }
     };
-    
-    initAuth();
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session?.user?.id);
+    initializeAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('Auth state changed:', _event, session?.user?.id);
       
       if (!mounted) return;
+
+      // Process the new session
+      processSession(session);
       
-      if (event === 'SIGNED_IN') {
-        // Only fetch if we don't already have user data
-        if (!user || user.id !== session?.user?.id) {
-          await fetchUserData();
-        }
-        setIsLoading(false);
-      } else if (event === 'TOKEN_REFRESHED') {
-        // Token refresh doesn't require re-fetching user data
-        console.log('Token refreshed');
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setStudentProfile(null);
+      // Only set loading to false if we're not already loaded
+      if (isLoading) {
         setIsLoading(false);
       }
     });
@@ -174,7 +153,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []); // Remove dependency on user to prevent loops
+  }, [isLoading]); // Add isLoading to dependencies
 
   const login = async (email: string, password: string) => {
     try {
@@ -190,9 +169,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw error;
       }
       
-      if (data.user) {
-        console.log('Login successful, user:', data.user.id);
-        // Don't fetch here - let the auth state change handle it
+      if (data.user && data.session) {
+        console.log('Login successful, processing session');
+        // Process the session immediately
+        processSession(data.session);
       }
     } catch (error: any) {
       console.error('Login error caught:', error);
@@ -223,11 +203,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       setUser(null);
       setStudentProfile(null);
+      setSession(null);
     } catch (error) {
       console.error('Logout error:', error);
       // Even if logout fails, clear local state
       setUser(null);
       setStudentProfile(null);
+      setSession(null);
       throw error;
     } finally {
       setIsLoading(false);
@@ -235,14 +217,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const refreshUser = async () => {
-    await fetchUserData();
+    const { data: { session } } = await supabase.auth.getSession();
+    processSession(session);
   };
 
   const value: AuthContextType = {
     user,
     studentProfile,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user && !!session,
     login,
     logout,
     refreshUser,
