@@ -3,7 +3,6 @@ import {
   AbsoluteFill,
   interpolate,
   useCurrentFrame,
-  useVideoConfig,
 } from 'remotion';
 import { Scene1LinearEducation } from './scenes/Scene1LinearEducation';
 import { Scene2MessyLines } from './scenes/Scene2MessyLines';
@@ -11,7 +10,6 @@ import { Scene3SpoolOrganizes } from './scenes/Scene3SpoolOrganizes';
 
 export const SpoolEducationDemo: React.FC = () => {
   const frame = useCurrentFrame();
-  const { } = useVideoConfig();
 
   // Scene timing (30fps)
   const scene1Duration = 90; // 0-3 seconds

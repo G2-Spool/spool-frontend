@@ -26,10 +26,10 @@ export class ErrorFactory {
     // Handle axios errors
     if (error && typeof error === 'object' && 'response' in error) {
       const axiosError = error as any;
-      const status = axiosError.response.status;
+      const status = axiosError.response?.status;
       appError.statusCode = status;
-      appError.message = axiosError.response.data?.message || axiosError.message;
-      appError.details = axiosError.response.data;
+      appError.message = axiosError.response?.data?.message || (error instanceof Error ? error.message : 'Request failed');
+      appError.details = axiosError.response?.data;
       
       switch (status) {
         case 401:
@@ -65,10 +65,15 @@ export class ErrorFactory {
       appError.type = ErrorType.NETWORK;
       appError.message = 'Network error. Please check your connection.';
       appError.retryable = true;
-    } else {
-      // Unknown error
+    } else if (error instanceof Error) {
+      // Standard Error object
       appError.type = ErrorType.UNKNOWN;
-      appError.message = (error instanceof Error ? error.message : String(error)) || 'An unexpected error occurred';
+      appError.message = error.message || 'An unexpected error occurred';
+      appError.retryable = false;
+    } else {
+      // Unknown error type
+      appError.type = ErrorType.UNKNOWN;
+      appError.message = String(error) || 'An unexpected error occurred';
       appError.retryable = false;
     }
     
@@ -88,7 +93,7 @@ export const getErrorMessage = (error: AppError): string => {
     case ErrorType.NOT_FOUND:
       return 'The requested resource was not found.';
     case ErrorType.VALIDATION:
-      return (error.details as any)?.message || 'Please check your input and try again.';
+      return (error.details && typeof error.details === 'object' && 'message' in error.details ? String(error.details.message) : null) || 'Please check your input and try again.';
     case ErrorType.SERVER:
       return 'Server error. Our team has been notified. Please try again later.';
     default:

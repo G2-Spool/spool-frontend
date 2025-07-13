@@ -254,7 +254,7 @@ export interface ConceptProgress {
 }
 
 export type ConceptStatus = 'not_started' | 'viewing' | 'practicing' | 'completed' | 'mastered';
-export type ExerciseStatus = 'not_started' | 'in_progress' | 'completed';
+export type ExerciseStatus = 'not_started' | 'in_progress' | 'completed' | 'evaluating';
 
 // Exercise and Assessment Types
 export interface Exercise {
