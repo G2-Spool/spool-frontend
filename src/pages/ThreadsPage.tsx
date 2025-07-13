@@ -194,16 +194,28 @@ export const ThreadsPage: React.FC = () => {
       <section className="mb-12">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-obsidian">Your Learning Threads</h2>
-          <Button
-            size="sm"
-            onClick={() => {
-              console.log('🎯 CREATE THREAD BUTTON CLICKED - Opening thread creation modal');
-              setShowCreateThreadModal(true);
-            }}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Thread
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/thread/example-thread-001')}
+              className="rounded-md bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-300 hover:text-gray-100 transition-colors"
+            >
+              <MessageSquare className="h-4 w-4 mr-2" />
+              View Sample Thread
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                console.log('🎯 CREATE THREAD BUTTON CLICKED - Opening thread creation modal');
+                setShowCreateThreadModal(true);
+              }}
+              className="rounded-md"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Thread
+            </Button>
+          </div>
         </div>
         
         {threads && threads.length > 0 ? (
