@@ -25,28 +25,28 @@ import 'katex/dist/katex.min.css'
 if (typeof document !== 'undefined') {
   const mathStyles = `
     .katex {
-      background-color: #2d3747;
+      background-color: #4a5568;
       padding: 4px 6px;
       border-radius: 4px;
-      font-size: 1em;
+      font-size: 1.05em;
       font-family: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
     
     .katex-display .katex {
-      background-color: #2d3747;
-      padding: 8px 12px;
+      background-color: #4a5568;
+      padding: 4px 8px;
       border-radius: 6px;
-      font-size: 1em;
+      font-size: 1.1em;
       font-family: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       margin: 8px 0;
     }
     
     .dark .katex {
-      background-color: #2d3747;
+      background-color: #4a5568;
     }
     
     .dark .katex-display .katex {
-      background-color: #2d3747;
+      background-color: #4a5568;
     }
   `
   
@@ -110,8 +110,8 @@ const EnhancedEquationRenderer: React.FC<{
   if (isBlockEquation) {
     return (
       <div 
-        className={cn("rounded-lg p-3 my-2", className)}
-        style={{ backgroundColor: '#2d3747' }}
+        className={cn("rounded-lg p-2 my-2", className)}
+        style={{ backgroundColor: '#4a5568' }}
       >
         {/* Pulsing dot code saved but commented out */}
         {/* <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full animate-pulse"></div> */}
