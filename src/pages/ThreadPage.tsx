@@ -7,8 +7,6 @@ import {
   ArrowLeft, 
   Clock, 
   Brain, 
-  BookOpen,
-  ChevronRight,
   MessageSquare,
   Lightbulb,
   TrendingUp,
@@ -20,10 +18,7 @@ import {
   Award,
   X,
   Split,
-  CornerDownLeft,
-  GitFork,
   ExternalLink,
-  GitBranchPlus,
   BadgeHelp
 } from 'lucide-react';
 import { useThread } from '../hooks/useThread';
