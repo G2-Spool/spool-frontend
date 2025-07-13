@@ -211,30 +211,6 @@ export function ConceptPresentation({ conceptId, className }: ConceptPresentatio
         equation: exerciseData?.example_visual || ""
       }
     ],
-    vocabulary: [
-      // Keep existing vocabulary for now - could be extended to pull from database
-      {
-        term: "Variable",
-        definition: "The letter representing the unknown value you're looking for (like $$x$$)."
-      },
-      {
-        term: "Coefficient", 
-        definition: "The number attached to the variable (the $$2$$ in $$2x$$)."
-      },
-      {
-        term: "Constant",
-        definition: "A number without a variable (the $$5$$ and $$15$$ in $$2x + 5 = 15$$)."
-      }
-    ],
-    mentalModel: {
-      title: "The \"Reverse Order of Operations\"",
-      description: "Think about getting dressed: you put on socks first, then shoes. To undo it, you take off your shoes first, then your socks.",
-      explanation: "In math, we follow PEMDAS (Parentheses, Exponents, Multiplication/Division, Addition/Subtraction). To solve for an unknown, you undo the operations in the reverse order: first, undo any addition or subtraction, then undo any multiplication or division."
-    },
-    principle: {
-      title: "Keep the Equation Balanced",
-      description: "An equation is like a balanced scale. Whatever you do to one side of the equals sign ($$=$$), you must do to the other side to keep it balanced."
-    },
     workflow: {
       title: exerciseData?.approach_title || "Approach",
       steps: (exerciseData?.approach_steps || []).map((step, index) => ({

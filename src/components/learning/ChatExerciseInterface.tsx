@@ -1562,45 +1562,16 @@ export function ChatExerciseInterface({ conceptId, onSwitchToGlossary, onNewTerm
                               {/* Compact Difficulty Control */}
                               <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground">Difficulty:</span>
-                                                                <div className="relative">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleDifficultyChange('decrease')}
-                                    disabled={currentDifficulty.id === 1}
-                                    className={cn(
-                                      "h-6 w-6 p-0 border rounded-md transition-all duration-200",
-                                      currentDifficulty.id === 1 
-                                        ? "cursor-not-allowed border-gray-600" 
-                                        : "hover:bg-red-900/20 border-gray-500 hover:border-red-400 hover:scale-110 hover:shadow-md"
-                                    )}
-                                    style={{ backgroundColor: '#2d3748' }}
-                                    onMouseEnter={() => currentDifficulty.id !== 1 && handleDifficultyButtonTooltip('decrease', true)}
-                                    onMouseLeave={() => handleDifficultyButtonTooltip('decrease', false)}
-                                  >
-                                    <Minus className={cn(
-                                      "w-3 h-3",
-                                      currentDifficulty.id === 1 
-                                        ? "text-muted-foreground" 
-                                        : "text-red-500"
-                                    )} />
-                                  </Button>
-                                  
-                                  {difficultyButtonTooltips.decrease && (
-                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-xs text-white whitespace-nowrap z-30" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
-                                      Decrease difficulty
-                                    </div>
-                                  )}
-                                </div>
                                 
                                 <div className="relative">
                                   <div
-                                    className="px-2 py-1 rounded text-xs font-medium cursor-pointer transition-all duration-200 min-w-[60px] text-center"
+                                    className="px-2 py-1 rounded text-xs font-medium cursor-pointer transition-all duration-200 text-center"
                                     style={{
                                       backgroundColor: currentDifficulty.bgColor,
                                       borderColor: currentDifficulty.color,
                                       color: currentDifficulty.color,
-                                      border: `1px solid ${currentDifficulty.color}`
+                                      border: `1px solid ${currentDifficulty.color}`,
+                                      width: '80px' // Fixed width to prevent shifting
                                     }}
                                     onMouseEnter={() => handleDifficultyTooltip(true)}
                                     onMouseLeave={() => handleDifficultyTooltip(false)}
@@ -1615,35 +1586,69 @@ export function ChatExerciseInterface({ conceptId, onSwitchToGlossary, onNewTerm
                                   )}
                                 </div>
                                 
-                                                                <div className="relative">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleDifficultyChange('increase')}
-                                    disabled={currentDifficulty.id === difficultyLevels.length}
-                                    className={cn(
-                                      "h-6 w-6 p-0 border rounded-md transition-all duration-200",
-                                      currentDifficulty.id === difficultyLevels.length 
-                                        ? "cursor-not-allowed border-gray-600" 
-                                        : "hover:bg-green-900/20 border-gray-500 hover:border-green-400 hover:scale-110 hover:shadow-md"
+                                {/* Stacked +/- buttons */}
+                                <div className="flex flex-col gap-0.5">
+                                  <div className="relative">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleDifficultyChange('increase')}
+                                      disabled={currentDifficulty.id === difficultyLevels.length}
+                                      className={cn(
+                                        "h-5 w-5 p-0 border rounded-md transition-all duration-200",
+                                        currentDifficulty.id === difficultyLevels.length 
+                                          ? "cursor-not-allowed border-gray-600" 
+                                          : "hover:bg-green-900/20 border-gray-500 hover:border-green-400 hover:scale-110 hover:shadow-md"
+                                      )}
+                                      style={{ backgroundColor: '#2d3748' }}
+                                      onMouseEnter={() => currentDifficulty.id !== difficultyLevels.length && handleDifficultyButtonTooltip('increase', true)}
+                                      onMouseLeave={() => handleDifficultyButtonTooltip('increase', false)}
+                                    >
+                                      <Plus className={cn(
+                                        "w-3 h-3",
+                                        currentDifficulty.id === difficultyLevels.length 
+                                          ? "text-muted-foreground" 
+                                          : "text-green-500"
+                                      )} />
+                                    </Button>
+                                    
+                                    {difficultyButtonTooltips.increase && (
+                                      <div className="absolute bottom-full right-full mr-2 mb-1 px-2 py-1 rounded text-xs text-white whitespace-nowrap z-30" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
+                                        Increase difficulty
+                                      </div>
                                     )}
-                                    style={{ backgroundColor: '#2d3748' }}
-                                    onMouseEnter={() => currentDifficulty.id !== difficultyLevels.length && handleDifficultyButtonTooltip('increase', true)}
-                                    onMouseLeave={() => handleDifficultyButtonTooltip('increase', false)}
-                                  >
-                                    <Plus className={cn(
-                                      "w-3 h-3",
-                                      currentDifficulty.id === difficultyLevels.length 
-                                        ? "text-muted-foreground" 
-                                        : "text-green-500"
-                                    )} />
-                                  </Button>
+                                  </div>
                                   
-                                  {difficultyButtonTooltips.increase && (
-                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-xs text-white whitespace-nowrap z-30" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
-                                      Increase difficulty
-                                    </div>
-                                  )}
+                                  <div className="relative">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleDifficultyChange('decrease')}
+                                      disabled={currentDifficulty.id === 1}
+                                      className={cn(
+                                        "h-5 w-5 p-0 border rounded-md transition-all duration-200",
+                                        currentDifficulty.id === 1 
+                                          ? "cursor-not-allowed border-gray-600" 
+                                          : "hover:bg-red-900/20 border-gray-500 hover:border-red-400 hover:scale-110 hover:shadow-md"
+                                      )}
+                                      style={{ backgroundColor: '#2d3748' }}
+                                      onMouseEnter={() => currentDifficulty.id !== 1 && handleDifficultyButtonTooltip('decrease', true)}
+                                      onMouseLeave={() => handleDifficultyButtonTooltip('decrease', false)}
+                                    >
+                                      <Minus className={cn(
+                                        "w-3 h-3",
+                                        currentDifficulty.id === 1 
+                                          ? "text-muted-foreground" 
+                                          : "text-red-500"
+                                      )} />
+                                    </Button>
+                                    
+                                    {difficultyButtonTooltips.decrease && (
+                                      <div className="absolute top-full right-full mr-2 mt-1 px-2 py-1 rounded text-xs text-white whitespace-nowrap z-30" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
+                                        Decrease difficulty
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
