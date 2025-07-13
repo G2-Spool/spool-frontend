@@ -25,7 +25,7 @@ export interface StudentProfile {
   grade?: string; // Alias for gradeLevel
   
   // Interest Discovery
-  interests: Interest[];
+  interests: string[];
   careerInterests: string[];
   philanthropicInterests: string[];
   learningStyleIndicators: Record<string, any>;

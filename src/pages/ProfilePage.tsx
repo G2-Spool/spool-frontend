@@ -41,14 +41,8 @@ export const ProfilePage: React.FC = () => {
     );
   }
 
-  // Group interests by category
-  const interestsByCategory = studentProfile.interests.reduce((acc, interest) => {
-    if (!acc[interest.category]) {
-      acc[interest.category] = [];
-    }
-    acc[interest.category].push(interest);
-    return acc;
-  }, {} as Record<LifeCategory, typeof studentProfile.interests>);
+  // Get all interests as a simple array
+  const allInterests = studentProfile.interests || [];
 
   // Calculate level progress (assuming 1000 XP per level)
   const currentLevelXP = studentProfile.experiencePoints % 1000;
@@ -151,33 +145,16 @@ export const ProfilePage: React.FC = () => {
         <h2 className="text-2xl font-semibold text-obsidian dark:text-gray-100 mb-6">
           My Interests
         </h2>
-        <div className="space-y-6">
-          {lifeCategories.map(({ key, label, icon, color }) => {
-            const categoryInterests = interestsByCategory[key] || [];
-            if (categoryInterests.length === 0) return null;
-
-            return (
-              <div key={key}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className={color}>{icon}</span>
-                  <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">
-                    {label}
-                  </h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {categoryInterests.map((interest, idx) => (
-                    <InterestBubble
-                      key={idx}
-                      interest={interest.interest}
-                      category={interest.category}
-                      strength={interest.strength}
-                      size="md"
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+        <div className="flex flex-wrap gap-2">
+          {allInterests.map((interest: string, idx: number) => (
+            <InterestBubble
+              key={idx}
+              interest={interest}
+              category="personal"
+              strength={1}
+              size="md"
+            />
+          ))}
         </div>
       </Card>
 

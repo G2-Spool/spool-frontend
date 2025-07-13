@@ -93,7 +93,7 @@ serve(async (req) => {
     const hooks = JSON.parse(hooksCompletion.choices[0].message?.tool_calls?.[0]?.function.arguments || '{}')
     
     // Generate interest-based examples
-    const interests = [...(profile.interests.hobbies || []), ...(profile.interests.activities || [])]
+    const interests = profile.interests || []
     const examplesCompletion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
