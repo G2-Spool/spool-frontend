@@ -175,7 +175,18 @@ export const ThreadPage: React.FC = () => {
             <Button
               variant="ghost"
               size="md"
-              onClick={() => navigate('/threads')}
+              onClick={() => {
+                if (showExercise) {
+                  // Exit exercise mode and return to section overview
+                  setShowExercise(false);
+                  if (selectedSection) {
+                    setSectionProgress(prev => ({ ...prev, [selectedSection]: 'reading' }));
+                  }
+                } else {
+                  // Navigate back to threads page
+                  navigate('/threads');
+                }
+              }}
               className="mb-4 rounded-lg px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-2 -ml-2"
             >
               <ArrowLeft className="w-8 h-5" />
@@ -266,28 +277,30 @@ export const ThreadPage: React.FC = () => {
               )}
             </div>
             
-            {/* Analysis Summary */}
-            <Card className="bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <Brain className="h-8 w-8 text-teal-600 dark:text-teal-400 mt-1" />
-                <div>
-                  <h3 className="text-lg font-semibold text-teal-950 dark:text-teal-300 mb-1">Your Learning Focus</h3>
-                  <p className="text-white text-base">{thread.analysis.summary}</p>
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {thread.analysis.subjects.map((subject: string, idx: number) => (
-                      <Badge key={idx} variant="primary" size="sm">
-                        {subject}
-                      </Badge>
-                    ))}
-                    {thread.analysis.topics.map((topic: string, idx: number) => (
-                      <Badge key={idx} variant="default" size="sm">
-                        {topic}
-                      </Badge>
-                    ))}
+            {/* Analysis Summary - Hidden during exercise */}
+            {!showExercise && (
+              <Card className="bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <Brain className="h-8 w-8 text-teal-600 dark:text-teal-400 mt-1" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-teal-950 dark:text-teal-300 mb-1">Your Learning Focus</h3>
+                    <p className="text-white text-base">{thread.analysis.summary}</p>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {thread.analysis.subjects.map((subject: string, idx: number) => (
+                        <Badge key={idx} variant="primary" size="sm">
+                          {subject}
+                        </Badge>
+                      ))}
+                      {thread.analysis.topics.map((topic: string, idx: number) => (
+                        <Badge key={idx} variant="default" size="sm">
+                          {topic}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            )}
             
             <div className="text-sm text-gray-600">
               <span className="font-medium">{thread.sections.length} sections</span> matched your query
@@ -302,6 +315,9 @@ export const ThreadPage: React.FC = () => {
                   conceptId={currentSection.id}
                   conceptName={currentSection.title}
                   conceptDescription={currentSection.text.substring(0, 200)}
+                  relevanceScore={currentSection.relevanceScore}
+                  estimatedMinutes={currentSection.estimatedMinutes}
+                  difficulty={currentSection.difficulty}
                   studentProfile={mockStudentProfile}
                   onComplete={handleExerciseComplete}
                 />
@@ -311,7 +327,7 @@ export const ThreadPage: React.FC = () => {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h2 className="text-2xl font-semibold text-obsidian dark:text-gray-100">
+                          <h2 className="text-3xl font-semibold text-obsidian dark:text-gray-100">
                             {currentSection.title}
                           </h2>
                           {currentSectionStatus === 'completed' && (
@@ -348,7 +364,7 @@ export const ThreadPage: React.FC = () => {
                     
                     {/* Section Text Content */}
                     <div className="prose prose-gray max-w-none">
-                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                      <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                         <MarkdownText text={currentSection.text} />
                       </p>
                     </div>
@@ -377,7 +393,7 @@ export const ThreadPage: React.FC = () => {
                     
                     {/* Related Concepts */}
                     {currentSection.conceptIds && currentSection.conceptIds.length > 0 && (
-                      <Card className="mt-6 p-6 bg-gray-50 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700">
+                      <Card className="mt-6 p-6 bg-gray-50 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700 shadow-2xl">
                         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                           <Split className="h-5 w-5 text-purple-500" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
                           <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 bg-clip-text text-transparent" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
@@ -406,11 +422,11 @@ export const ThreadPage: React.FC = () => {
 
                   {/* Two Stage Exercise CTA Section */}
                   {currentSectionStatus !== 'completed' && (
-                    <Card className="relative overflow-hidden p-6 bg-gradient-to-br from-teal-50 via-blue-50 to-purple-50 dark:from-teal-900/20 dark:via-blue-900/20 dark:to-purple-900/20 border-2 border-teal-300 dark:border-teal-700 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <Card className="relative overflow-hidden p-6 bg-gradient-to-br from-teal-50 to-sky-100 dark:from-teal-900/20 dark:to-sky-900/20 border-2 border-teal-300 dark:border-teal-700 shadow-lg hover:shadow-xl transition-all duration-300">
                       {/* Animated background pattern */}
-                      <div className="absolute inset-0 opacity-10">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-teal-400 to-blue-400 rounded-full blur-3xl transform translate-x-32 -translate-y-32 animate-pulse" />
-                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-purple-400 to-pink-400 rounded-full blur-3xl transform -translate-x-32 translate-y-32 animate-pulse" />
+                      <div className="absolute inset-0 opacity-20">
+                        <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-teal-500 to-sky-500 rounded-full blur-3xl transform translate-x-32 -translate-y-32 animate-pulse" />
+                        <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-tr from-blue-500 to-cyan-500 rounded-full blur-3xl transform -translate-x-32 translate-y-32 animate-pulse" />
                       </div>
                       
                       <div className="relative flex items-start gap-4">

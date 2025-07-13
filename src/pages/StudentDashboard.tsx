@@ -221,16 +221,16 @@ export const StudentDashboard: React.FC = () => {
           variant="primary"
           size="lg"
           onClick={() => setShowCreateThreadModal(true)}
-          className="flex items-center gap-3 px-6 py-3 rounded-lg !text-white hover:!translate-y-0"
+          className="group flex items-center px-6 py-3 rounded-lg !text-white hover:!translate-y-0"
           style={{ color: 'white !important' }}
         >
-          <Lightbulb className="h-5 w-5 text-white" />
-          <span className="text-white">New Thread</span>
+          <Lightbulb className="h-5 w-5 text-white group-hover:text-gray-200 mr-4 transition-colors" />
+          <span className="text-white group-hover:text-gray-200 transition-colors">New Thread</span>
         </Button>
       </div>
 
       {/* Streak Display */}
-      <Card className="mb-8 bg-[#1a202c]">
+      <Card className="mb-8 bg-white dark:bg-[#1a202c]">
         <div className="flex items-center justify-between">
           <StreakDisplay
             currentStreak={studentProfile.currentStreakDays}
@@ -374,9 +374,13 @@ export const StudentDashboard: React.FC = () => {
                       }
                     }}
                     onMouseDown={(e) => e.stopPropagation()}
-                    className={`flex-shrink-0 w-64 h-48 bg-gradient-to-br ${colorClass} rounded-lg p-6 cursor-pointer transition-all duration-200 select-none`}
+                    className={`flex-shrink-0 w-64 h-48 rounded-lg cursor-pointer transition-all duration-200 select-none relative overflow-hidden`}
                   >
-                    <div className="h-full flex flex-col justify-between pointer-events-none">
+                    {/* Background with opacity */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${colorClass} opacity-80`}></div>
+                    
+                    {/* Content at full opacity */}
+                    <div className="relative z-10 h-full p-6 flex flex-col justify-between pointer-events-none">
                       <div>
                         <h3 className="text-white font-semibold text-base line-clamp-3 mb-2 select-none">
                           {thread.userInput || 'Untitled Thread'}

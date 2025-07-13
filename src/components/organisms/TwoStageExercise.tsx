@@ -12,14 +12,19 @@ import {
   RotateCcw,
   Sparkles,
   TrendingUp,
+  Clock,
 } from 'lucide-react';
 import { exerciseService, ExerciseGenerationResponse, ExerciseEvaluationResponse } from '../../services/exercise.service';
 import { cn } from '../../utils/cn';
+import { ConceptPresentation } from '../learning/ConceptPresentation';
 
 interface TwoStageExerciseProps {
   conceptId: string;
   conceptName: string;
   conceptDescription?: string;
+  relevanceScore: number;
+  estimatedMinutes?: number;
+  difficulty?: string;
   studentProfile: {
     interests: string[];
     careerInterests: string[];
@@ -38,10 +43,38 @@ const lifeCategoryColors = {
   philanthropic: 'bg-philanthropic/10 border-philanthropic/30 text-philanthropic',
 };
 
+// Helper functions for styling
+const getRelevanceColor = (score: number) => {
+  const percentage = Math.round(score * 100);
+  if (percentage < 30) {
+    return 'text-red-600 dark:text-red-400';
+  } else if (percentage <= 70) {
+    return 'text-yellow-600 dark:text-yellow-400';
+  } else {
+    return 'text-green-600 dark:text-green-400';
+  }
+};
+
+const getDifficultyColor = (difficulty: string) => {
+  switch (difficulty?.toLowerCase()) {
+    case 'beginner':
+      return 'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30';
+    case 'intermediate':
+      return 'text-yellow-700 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/30';
+    case 'advanced':
+      return 'text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-900/30';
+    default:
+      return 'text-gray-700 dark:text-gray-400 bg-gray-100 dark:bg-gray-900/30';
+  }
+};
+
 export const TwoStageExercise: React.FC<TwoStageExerciseProps> = ({
   conceptId,
   conceptName,
   conceptDescription,
+  relevanceScore,
+  estimatedMinutes,
+  difficulty,
   studentProfile,
   onComplete,
 }) => {
@@ -416,9 +449,54 @@ export const TwoStageExercise: React.FC<TwoStageExerciseProps> = ({
   );
 
   return (
-    <Card className="max-w-4xl mx-auto">
-      {renderExerciseHeader()}
-      {stage === 'complete' ? renderCompleteState() : renderExerciseContent()}
-    </Card>
+    <div className="rounded-lg overflow-hidden" style={{ backgroundColor: '#293243' }}>
+      {/* Concept Title Header */}
+      <div className="p-6 pb-4">
+        <div className="flex items-center gap-3 mb-2">
+          <h1 className="text-3xl font-semibold text-white">
+            {conceptName}
+          </h1>
+        </div>
+        <div className="flex items-center gap-4 text-base text-gray-300">
+          <div className="flex items-center gap-1">
+            <TrendingUp className={cn("h-4 w-4", getRelevanceColor(relevanceScore))} />
+            <span className={getRelevanceColor(relevanceScore)}>
+              {Math.round(relevanceScore * 100)}% relevant
+            </span>
+          </div>
+          {estimatedMinutes && (
+            <div className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              <span>{estimatedMinutes} min</span>
+            </div>
+          )}
+          {difficulty && (
+            <span className={cn(
+              "text-sm font-medium px-2 py-0.5 rounded-full",
+              getDifficultyColor(difficulty)
+            )}>
+              {difficulty}
+            </span>
+          )}
+        </div>
+      </div>
+      
+      {/* Concept Presentation */}
+      <div className="mx-6 mb-6">
+        <div className="rounded-lg overflow-hidden" style={{ backgroundColor: '#1a202c' }}>
+          <ConceptPresentation 
+            conceptId={conceptId}
+            conceptTitle={conceptName}
+            className="text-white"
+          />
+        </div>
+      </div>
+      
+      {/* Exercise Content */}
+      <Card className="mx-6 mb-6">
+        {renderExerciseHeader()}
+        {stage === 'complete' ? renderCompleteState() : renderExerciseContent()}
+      </Card>
+    </div>
   );
 };
