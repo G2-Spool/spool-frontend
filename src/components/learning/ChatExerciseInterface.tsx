@@ -722,7 +722,8 @@ const VocabularyDrawer: React.FC<{
         <div 
           className="fixed top-1/2 right-0 transform -translate-y-1/2 z-40 transition-all duration-300"
         >
-          <button
+          <Button
+            variant="ghost"
             onClick={() => setDrawerOpen(true)}
             className="bg-card border border-border rounded-l-lg px-2 py-8 text-foreground text-sm font-medium transition-all duration-300 hover:bg-accent border-r-0 opacity-80"
           >
@@ -732,7 +733,7 @@ const VocabularyDrawer: React.FC<{
                 <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
               )}
             </div>
-          </button>
+          </Button>
         </div>
       )}
 
@@ -1320,7 +1321,8 @@ export function ChatExerciseInterface({
                     <div className="flex items-center gap-1">
                       {/* Vocabulary Terms Button */}
                       <div className="relative">
-                        <button
+                        <Button
+                          variant="ghost"
                           onClick={(e) => {
                             e.stopPropagation()
                             setDrawerOpen(true)
@@ -1333,7 +1335,7 @@ export function ChatExerciseInterface({
                             {vocabularyCount}
                           </span>
                           <BookOpen className="w-5 h-5 text-muted-foreground group-hover:text-foreground" />
-                        </button>
+                        </Button>
                         {buttonTooltips.vocab && (
                           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-popover border border-border rounded text-sm text-popover-foreground whitespace-nowrap">
                             Vocab
@@ -1343,7 +1345,8 @@ export function ChatExerciseInterface({
                       
                       {/* Equations Button */}
                       <div className="relative">
-                        <button
+                        <Button
+                          variant="ghost"
                           onClick={(e) => {
                             e.stopPropagation()
                             setDrawerOpen(true)
@@ -1356,7 +1359,7 @@ export function ChatExerciseInterface({
                             {equationCount}
                           </span>
                           <Sigma className="w-5 h-5 text-muted-foreground group-hover:text-foreground" />
-                        </button>
+                        </Button>
                         {buttonTooltips.equations && (
                           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-popover border border-border rounded text-sm text-popover-foreground whitespace-nowrap">
                             Formulas
@@ -1366,7 +1369,8 @@ export function ChatExerciseInterface({
                       
                       {/* Concepts Button */}
                       <div className="relative">
-                        <button
+                        <Button
+                          variant="ghost"
                           onClick={(e) => {
                             e.stopPropagation()
                             setDrawerOpen(true)
@@ -1379,7 +1383,7 @@ export function ChatExerciseInterface({
                             {conceptCount}
                           </span>
                           <Brain className="w-5 h-5 text-muted-foreground group-hover:text-foreground" />
-                        </button>
+                        </Button>
                         {buttonTooltips.concepts && (
                           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-popover border border-border rounded text-sm text-popover-foreground whitespace-nowrap">
                             Concepts

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card } from '../atoms/Card';
+import { Button } from '../atoms/Button';
 import { 
   ChevronDown,
   ChevronUp,
@@ -93,7 +94,9 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                         {section.title}
                       </h3>
                     </div>
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={(e) => {
                         e.stopPropagation();
                         onToggleExpanded(section.id);
@@ -105,7 +108,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                       ) : (
                         <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                       )}
-                    </button>
+                    </Button>
                   </div>
                   
                   <div className="flex items-center gap-2 text-xs">

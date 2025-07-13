@@ -490,8 +490,9 @@ Topics include the Renaissance, Age of Exploration, Scientific Revolution, Enlig
         
         <div className="flex-1 overflow-y-auto">
           {topicData.sections.map((section) => (
-            <button
+            <Button
               key={section.id}
+              variant="ghost"
               onClick={() => setSelectedSection(section.id)}
               className={`w-full p-4 text-left border-b border-gray-700 hover:bg-gray-700 transition-colors ${
                 selectedSection === section.id 
@@ -524,7 +525,7 @@ Topics include the Renaissance, Age of Exploration, Scientific Revolution, Enlig
                   </p>
                 </div>
               </div>
-            </button>
+            </Button>
           ))}
         </div>
       </div>

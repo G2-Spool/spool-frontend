@@ -3,6 +3,7 @@ import { X, Sparkles, Loader2, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../config/supabase';
 import toast from 'react-hot-toast';
+import { Button } from '../atoms/Button';
 
 interface CreateThreadModalProps {
   isOpen: boolean;
@@ -93,12 +94,14 @@ export function CreateThreadModal({
               What are you curious about?
             </h2>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Form */}
@@ -128,36 +131,31 @@ export function CreateThreadModal({
                 "Creative writing techniques",
                 "Music theory basics"
               ].map((example) => (
-                <button
+                <Button
                   key={example}
+                  variant="ghost"
+                  size="sm"
                   type="button"
                   onClick={() => setInputValue(example)}
                   className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   {example}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
 
           {/* Submit Button */}
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={!inputValue.trim() || isLoading}
-            className="mt-6 w-full px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            isLoading={isLoading}
+            rightIcon={!isLoading ? <ArrowRight className="w-4 h-4" /> : undefined}
+            className="mt-6 w-full"
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Creating Your Thread...
-              </>
-            ) : (
-              <>
-                Start Learning
-                <ArrowRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
+            {isLoading ? 'Creating Your Thread...' : 'Start Learning'}
+          </Button>
         </form>
       </div>
     </div>

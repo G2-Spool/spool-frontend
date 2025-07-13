@@ -1,5 +1,6 @@
 import { Heart, Sparkles, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { Button } from '../atoms/Button';
 
 interface InterestWithDetails {
   interest: string;
@@ -52,13 +53,14 @@ export function InterestDetailCard({ interest, onExplore }: InterestDetailCardPr
         </p>
 
         {/* Action Button */}
-        <button
+        <Button
+          variant="primary"
           onClick={() => onExplore?.(interest.interest)}
-          className={`w-full py-2 px-4 rounded-lg bg-gradient-to-r ${selectedGradient} text-white font-medium text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2`}
+          className={`w-full py-2 px-4 rounded-lg bg-gradient-to-r ${selectedGradient} text-white font-medium text-sm hover:opacity-90 transition-opacity`}
+          leftIcon={<Sparkles className="w-4 h-4" />}
         >
-          <Sparkles className="w-4 h-4" />
           Explore Learning Paths
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -108,8 +108,9 @@ export function InterestDiscovery({ onNext, onUpdate, data }: InterestDiscoveryP
             const count = getCategoryCount(category);
             
             return (
-              <button
+              <Button
                 key={category}
+                variant="ghost"
                 onClick={() => setSelectedCategory(category)}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   selectedCategory === category
@@ -124,7 +125,7 @@ export function InterestDiscovery({ onNext, onUpdate, data }: InterestDiscoveryP
                 {count > 0 && (
                   <p className="text-xs text-gray-500 dark:text-gray-500">{count} added</p>
                 )}
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -156,15 +157,17 @@ export function InterestDiscovery({ onNext, onUpdate, data }: InterestDiscoveryP
         </p>
         <div className="flex flex-wrap gap-2">
           {interestSuggestions[selectedCategory].map(suggestion => (
-            <button
+            <Button
               key={suggestion}
+              variant="ghost"
+              size="sm"
               onClick={() => addInterest(suggestion)}
               className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full 
                        text-gray-700 dark:text-gray-300 transition-colors"
               disabled={interests.some(i => i.interest === suggestion)}
             >
               {suggestion}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -197,12 +200,14 @@ export function InterestDiscovery({ onNext, onUpdate, data }: InterestDiscoveryP
                 >
                   <Icon className="w-4 h-4" />
                   <span className="text-sm font-medium">{interest.interest}</span>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => removeInterest(index)}
                     className="ml-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded p-0.5 transition-colors"
                   >
                     <X className="w-3 h-3" />
-                  </button>
+                  </Button>
                 </motion.div>
               );
             })}
