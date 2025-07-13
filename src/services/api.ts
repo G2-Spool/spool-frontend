@@ -1,6 +1,5 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { fetchAuthSession } from 'aws-amplify/auth';
 import { getApiBaseUrl } from '../config/api';
 import { supabase } from '../config/supabase';
 
@@ -20,19 +19,11 @@ class ApiService {
     this.axiosInstance.interceptors.request.use(
       async (config) => {
         try {
-          // Try to get Supabase session first
-          const { data: { session: supabaseSession } } = await supabase.auth.getSession();
+          // Get Supabase session
+          const { data: { session } } = await supabase.auth.getSession();
           
-          if (supabaseSession?.access_token) {
-            config.headers.Authorization = `Bearer ${supabaseSession.access_token}`;
-          } else {
-            // Fallback to Amplify auth
-            const session = await fetchAuthSession();
-            const idToken = session.tokens?.idToken?.toString();
-            
-            if (idToken) {
-              config.headers.Authorization = `Bearer ${idToken}`;
-            }
+          if (session?.access_token) {
+            config.headers.Authorization = `Bearer ${session.access_token}`;
           }
           
           // Debug logging
@@ -45,11 +36,6 @@ class ApiService {
           });
         } catch (error) {
           console.warn('Failed to get auth token:', error);
-          // Check localStorage as fallback
-          const token = localStorage.getItem('authToken');
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-          }
         }
         return config;
       },
@@ -63,8 +49,8 @@ class ApiService {
       (response) => response,
       async (error) => {
         if (error.response?.status === 401) {
-          // Handle token refresh or redirect to login
-          localStorage.removeItem('authToken');
+          // Handle unauthorized access
+          await supabase.auth.signOut();
           window.location.href = '/login';
         }
         return Promise.reject(error);

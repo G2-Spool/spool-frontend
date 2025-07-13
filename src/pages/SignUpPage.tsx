@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { signUp } from 'aws-amplify/auth';
+import { supabase } from '../config/supabase';
 import { Button } from '../components/atoms/Button';
 import { Input } from '../components/atoms/Input';
 import { Card } from '../components/atoms/Card';
@@ -35,33 +35,43 @@ export const SignUpPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const { isSignUpComplete, nextStep } = await signUp({
-        username: formData.email,
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
         password: formData.password,
         options: {
-          userAttributes: {
-            email: formData.email,
-            given_name: formData.firstName,
-            family_name: formData.lastName,
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            role: formData.role,
           },
         },
       });
       
-      if (isSignUpComplete) {
+      if (signUpError) {
+        throw signUpError;
+      }
+      
+      if (data.user) {
         setSuccess(true);
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
-      } else if (nextStep.signUpStep === 'CONFIRM_SIGN_UP') {
-        // In production, handle email confirmation
-        setSuccess(true);
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
+        
+        // Check if email confirmation is required
+        if (data.session) {
+          // User is automatically signed in (email confirmation disabled)
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 2000);
+        } else {
+          // Email confirmation required
+          setTimeout(() => {
+            navigate('/login');
+          }, 3000);
+        }
       }
     } catch (err: any) {
-      if (err.name === 'UsernameExistsException') {
+      if (err.message?.includes('User already registered')) {
         setError('An account with this email already exists');
+      } else if (err.message?.includes('Password should be at least')) {
+        setError('Password must be at least 6 characters');
       } else {
         setError(err.message || 'An error occurred during sign up');
       }
@@ -89,7 +99,7 @@ export const SignUpPage: React.FC = () => {
             Please check your email to confirm your account.
           </p>
           <p className="text-sm text-gray-500">
-            Redirecting to login page...
+            Redirecting...
           </p>
         </div>
       </Card>
@@ -155,7 +165,7 @@ export const SignUpPage: React.FC = () => {
           leftIcon={<Lock className="h-5 w-5" />}
           required
           autoComplete="new-password"
-          helperText="Must be at least 8 characters with uppercase, lowercase, and numbers"
+          helperText="Must be at least 6 characters"
         />
 
         <Input
@@ -169,23 +179,6 @@ export const SignUpPage: React.FC = () => {
           required
           autoComplete="new-password"
         />
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            I am a...
-          </label>
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className="input"
-            required
-          >
-            <option value="student">Student</option>
-            <option value="parent">Parent</option>
-            <option value="educator">Educator</option>
-          </select>
-        </div>
 
         <div className="text-sm text-gray-600">
           By creating an account, you agree to our{' '}
