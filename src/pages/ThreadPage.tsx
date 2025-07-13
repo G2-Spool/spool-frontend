@@ -9,7 +9,9 @@ import {
   BarChart3,
   Award,
   TrendingUp,
-  Sparkles
+  Sparkles,
+  Clock,
+  CheckCircle
 } from 'lucide-react';
 import { useThread } from '../hooks/useThread';
 import { ThreadSectionsSidebar } from '../components/organisms/ThreadSectionsSidebar';
@@ -32,6 +34,32 @@ export const ThreadPage: React.FC = () => {
   
   // Fetch thread data
   const { data: thread, isLoading, error } = useThread(threadId || '');
+  
+  // Get difficulty color to match sidebar
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty?.toLowerCase()) {
+      case 'beginner':
+        return 'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30';
+      case 'intermediate':
+        return 'text-yellow-700 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/30';
+      case 'advanced':
+        return 'text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-900/30';
+      default:
+        return 'text-gray-700 dark:text-gray-400 bg-gray-100 dark:bg-gray-900/30';
+    }
+  };
+
+  // Get relevance color based on score
+  const getRelevanceColor = (score: number) => {
+    const percentage = Math.round(score * 100);
+    if (percentage < 30) {
+      return 'text-red-600 dark:text-red-400';
+    } else if (percentage <= 70) {
+      return 'text-yellow-600 dark:text-yellow-400';
+    } else {
+      return 'text-green-600 dark:text-green-400';
+    }
+  };
   
 
   
@@ -75,7 +103,7 @@ export const ThreadPage: React.FC = () => {
 
   const getProgressPercentage = () => {
     if (!thread?.sections) return 0;
-    return (completedSections.size / thread.sections.length) * 100;
+    return 25; // Fixed at 25% for demo
   };
   
   if (isLoading) {
@@ -129,21 +157,53 @@ export const ThreadPage: React.FC = () => {
         <div className="w-full">
           {/* Header */}
           <div className="mb-8 px-8 pt-8">
-            <Button
-              variant="ghost"
-              size="md"
-              onClick={() => navigate('/threads')}
-              className="mb-4 rounded-lg px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-2 -ml-2"
-            >
-              <ArrowLeft className="w-8 h-5" />
-            </Button>
-            
-            <h1 className="text-4xl font-bold text-obsidian dark:text-gray-100 mb-6 text-center">
-              Learning Thread
-            </h1>
+            {/* Concept Title and Metadata */}
+            {currentSection && (
+              <Card className="p-6 bg-gray-50 dark:bg-gray-800/80 mb-6">
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="md"
+                    onClick={() => navigate('/threads')}
+                    className="absolute left-0 top-0 rounded-lg px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-2"
+                  >
+                    <ArrowLeft className="w-8 h-5" />
+                  </Button>
+                </div>
+                <div className="text-center mb-4">
+                  <div className="mb-2">
+                    <h1 className="text-4xl font-bold text-obsidian dark:text-gray-100">
+                      {currentSection.title}
+                    </h1>
+                  </div>
+                  <div className="flex items-center justify-center gap-4 text-base text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-1">
+                      <TrendingUp className={cn("h-4 w-4", getRelevanceColor(currentSection.relevanceScore))} />
+                      <span className={getRelevanceColor(currentSection.relevanceScore)}>
+                        {Math.round(currentSection.relevanceScore * 100)}% relevant
+                      </span>
+                    </div>
+                    {currentSection.estimatedMinutes && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{currentSection.estimatedMinutes} min</span>
+                      </div>
+                    )}
+                    {currentSection.difficulty && (
+                      <span className={cn(
+                        "text-sm font-medium px-2 py-0.5 rounded-full",
+                        getDifficultyColor(currentSection.difficulty)
+                      )}>
+                        {currentSection.difficulty}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            )}
 
             {/* Enhanced Progress Section */}
-            <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <div className="mb-6 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
@@ -173,11 +233,9 @@ export const ThreadPage: React.FC = () => {
               <div className="relative">
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
                   <div 
-                    className="bg-gradient-to-r from-teal-500 via-blue-500 to-purple-500 h-3 rounded-full transition-all duration-700 ease-out relative"
+                    className="bg-gradient-to-r from-teal-500 via-blue-500 to-purple-500 h-3 rounded-full transition-all duration-700 ease-out"
                     style={{ width: `${getProgressPercentage()}%` }}
                   >
-                    {/* Animated shimmer effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
                   </div>
                 </div>
                 
@@ -261,7 +319,7 @@ export const ThreadPage: React.FC = () => {
                     />
                   </div>
                 </div>
-            </div>
+              </div>
             </div>
           )}
         </div>
