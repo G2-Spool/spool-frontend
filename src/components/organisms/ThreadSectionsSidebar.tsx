@@ -3,7 +3,7 @@ import { Card } from '../atoms/Card';
 import { 
   ChevronRight, 
   ChevronDown,
-  Target,
+  TrendingUp,
   Clock,
   BookOpen
 } from 'lucide-react';
@@ -112,7 +112,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                       "flex items-center gap-1 px-2 py-0.5 rounded",
                       getRelevanceColor(section.relevanceScore)
                     )}>
-                      <Target className="h-3 w-3" />
+                      <TrendingUp className="h-3 w-3" />
                       <span>{Math.round(section.relevanceScore * 100)}%</span>
                     </div>
                     

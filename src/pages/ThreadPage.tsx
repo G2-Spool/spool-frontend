@@ -11,11 +11,11 @@ import {
   ChevronRight,
   MessageSquare,
   Lightbulb,
-  Target,
+  TrendingUp,
   Sparkles,
   PlayCircle,
   CheckCircle,
-  TrendingUp,
+  BarChart3,
   Zap,
   Award
 } from 'lucide-react';
@@ -48,13 +48,13 @@ export const ThreadPage: React.FC = () => {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty?.toLowerCase()) {
       case 'beginner':
-        return 'text-green-600 dark:text-green-400';
+        return 'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30';
       case 'intermediate':
-        return 'text-yellow-600 dark:text-yellow-400';
+        return 'text-yellow-700 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/30';
       case 'advanced':
-        return 'text-red-600 dark:text-red-400';
+        return 'text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-900/30';
       default:
-        return 'text-gray-600 dark:text-gray-400';
+        return 'text-gray-700 dark:text-gray-400 bg-gray-100 dark:bg-gray-900/30';
     }
   };
   
@@ -164,9 +164,9 @@ export const ThreadPage: React.FC = () => {
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto p-8 rounded-lg">
+        <div className="w-full">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-8 px-8 pt-8">
             <Button
               variant="ghost"
               size="md"
@@ -185,7 +185,7 @@ export const ThreadPage: React.FC = () => {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
-                    <Target className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                    <BarChart3 className="h-5 w-5 text-teal-600 dark:text-teal-400" />
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Learning Progress</h3>
@@ -264,7 +264,7 @@ export const ThreadPage: React.FC = () => {
             {/* Analysis Summary */}
             <Card className="bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 p-4 mb-6">
               <div className="flex items-start gap-3">
-                <Brain className="h-5 w-5 text-teal-600 dark:text-teal-400 mt-1" />
+                <Brain className="h-8 w-8 text-teal-600 dark:text-teal-400 mt-1" />
                 <div>
                   <h3 className="text-lg font-semibold text-teal-900 dark:text-teal-200 mb-1">Your Learning Focus</h3>
                   <p className="text-teal-800 dark:text-teal-300 text-base">{thread.analysis.summary}</p>
@@ -291,7 +291,7 @@ export const ThreadPage: React.FC = () => {
           
           {/* Selected Section Content or Exercise */}
           {currentSection && (
-            <div className="space-y-6">
+            <div className="space-y-6 px-8 pb-8">
               {showExercise && currentSectionStatus === 'exercising' ? (
                 <TwoStageExercise
                   conceptId={currentSection.id}
@@ -318,7 +318,7 @@ export const ThreadPage: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-4 text-base text-gray-600">
                           <div className="flex items-center gap-1">
-                            <Target className="h-4 w-4" />
+                            <TrendingUp className="h-4 w-4" />
                             <span>{Math.round(currentSection.relevanceScore * 100)}% relevant</span>
                           </div>
                           {currentSection.estimatedMinutes && (
@@ -329,7 +329,7 @@ export const ThreadPage: React.FC = () => {
                           )}
                           {currentSection.difficulty && (
                             <span className={cn(
-                              "text-sm font-medium px-2 py-1 rounded-full",
+                              "text-sm font-medium px-2 py-0.5 rounded-full",
                               getDifficultyColor(currentSection.difficulty)
                             )}>
                               {currentSection.difficulty}
