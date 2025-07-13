@@ -13,7 +13,6 @@
  * - Back navigation
  */
 
-import React, { useState, useEffect } from 'react'
 import { Card } from '@/components/atoms/Card'
 import { Button } from '@/components/atoms/Button'
 import { ConceptSidebar } from '@/components/molecules/ConceptSidebar'
@@ -21,6 +20,7 @@ import { ConceptPresentation } from '@/components/learning/ConceptPresentation'
 import { useUnifiedNavigation } from '@/hooks/useUnifiedNavigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { ChevronLeft } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 interface ConceptItem {
   id: string
@@ -88,15 +88,14 @@ export function LearningPage({
   conceptId = 'solving-linear-equations', 
   conceptTitle, 
   topicId = 'college-algebra', 
-  onBack, 
-  className 
+  onBack 
 }: LearningPageProps) {
   const [currentConceptId, setCurrentConceptId] = useState(conceptId)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [loading] = useState(false)
+  const [error] = useState<string | null>(null)
   const [startTime, setStartTime] = useState<number>(Date.now())
   
-  const { user } = useAuth()
+  useAuth()
   const { navigateToUrl } = useUnifiedNavigation()
 
   // Update current concept when prop changes

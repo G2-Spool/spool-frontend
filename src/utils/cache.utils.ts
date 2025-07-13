@@ -47,7 +47,7 @@ export const optimisticUpdates = {
       return {
         ...oldData,
         enrolled: true,
-        students: (oldData.students || 0) + 1,
+        students: (oldData.students && typeof oldData.students === 'number' ? oldData.students : 0) + 1,
       };
     });
 
@@ -60,7 +60,7 @@ export const optimisticUpdates = {
         ...oldData,
         data: oldData.data.map((course: Record<string, any>) =>
           course.id === courseId
-            ? { ...course, enrolled: true, students: (course.students || 0) + 1 }
+            ? { ...course, enrolled: true, students: (course.students && typeof course.students === 'number' ? course.students : 0) + 1 }
             : course
         ),
       };
@@ -74,21 +74,23 @@ export const optimisticUpdates = {
     progress: Record<string, unknown>
   ) => {
     queryClient.setQueryData(cacheKeys.learningPaths.detail(pathId), (old: unknown) => {
-      if (!old) return old;
+      if (!old || typeof old !== 'object') return old;
       
       // Deep clone and update the specific concept progress
       const updated = JSON.parse(JSON.stringify(old));
       
       // Find and update the concept
-      updated.sections?.forEach((section: Record<string, any>) => {
-        if (Array.isArray(section.concepts)) {
-          section.concepts.forEach((concept: Record<string, any>) => {
-            if (concept.id === conceptId) {
-              concept.progress = { ...(concept.progress || {}), ...progress };
-            }
-          });
-        }
-      });
+      if (updated.sections && Array.isArray(updated.sections)) {
+        updated.sections.forEach((section: Record<string, any>) => {
+          if (Array.isArray(section.concepts)) {
+            section.concepts.forEach((concept: Record<string, any>) => {
+              if (concept.id === conceptId) {
+                concept.progress = { ...(concept.progress || {}), ...progress };
+              }
+            });
+          }
+        });
+      }
       
       return updated;
     });

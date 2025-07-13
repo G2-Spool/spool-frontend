@@ -14,7 +14,6 @@
  * - Test interface for debugging
  */
 
-import React, { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/atoms/Tabs'
 import { PageHeader } from '@/components/templates/PageHeader'
 import { StatsGrid } from '@/components/organisms/StatsGrid'
@@ -29,6 +28,7 @@ import { useUnifiedNavigation } from '@/hooks/useUnifiedNavigation'
 import { useStudyStreak } from '@/hooks/useStudyStreak'
 import { useAchievements } from '@/hooks/useAchievements'
 import { useAuth } from '@/contexts/AuthContext'
+import { useState, useEffect } from 'react'
 
 interface UserProfile {
   interests: string[]
@@ -81,7 +81,7 @@ const mockClasses = [
 export function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile>(defaultProfile)
   const { user } = useAuth()
-  const { navigateToTab, navigateToUrl } = useUnifiedNavigation()
+  const { navigateToUrl } = useUnifiedNavigation()
   const { studyStreak } = useStudyStreak()
   const { getRecentAchievements, checkAchievements } = useAchievements()
 

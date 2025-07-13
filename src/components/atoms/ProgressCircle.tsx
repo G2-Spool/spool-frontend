@@ -5,7 +5,6 @@
  * Used in topic cards to show completion percentage and allow quick access to learning.
  */
 
-import React from 'react'
 import { Play } from 'lucide-react'
 import { Button } from './Button'
 

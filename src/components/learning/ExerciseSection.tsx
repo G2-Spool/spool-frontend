@@ -14,7 +14,6 @@
  * is migrated to spool-frontend.
  */
 
-import React from 'react'
 import { cn } from '@/utils/cn'
 import { ChatExerciseInterface } from './ChatExerciseInterface'
 

@@ -401,15 +401,15 @@ interface ErrorBoundary {
 }
 ```
 
-## 6. Migration Strategy
+## 6. Implementation Strategy
 
 ### Phase 1: Infrastructure Setup
 1. Create Pinecone index with appropriate dimensions
 2. Set up embedding service with OpenAI
 3. Implement PineconeService with basic CRUD
-4. Create initial data migration scripts
+4. Create data processing scripts
 
-### Phase 2: Data Migration
+### Phase 2: Data Processing
 1. Extract mock data from components
 2. Generate embeddings for all content
 3. Batch upload to Pinecone with metadata
@@ -443,7 +443,7 @@ interface ErrorBoundary {
 
 ## 8. Security Considerations
 
-- **API Key Management**: Store Pinecone API keys in AWS SSM
+- **API Key Management**: Store Pinecone API keys in Supabase environment variables
 - **Rate Limiting**: Implement per-user rate limits
 - **Data Privacy**: Ensure no PII in vector embeddings
 - **Access Control**: Validate user permissions for content access

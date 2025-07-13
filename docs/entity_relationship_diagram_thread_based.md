@@ -50,7 +50,7 @@ graph TB
     style K fill:#ff9,stroke:#333,stroke-width:2px
 ```
 
-## Thread Management Tables (AWS RDS PostgreSQL)
+## Thread Management Tables (Supabase PostgreSQL)
 
 ### 1. **learning_threads**
 Core Thread instances with learning goals and metadata.

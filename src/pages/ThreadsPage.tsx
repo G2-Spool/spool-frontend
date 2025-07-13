@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '../components/atoms/Card';
-import { ProgressBar } from '../components/molecules/ProgressBar';
 import { Button } from '../components/atoms/Button';
 import { 
-  Clock, 
-  Trophy, 
-  ArrowRight,
   Search,
   Plus,
   MessageSquare,
@@ -45,7 +41,7 @@ export const ThreadsPage: React.FC = () => {
   const navigate = useNavigate();
   
   // Debounce search query
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  useDebounce(searchQuery, 300);
   
   // Fetch user threads
   const { 
@@ -131,16 +127,16 @@ export const ThreadsPage: React.FC = () => {
           id: "biology",
           title: "Biology",
           description: "Study living organisms and their interactions with the environment",
-          sections: 10,
-          concepts: 45,
+          sections: 47,
+          concepts: 208,
           progress: 0
         },
         {
           id: "anatomy",
           title: "Anatomy and Physiology",
           description: "Learn about the structure and organization of the human body",
-          sections: 12,
-          concepts: 58,
+          sections: 28,
+          concepts: 169,
           progress: 0
         }
       ]
@@ -152,12 +148,6 @@ export const ThreadsPage: React.FC = () => {
     console.log('Topic clicked:', topicId);
     // Navigate to topic overview
     navigate(`/topic/${topicId}`);
-  };
-
-  const handlePlayClick = (topicId: string) => {
-    console.log('Play clicked:', topicId);
-    // Navigate to learning page for the topic
-    navigate(`/learn/${topicId}`);
   };
 
   return (
@@ -278,7 +268,6 @@ export const ThreadsPage: React.FC = () => {
               topics={subject.topics}
               color={subject.color}
               onTopicClick={handleTopicClick}
-              onPlayClick={handlePlayClick}
             />
           ))}
         </div>

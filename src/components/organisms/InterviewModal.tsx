@@ -37,9 +37,6 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [, ] = useState(false);
-  const [, ] = useState(false);
-  const [, ] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Initialize the interview when modal opens

@@ -23,7 +23,7 @@ export function useInterests(studentId: string | undefined) {
         .single();
 
       if (error) throw error;
-      return (data?.detailed_interests || []) as InterestWithDetails[];
+      return ((data?.detailed_interests as unknown) || []) as InterestWithDetails[];
     },
     enabled: !!studentId,
   });
@@ -35,7 +35,7 @@ export function useInterests(studentId: string | undefined) {
       const { error } = await supabase
         .from('student_profiles')
         .update({ 
-          detailed_interests: newInterests,
+          detailed_interests: JSON.parse(JSON.stringify(newInterests)),
           updated_at: new Date().toISOString()
         })
         .eq('id', studentId);
