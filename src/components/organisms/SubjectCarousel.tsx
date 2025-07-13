@@ -37,12 +37,15 @@ export function SubjectCarousel({
 }: SubjectCarouselProps) {
   const [scrollPosition, setScrollPosition] = useState(0)
   const cardWidth = 336 // 320px + 16px gap
-  const maxScroll = Math.max(0, topics.length * cardWidth - 4 * cardWidth)
+  const cardsToShow = 3
+  const maxScroll = Math.max(0, topics.length * cardWidth - cardsToShow * cardWidth)
 
   // Get appropriate icon for each subject
   const getSubjectIcon = (subjectTitle: string) => {
     switch (subjectTitle.toLowerCase()) {
       case 'mathematics':
+        return Calculator
+      case 'stem':
         return Calculator
       case 'humanities':
         return BookOpen
@@ -56,12 +59,12 @@ export function SubjectCarousel({
   const SubjectIcon = getSubjectIcon(title)
 
   const scrollLeft = () => {
-    const newPosition = Math.max(0, scrollPosition - cardWidth * 2)
+    const newPosition = Math.max(0, scrollPosition - cardWidth)
     setScrollPosition(newPosition)
   }
 
   const scrollRight = () => {
-    const newPosition = Math.min(maxScroll, scrollPosition + cardWidth * 2)
+    const newPosition = Math.min(maxScroll, scrollPosition + cardWidth)
     setScrollPosition(newPosition)
   }
 
@@ -74,8 +77,13 @@ export function SubjectCarousel({
         <div className="flex items-center gap-3">
           <SubjectIcon className="h-8 w-8 text-foreground" />
           <h2 className="text-3xl font-bold text-foreground">{title}</h2>
+          {topics.length > cardsToShow && (
+            <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">
+              {topics.length} subjects
+            </span>
+          )}
         </div>
-        {topics.length > 4 && (
+        {topics.length > cardsToShow && (
           <div className="flex space-x-2">
             <Button
               variant="outline"
@@ -99,7 +107,12 @@ export function SubjectCarousel({
         )}
       </div>
 
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden" style={{ width: `${320 * cardsToShow + 16 * (cardsToShow - 1) + (topics.length > cardsToShow ? 60 : 0)}px` }}>
+        {/* Gradient fade indicator when there are more cards */}
+        {topics.length > cardsToShow && scrollPosition < maxScroll && (
+          <div className="absolute top-0 right-0 w-20 h-full bg-gradient-to-r from-transparent to-gray-50 dark:to-gray-900 z-10 pointer-events-none" />
+        )}
+        
         <div
           className="flex space-x-4 transition-transform duration-300 ease-in-out"
           style={{ transform: `translateX(-${scrollPosition}px)` }}
