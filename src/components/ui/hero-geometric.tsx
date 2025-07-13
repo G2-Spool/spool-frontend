@@ -265,7 +265,12 @@ export default function HeroGeometric({ title1, title2, onGetStarted }: HeroGeom
               <span className="block text-obsidian dark:text-gray-100">
                 {title1}
               </span>
-              <span className="block text-gradient bg-gradient-to-r from-teal-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              <span 
+                className="block bg-clip-text text-transparent"
+                style={{
+                  backgroundImage: 'radial-gradient(ellipse at top center, #e6fffa 0%, #4fd1c5 50%, #319795 75%, #2c7a7b 100%)'
+                }}
+              >
                 {title2}
               </span>
             </h1>
@@ -280,7 +285,8 @@ export default function HeroGeometric({ title1, title2, onGetStarted }: HeroGeom
             <Button 
               size="lg" 
               onClick={onGetStarted}
-              className="text-lg px-12 py-6 group hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700"
+              className="text-xl px-10 py-5 group hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 !rounded-lg"
+              style={{ borderRadius: '0.625rem' }}
             >
               Start Your Journey
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -289,7 +295,8 @@ export default function HeroGeometric({ title1, title2, onGetStarted }: HeroGeom
             <Button 
               variant="outline" 
               size="lg" 
-              className="text-lg px-12 py-6 hover:shadow-lg transition-all duration-300 border-2 border-gray-300 dark:border-gray-600 hover:border-teal-500 dark:hover:border-teal-400"
+              className="text-lg px-12 py-5 hover:shadow-lg transition-all duration-300 border-2 border-gray-300 dark:border-gray-600 hover:border-teal-500 dark:hover:border-teal-400 !rounded-lg"
+              style={{ borderRadius: '0.625rem' }}
             >
               Watch Demo
             </Button>

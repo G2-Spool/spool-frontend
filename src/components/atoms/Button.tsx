@@ -58,11 +58,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             {children && <span className="ml-2">{children}</span>}
           </>
         ) : (
-          <>
-            {leftIcon && <span className="mr-2">{leftIcon}</span>}
-            {children}
-            {rightIcon && <span className="ml-2">{rightIcon}</span>}
-          </>
+          <div className="flex items-center justify-center gap-2">
+            {leftIcon && <span className="flex items-center">{leftIcon}</span>}
+            {children && <span className="flex items-center">{children}</span>}
+            {rightIcon && <span className="flex items-center">{rightIcon}</span>}
+          </div>
         )}
       </button>
     );

@@ -6,7 +6,6 @@ import { Badge } from '../components/atoms/Badge';
 import HeroGeometric from '../components/ui/hero-geometric';
 import { 
   ArrowRight, 
-  BookOpen, 
   Zap,
   ChevronDown,
   Heart,
@@ -65,7 +64,11 @@ export const LandingPage: React.FC = () => {
       <header className="absolute top-0 left-0 right-0 z-20 p-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4 cursor-pointer" onClick={scrollToTop}>
-            <BookOpen className="h-12 w-12 text-teal-500" />
+            <img 
+              src="/spool-logo.png" 
+              alt="Spool Logo" 
+              className="h-12 w-12 object-contain"
+            />
             <span className="text-4xl font-bold text-obsidian dark:text-gray-100">Spool</span>
           </div>
           
@@ -267,6 +270,8 @@ export const LandingPage: React.FC = () => {
               variant="primary"
               size="lg" 
               rightIcon={<ArrowRight className="w-5 h-5" />}
+              className="!rounded-lg"
+              style={{ borderRadius: '0.5rem' }}
             >
               Start Your Journey
             </Button>
@@ -288,7 +293,11 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <BookOpen className="h-8 w-8 text-teal-400" />
+              <img 
+                src="/spool-logo.png" 
+                alt="Spool Logo" 
+                className="h-8 w-8 object-contain"
+              />
               <span className="text-2xl font-bold">Spool</span>
             </div>
             <p className="text-gray-400 text-sm">
