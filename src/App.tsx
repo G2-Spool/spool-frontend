@@ -16,6 +16,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { ThreadsPage } from './pages/ThreadsPage';
 import { ProgressPage } from './pages/ProgressPage';
 import { ThreadPage } from './pages/ThreadPage';
+import { TopicPage } from './pages/TopicPage';
 
 // Layouts
 import { AuthLayout } from './components/layouts/AuthLayout';
@@ -62,6 +63,7 @@ function App() {
                 <Route path="/threads" element={<ThreadsPage />} />
                 <Route path="/progress" element={<ProgressPage />} />
                 <Route path="/learning-path/:id" element={<LearningPathDetail />} />
+                <Route path="/topic/:topicId" element={<TopicPage />} />
                 <Route path="/learn/:conceptId" element={<ConceptPage />} />
                 <Route path="/exercise/:exerciseId" element={<ExercisePage />} />
                 <Route path="/thread/:threadId" element={<ThreadPage />} />

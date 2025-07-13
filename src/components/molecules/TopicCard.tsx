@@ -6,7 +6,6 @@
  */
 
 import React from 'react'
-import { ProgressCircle } from '../atoms/ProgressCircle'
 import { cn } from '../../utils/cn'
 
 interface TopicCardProps {
@@ -17,7 +16,6 @@ interface TopicCardProps {
   progress: number
   color: string
   onCardClick?: () => void
-  onPlayClick?: () => void
   className?: string
 }
 
@@ -29,21 +27,10 @@ export function TopicCard({
   progress,
   color,
   onCardClick,
-  onPlayClick,
   className
 }: TopicCardProps) {
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Check if the click is on the play button or its children
-    const target = e.target as HTMLElement
-    if (target.closest('[data-play-button]')) {
-      return // Don't handle card click if play button was clicked
-    }
-    
+  const handleCardClick = () => {
     onCardClick?.()
-  }
-
-  const handlePlayClick = () => {
-    onPlayClick?.()
   }
 
   return (
@@ -66,12 +53,6 @@ export function TopicCard({
           </div>
         </div>
         <div className="p-5 space-y-3 relative bg-card">
-          <div 
-            className="absolute left-[calc(85%-4px)] top-0 z-50 -translate-x-1/2 -translate-y-1/2 pointer-events-auto" 
-            data-play-button
-          >
-            <ProgressCircle progress={progress} onClick={handlePlayClick} size={60} />
-          </div>
           <div className="flex justify-between items-center text-base pt-2">
             <div className="text-center">
               <div className="font-bold text-foreground text-lg">{sections}</div>
