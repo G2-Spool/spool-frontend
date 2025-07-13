@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 interface InterestWithDescription {
   interest: string;
   description: string;
+  details?: string;
+  discovered_at?: string;
 }
 
 export function useInterests(userId: string | undefined) {
@@ -25,7 +27,15 @@ export function useInterests(userId: string | undefined) {
       if (error) throw error;
       
       // Return interests in the format expected by components
-      return (data?.interests as unknown as InterestWithDescription[]) || [];
+      const interests = (data?.interests as unknown as InterestWithDescription[]) || [];
+      
+      // Transform to match InterestWithDetails if needed
+      return interests.map(interest => ({
+        interest: interest.interest,
+        description: interest.description || interest.details || '',
+        details: interest.details || interest.description || '',
+        discovered_at: interest.discovered_at || new Date().toISOString()
+      }));
     },
     enabled: !!userId,
   });

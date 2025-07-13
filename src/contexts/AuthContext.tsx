@@ -79,26 +79,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
 
-    try {
-      // Fetch user data from the users table
-      const { data: userData, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
+    // Create fallback user data first
+    const fallbackUserData: User = {
+      id: session.user.id,
+      email: session.user.email || '',
+      role: 'student',
+      isActive: true,
+      emailVerified: session.user.email_confirmed_at !== null,
+      createdAt: new Date(session.user.created_at || Date.now()),
+      updatedAt: new Date(),
+    };
 
-      if (error) {
-        console.error('Error fetching user from users table:', error);
-        // Fall back to auth session data if users table fetch fails
-        const fallbackUserData: User = {
-          id: session.user.id,
-          email: session.user.email || '',
-          role: 'student',
-          isActive: true,
-          emailVerified: session.user.email_confirmed_at !== null,
-          createdAt: new Date(session.user.created_at || Date.now()),
-          updatedAt: new Date(),
-        };
+    try {
+      // Add timeout to database query
+      const fetchUserWithTimeout = Promise.race([
+        supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Database query timeout')), 3000)
+        )
+      ]);
+
+      const { data: userData, error } = await fetchUserWithTimeout as any;
+
+      if (error || !userData) {
+        console.warn('Database query failed, using fallback data:', error?.message);
         setUser(fallbackUserData);
       } else {
         // Map database user to our User type
@@ -114,17 +122,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(user);
       }
     } catch (error) {
-      console.error('Error processing session:', error);
-      // Fall back to auth session data
-      const fallbackUserData: User = {
-        id: session.user.id,
-        email: session.user.email || '',
-        role: 'student',
-        isActive: true,
-        emailVerified: session.user.email_confirmed_at !== null,
-        createdAt: new Date(session.user.created_at || Date.now()),
-        updatedAt: new Date(),
-      };
+      console.warn('Error processing session, using fallback data:', error);
       setUser(fallbackUserData);
     }
 
@@ -151,7 +149,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (mounted && isLoading) {
             setIsLoading(false);
           }
-        }, 5000); // 5 second timeout
+        }, 10000); // Increased to 10 seconds for better reliability
         
         // Get the initial session
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -164,33 +162,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return;
         }
 
-        // If we have a session, try to refresh it to ensure it's valid
-        if (session) {
-          console.log('Session found, refreshing...');
-          const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
-          
-          if (refreshError) {
-            console.error('Error refreshing session:', refreshError);
-            // If refresh fails, the session is invalid - clear it
-            if (mounted) {
-              processSession(null);
-              setIsLoading(false);
-            }
-            return;
-          }
-          
-          if (mounted) {
-            await processSession(refreshedSession || session);
-            setIsLoading(false);
-            console.log('Auth initialization complete');
-          }
-        } else {
-          // No session found
-          console.log('No session found');
-          if (mounted) {
-            await processSession(null);
-            setIsLoading(false);
-          }
+        // Process the session (removed unnecessary refresh)
+        if (mounted) {
+          await processSession(session);
+          setIsLoading(false);
+          console.log('Auth initialization complete');
         }
       } catch (error) {
         console.error('Failed to initialize auth:', error);
@@ -216,7 +192,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Process the new session
       await processSession(session);
       
-      // Don't change loading state here - it's already handled by initializeAuth
+      // Loading state is handled by the auth state change itself
+      if (_event === 'SIGNED_IN' || _event === 'SIGNED_OUT') {
+        setIsLoading(false);
+      }
     });
 
     return () => {

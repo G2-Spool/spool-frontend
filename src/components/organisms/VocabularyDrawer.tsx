@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
-import { Button } from '../atoms/Button';
 import { cn } from '../../utils/cn';
 
 interface VocabularyTerm {
@@ -44,9 +42,6 @@ export const VocabularyDrawer: React.FC<VocabularyDrawerProps> = ({
       const termElement = termRefs.current[latestTerm];
       if (termElement && containerRef.current) {
         const container = containerRef.current;
-        const termRect = termElement.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        
         // Calculate the scroll position to center the term within the container
         const termTop = termElement.offsetTop;
         const containerHeight = container.clientHeight;
