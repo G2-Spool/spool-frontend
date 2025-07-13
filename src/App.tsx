@@ -64,6 +64,7 @@ function App() {
                 <Route path="/progress" element={<ProgressPage />} />
                 <Route path="/learning-path/:id" element={<LearningPathDetail />} />
                 <Route path="/topic/:topicId" element={<TopicPage />} />
+                <Route path="/topic/:topicId/learn/:conceptId" element={<ConceptPage />} />
                 <Route path="/learn/:conceptId" element={<ConceptPage />} />
                 <Route path="/exercise/:exerciseId" element={<ExercisePage />} />
                 <Route path="/thread/:threadId" element={<ThreadPage />} />

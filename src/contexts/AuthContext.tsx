@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { signIn, signOut, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
-import type { SignInOutput } from 'aws-amplify/auth';
+import { supabase } from '../config/supabase';
+import { AuthError } from '@supabase/supabase-js';
 import type { User, StudentProfile } from '../types';
 
 interface AuthContextType {
@@ -73,17 +73,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const fetchUserData = async () => {
     try {
-      const cognitoUser = await getCurrentUser();
-      const attributes = await fetchUserAttributes();
+      const { data: { user: supabaseUser }, error } = await supabase.auth.getUser();
       
-      // Map Cognito attributes to our User type
+      if (error || !supabaseUser) {
+        setUser(null);
+        setStudentProfile(null);
+        return;
+      }
+      
+      // Map Supabase user to our User type
       const userData: User = {
-        id: cognitoUser.userId,
-        email: attributes.email || '',
+        id: supabaseUser.id,
+        email: supabaseUser.email || '',
         role: 'student', // Always student for individual learners
         isActive: true,
-        emailVerified: attributes.email_verified === 'true',
-        createdAt: new Date(),
+        emailVerified: supabaseUser.email_confirmed_at !== null,
+        createdAt: new Date(supabaseUser.created_at || Date.now()),
         updatedAt: new Date(),
       };
       
@@ -104,60 +109,51 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
+    // Check for existing session
     fetchUserData();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        await fetchUserData();
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setStudentProfile(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
       
-      // First, check if there's already a signed-in user and sign them out
-      try {
-        const currentUser = await getCurrentUser();
-        if (currentUser) {
-          console.log('Signing out existing user...');
-          await signOut({ global: true });
-          // Add a small delay to ensure the sign out completes
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-      } catch (err) {
-        // No current user, which is fine
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) {
+        throw error;
       }
       
-      let signInResult: SignInOutput;
-      try {
-        signInResult = await signIn({ username: email, password });
-      } catch (signInError: any) {
-        // If we get the "already signed in" error, force sign out and retry
-        if (signInError.message?.includes('already a signed in user')) {
-          console.log('Forcing sign out due to existing session...');
-          await signOut({ global: true });
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          signInResult = await signIn({ username: email, password });
-        } else {
-          throw signInError;
-        }
-      }
-      
-      if (signInResult.isSignedIn) {
+      if (data.user) {
         await fetchUserData();
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      if (error.name === 'UserNotFoundException' || error.name === 'NotAuthorizedException') {
-        throw new Error('Invalid email or password');
-      } else if (error.name === 'UserNotConfirmedException') {
-        throw new Error('Please confirm your email address');
-      } else if (error.message?.includes('already a signed in user')) {
-        // If we still get this error, force sign out and retry
-        try {
-          await signOut({ global: true });
-          const { isSignedIn } = await signIn({ username: email, password });
-          if (isSignedIn) {
-            await fetchUserData();
-          }
-        } catch (retryError: any) {
-          throw new Error(retryError.message || 'An error occurred during login');
+      
+      // Handle Supabase-specific errors
+      if (error instanceof AuthError) {
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('Invalid email or password');
+        } else if (error.message.includes('Email not confirmed')) {
+          throw new Error('Please confirm your email address');
+        } else {
+          throw new Error(error.message || 'An error occurred during login');
         }
       } else {
         throw new Error(error.message || 'An error occurred during login');
@@ -170,7 +166,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     try {
       setIsLoading(true);
-      await signOut({ global: true });
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
+      }
+      
       setUser(null);
       setStudentProfile(null);
     } catch (error) {
