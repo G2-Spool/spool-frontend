@@ -10,7 +10,7 @@ import { clearExistingSession } from '../utils/auth';
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user, isLoading: authLoading } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,12 +19,19 @@ export const LoginPage: React.FC = () => {
 
   const from = (location.state as any)?.from?.pathname || '/dashboard';
 
+  // Debug logging
+  useEffect(() => {
+    console.log('LoginPage render - isAuthenticated:', isAuthenticated, 'user:', user?.id, 'authLoading:', authLoading);
+  }, [isAuthenticated, user, authLoading]);
+
   // If already authenticated, redirect
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user) {
+      console.log('User authenticated, redirecting to:', from);
+      setIsLoading(false); // Reset loading state when authenticated
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, navigate, from]);
+  }, [isAuthenticated, user, navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +40,9 @@ export const LoginPage: React.FC = () => {
 
     try {
       await login(email, password);
+      console.log('Login successful, waiting for auth state update...');
       // Don't navigate here - let the useEffect handle it when isAuthenticated updates
+      // Also don't reset isLoading here - let useEffect handle it
     } catch (err: any) {
       console.error('Login error in form:', err);
       setError(err.message || 'Invalid email or password');
@@ -133,6 +142,22 @@ export const LoginPage: React.FC = () => {
             className="w-full"
           >
             Clear Existing Session
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              console.log('Current auth state:', {
+                isAuthenticated,
+                user: user ? { id: user.id, email: user.email } : null,
+                authLoading,
+                isLoading
+              });
+              alert(`Auth state:\nisAuthenticated: ${isAuthenticated}\nUser: ${user?.email || 'null'}\nAuth loading: ${authLoading}\nForm loading: ${isLoading}`);
+            }}
+            className="w-full mt-2"
+          >
+            Check Auth State
           </Button>
         </div>
       )}

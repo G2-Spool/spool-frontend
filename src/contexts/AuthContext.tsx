@@ -85,10 +85,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('Fetching user data...');
       const { data: { user: supabaseUser }, error } = await supabase.auth.getUser();
       
+      console.log('getUser response:', { user: supabaseUser?.id, error });
+      
       if (error) {
         console.error('Error getting user:', error);
         setUser(null);
         setStudentProfile(null);
+        setIsFetching(false);
         return;
       }
       
@@ -96,6 +99,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('No user found');
         setUser(null);
         setStudentProfile(null);
+        setIsFetching(false);
         return;
       }
       
@@ -112,19 +116,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         updatedAt: new Date(),
       };
       
+      console.log('Setting user data:', userData);
       setUser(userData);
       
       // Fetch student profile
       // In production, this would be an API call
       // const profile = await fetchStudentProfile(userData.id);
       // For now, use mock data
+      console.log('Setting mock student profile');
       setStudentProfile(mockStudentProfile);
       console.log('User and profile set successfully');
+      setIsFetching(false);
     } catch (error) {
       console.error('Error in fetchUserData:', error);
       setUser(null);
       setStudentProfile(null);
-    } finally {
       setIsFetching(false);
     }
   };
