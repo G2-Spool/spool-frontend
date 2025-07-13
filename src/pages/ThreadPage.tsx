@@ -390,7 +390,7 @@ export const ThreadPage: React.FC = () => {
                         <div className="space-y-0">
                           {['Machine Learning Fundamentals', 'Data Processing Techniques', 'Pattern Recognition', 'Algorithm Optimization'].map((conceptName, index) => (
                             <div key={index}>
-                              <div className="group flex items-center justify-between py-3 px-2 -mx-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 hover:shadow-sm hover:scale-[1.02] transition-all duration-200 rounded-lg">
+                              <div className="group flex items-center justify-between py-3 px-2 -mx-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 hover:shadow-sm hover:scale-[1.01] transition-all duration-200 rounded-lg">
                                 <div className="flex items-center gap-3">
                                   <BookOpen className="h-4 w-4 text-teal-600 dark:text-teal-400 transition-colors duration-200 group-hover:text-teal-700 dark:group-hover:text-teal-300" />
                                   <span className="text-gray-900 dark:text-gray-100 font-medium transition-colors duration-200">{conceptName}</span>
