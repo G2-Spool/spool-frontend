@@ -73,6 +73,23 @@ export const ThreadPage: React.FC = () => {
     }
   }, [thread, selectedSection]);
   
+  // Add thread-page class to body and root to prevent page-level scrolling
+  useEffect(() => {
+    document.body.classList.add('thread-page');
+    const root = document.getElementById('root');
+    if (root) {
+      root.style.height = '100vh';
+      root.style.overflow = 'hidden';
+    }
+    return () => {
+      document.body.classList.remove('thread-page');
+      if (root) {
+        root.style.height = '';
+        root.style.overflow = '';
+      }
+    };
+  }, []);
+  
   const toggleSectionExpanded = (sectionId: string) => {
     const newExpanded = new Set(expandedSections);
     if (newExpanded.has(sectionId)) {

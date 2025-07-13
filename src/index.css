@@ -96,6 +96,10 @@
     @apply m-0 min-h-screen bg-white text-gray-800 font-sans;
   }
   
+  body.thread-page {
+    @apply h-screen overflow-hidden;
+  }
+  
   .dark body {
     @apply bg-obsidian text-gray-100;
   }

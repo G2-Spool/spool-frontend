@@ -37,7 +37,12 @@ export const DashboardLayout: React.FC = () => {
   // const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-obsidian flex overflow-x-hidden">
+    <div className={cn(
+      "bg-gray-50 dark:bg-obsidian flex overflow-x-hidden",
+      location.pathname.includes('/thread/') 
+        ? "h-screen overflow-hidden" 
+        : "min-h-screen"
+    )}>
       {/* Sidebar Navigation */}
       <div className="hidden lg:block">
         <div className="fixed h-full">
