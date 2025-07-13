@@ -5,10 +5,11 @@
  * Shows course introduction, prerequisites, and section progression.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/atoms/Button';
 import { Card } from '../components/atoms/Card';
+import { ConceptList } from '../components/organisms/ConceptList';
 import { 
   ArrowLeft, 
   BookOpen, 
@@ -18,6 +19,15 @@ import {
   Users
 } from 'lucide-react';
 
+interface Concept {
+  id: string;
+  title: string;
+  description: string;
+  completed: boolean;
+  locked: boolean;
+  progress: number;
+}
+
 interface Section {
   id: string;
   title: string;
@@ -25,6 +35,8 @@ interface Section {
   completed: boolean;
   current?: boolean;
   icon?: React.ReactNode;
+  concepts?: Concept[];
+  content?: string;
 }
 
 interface TopicData {
@@ -65,14 +77,114 @@ const getTopicData = (topicId: string): TopicData => {
           title: 'Prerequisites',
           description: 'Fundamental algebraic concepts and skills',
           completed: true,
-          icon: <CheckCircle className="h-4 w-4" />
+          icon: <CheckCircle className="h-4 w-4" />,
+          concepts: [
+            {
+              id: 'real-numbers-algebra-essentials',
+              title: 'Real Numbers: Algebra Essentials',
+              description: 'Properties of real numbers, number systems, and algebraic operations',
+              completed: true,
+              locked: false,
+              progress: 100
+            },
+            {
+              id: 'exponents-scientific-notation',
+              title: 'Exponents and Scientific Notation',
+              description: 'Rules of exponents and scientific notation applications',
+              completed: true,
+              locked: false,
+              progress: 100
+            },
+            {
+              id: 'radicals-rational-exponents',
+              title: 'Radicals and Rational Exponents',
+              description: 'Working with radicals and rational exponents',
+              completed: true,
+              locked: false,
+              progress: 100
+            },
+            {
+              id: 'polynomials',
+              title: 'Polynomials',
+              description: 'Polynomial operations and properties',
+              completed: true,
+              locked: false,
+              progress: 100
+            },
+            {
+              id: 'factoring-polynomials',
+              title: 'Factoring Polynomials',
+              description: 'Techniques for factoring various polynomial expressions',
+              completed: true,
+              locked: false,
+              progress: 100
+            },
+            {
+              id: 'rational-expressions',
+              title: 'Rational Expressions',
+              description: 'Simplifying and operating with rational expressions',
+              completed: true,
+              locked: false,
+              progress: 100
+            }
+          ]
         },
         {
           id: 'equations-inequalities',
           title: 'Equations and Inequalities',
           description: 'Solving equations and inequalities in one variable',
           completed: false,
-          icon: <Circle className="h-4 w-4" />
+          icon: <Circle className="h-4 w-4" />,
+          concepts: [
+            {
+              id: 'linear-equations-one-variable',
+              title: 'Linear Equations in One Variable',
+              description: 'Solving basic linear equations step by step',
+              completed: false,
+              locked: false,
+              progress: 0
+            },
+            {
+              id: 'equations-with-fractions',
+              title: 'Equations with Fractions',
+              description: 'Solving equations containing fractional terms',
+              completed: false,
+              locked: true,
+              progress: 0
+            },
+            {
+              id: 'literal-equations',
+              title: 'Literal Equations and Formulas',
+              description: 'Solving equations for specified variables',
+              completed: false,
+              locked: true,
+              progress: 0
+            },
+            {
+              id: 'quadratic-equations',
+              title: 'Quadratic Equations',
+              description: 'Solving quadratic equations using various methods',
+              completed: false,
+              locked: true,
+              progress: 0
+            },
+            {
+              id: 'linear-inequalities',
+              title: 'Linear Inequalities',
+              description: 'Solving and graphing linear inequalities',
+              completed: false,
+              locked: true,
+              progress: 0
+            },
+            {
+              id: 'compound-inequalities',
+              title: 'Compound Inequalities',
+              description: 'Working with compound inequality statements',
+              completed: false,
+              locked: true,
+              progress: 0
+            }
+          ]
         },
         {
           id: 'functions',
@@ -283,7 +395,7 @@ export const TopicPage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedSection, setSelectedSection] = useState<string>('overview');
   
-  const topicData = getTopicData(topicId || 'college-algebra');
+  const topicData = useMemo(() => getTopicData(topicId || 'college-algebra'), [topicId]);
   const currentSection = topicData.sections.find(s => s.id === selectedSection);
 
   useEffect(() => {
@@ -292,7 +404,7 @@ export const TopicPage: React.FC = () => {
     if (currentSectionData) {
       setSelectedSection(currentSectionData.id);
     }
-  }, [topicData]);
+  }, [topicId, topicData]); // Only run when topicId changes (topicData is memoized)
 
   const handleBackToClasses = () => {
     navigate('/threads');
@@ -300,6 +412,12 @@ export const TopicPage: React.FC = () => {
 
   const handleStartLearning = () => {
     navigate(`/learn/${topicId}`);
+  };
+
+  const handleConceptClick = (conceptId: string) => {
+    console.log('Concept clicked:', conceptId);
+    // Navigate to concept learning page
+    navigate(`/topic/${topicId}/learn/${conceptId}`);
   };
 
   const getOverviewContent = () => {
@@ -485,44 +603,45 @@ Topics include the Renaissance, Age of Exploration, Scientific Revolution, Enlig
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                       Before starting this course, you should have a solid understanding of fundamental algebraic concepts and skills. This includes working with variables, solving basic equations, and understanding mathematical operations.
                     </p>
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      If you need to review these concepts, consider taking an Intermediate Algebra course or reviewing basic algebraic principles before proceeding.
-                    </p>
                   </div>
                   
-                  <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-800">
-                    <div className="flex items-center gap-2 mb-3">
-                      <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-                      <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">
-                        Prerequisites Completed
-                      </h3>
-                    </div>
-                    <p className="text-green-700 dark:text-green-300">
-                      You have successfully completed the prerequisite requirements for this course.
-                    </p>
-                  </div>
+                  {currentSection?.concepts && currentSection.concepts.length > 0 && (
+                    <ConceptList
+                      concepts={currentSection.concepts}
+                      onConceptClick={handleConceptClick}
+                    />
+                  )}
                 </div>
               )}
 
               {selectedSection !== 'overview' && selectedSection !== 'prerequisites' && (
                 <div className="space-y-6">
-                  <div className="prose prose-lg max-w-none">
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      This section covers {currentSection.title.toLowerCase()}. The content for this section will be available as you progress through the course.
-                    </p>
-                  </div>
-                  
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                      <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200">
-                        Section Coming Soon
-                      </h3>
-                    </div>
-                    <p className="text-blue-700 dark:text-blue-300">
-                      This section will be unlocked as you complete the previous sections in order.
-                    </p>
-                  </div>
+                  {currentSection?.concepts && currentSection.concepts.length > 0 ? (
+                    <ConceptList
+                      concepts={currentSection.concepts}
+                      onConceptClick={handleConceptClick}
+                    />
+                  ) : (
+                    <>
+                      <div className="prose prose-lg max-w-none">
+                        <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                          This section covers {currentSection?.title.toLowerCase()}. The content for this section will be available as you progress through the course.
+                        </p>
+                      </div>
+                      
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                          <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200">
+                            Section Coming Soon
+                          </h3>
+                        </div>
+                        <p className="text-blue-700 dark:text-blue-300">
+                          This section will be unlocked as you complete the previous sections in order.
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>
