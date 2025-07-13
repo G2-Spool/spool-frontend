@@ -98,7 +98,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                         e.stopPropagation();
                         onToggleExpanded(section.id);
                       }}
-                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors duration-200 hover:scale-110"
+                      className="p-1.5 hover:bg-[#2d3748] rounded-full transition-colors duration-200 hover:scale-110"
                     >
                       {isExpanded ? (
                         <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />

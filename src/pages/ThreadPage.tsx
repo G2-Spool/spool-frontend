@@ -18,7 +18,13 @@ import {
   BarChart3,
   Zap,
   Award,
-  X
+  X,
+  Split,
+  CornerDownLeft,
+  GitFork,
+  ExternalLink,
+  GitBranchPlus,
+  BadgeHelp
 } from 'lucide-react';
 import { useThread } from '../hooks/useThread';
 import { ThreadSectionsSidebar } from '../components/organisms/ThreadSectionsSidebar';
@@ -376,19 +382,22 @@ export const ThreadPage: React.FC = () => {
                     
                     {/* Related Concepts */}
                     {currentSection.conceptIds && currentSection.conceptIds.length > 0 && (
-                      <div className="mt-6">
-                        <h3 className="text-lg font-semibold text-obsidian dark:text-gray-100 mb-4">
-                          Related Concepts
+                      <Card className="mt-6 p-6 bg-gray-50 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                          <Split className="h-5 w-5 text-purple-500" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
+                          <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 bg-clip-text text-transparent" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
+                            Tangents
+                          </span>
                         </h3>
                         <div className="space-y-0">
                           {['Machine Learning Fundamentals', 'Data Processing Techniques', 'Pattern Recognition', 'Algorithm Optimization'].map((conceptName, index) => (
                             <div key={index}>
-                              <div className="group flex items-center justify-between py-3 px-2 -mx-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 hover:shadow-sm hover:scale-[1.01] transition-all duration-200 rounded-lg">
+                              <div className="group flex items-center justify-between py-3 pl-2 pr-4 -mx-2 cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-700/80 hover:shadow-sm hover:scale-[1.01] transition-all duration-200 rounded-lg">
                                 <div className="flex items-center gap-3">
-                                  <BookOpen className="h-4 w-4 text-teal-600 dark:text-teal-400 transition-colors duration-200 group-hover:text-teal-700 dark:group-hover:text-teal-300" />
+                                  <BadgeHelp className="h-5 w-5 text-teal-600 dark:text-teal-400 transition-colors duration-200 group-hover:text-teal-700 dark:group-hover:text-teal-300" />
                                   <span className="text-gray-900 dark:text-gray-100 font-medium transition-colors duration-200">{conceptName}</span>
                                 </div>
-                                <ChevronRight className="h-4 w-4 text-gray-400 transition-all duration-200 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-0.5" />
+                                <ExternalLink className="h-4 w-4 text-gray-400 transition-all duration-200 group-hover:text-teal-700 dark:group-hover:text-teal-300 group-hover:translate-x-0.5" />
                               </div>
                               {index < 3 && (
                                 <div className="border-b border-gray-200 dark:border-gray-700" />
@@ -396,7 +405,7 @@ export const ThreadPage: React.FC = () => {
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </Card>
                     )}
                   </Card>
 
@@ -411,7 +420,7 @@ export const ThreadPage: React.FC = () => {
                       
                       <div className="relative flex items-start gap-4">
                         <div className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md transform hover:scale-105 transition-transform">
-                          <Zap className="h-10 w-10 text-teal-600 dark:text-teal-400" />
+                          <Zap className="h-6 w-6 text-teal-600 dark:text-teal-400" />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-3">
@@ -458,9 +467,9 @@ export const ThreadPage: React.FC = () => {
                               variant="primary"
                               size="lg"
                               onClick={handleStartExercise}
-                              className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-white font-semibold px-6 rounded-lg flex items-center"
+                              className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 !text-gray-300 font-semibold px-6 rounded-lg flex items-center text-m"
                             >
-                              <Play className="h-5 w-5 mr-3" />
+                              <Play className="h-5 w-5 mr-3 text-gray-300" />
                               Start Exercise
                             </Button>
                             <div className="flex flex-wrap items-center gap-8 text-sm">
