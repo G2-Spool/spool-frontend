@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../atoms/Button';
 import { SidebarNav } from '../molecules/SidebarNav';
+import { cn } from '../../utils/cn';
 
 export const DashboardLayout: React.FC = () => {
   const { studentProfile, logout } = useAuth();
@@ -49,9 +50,9 @@ export const DashboardLayout: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1 lg:ml-64 h-screen overflow-hidden flex flex-col">
         {/* Top Bar */}
-        <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
+        <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 flex-shrink-0">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               {/* Mobile menu button */}
@@ -109,7 +110,10 @@ export const DashboardLayout: React.FC = () => {
         )}
 
         {/* Page Content */}
-        <main className={location.pathname.includes('/thread/') ? '' : 'px-4 sm:px-6 lg:px-8 py-8'}>
+        <main className={cn(
+          "flex-1 overflow-hidden",
+          location.pathname.includes('/thread/') ? '' : 'px-4 sm:px-6 lg:px-8 py-8'
+        )}>
           <Outlet />
         </main>
       </div>

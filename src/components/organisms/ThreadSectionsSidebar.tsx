@@ -1,13 +1,14 @@
 import React from 'react';
 import { Card } from '../atoms/Card';
 import { 
-  ChevronRight, 
   ChevronDown,
+  ChevronUp,
   TrendingUp,
   Clock,
   BookOpen
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { MarkdownText } from '../../utils/markdown';
 
 interface ThreadSection {
   id: string;
@@ -55,7 +56,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
   };
   
   return (
-    <div className="w-80 bg-white dark:bg-gray-900 overflow-y-auto hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors duration-300">
+    <div className="w-80 bg-white dark:bg-gray-900 overflow-y-auto">
       <div className="p-4">
         <h2 className="text-lg font-semibold text-obsidian dark:text-gray-100 mb-4">
           Thread Sections
@@ -70,18 +71,18 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
               <Card
                 key={section.id}
                 className={cn(
-                  "cursor-pointer transition-all duration-200 transform hover:scale-[1.02]",
+                  "cursor-pointer transition-all duration-200 transform hover:scale-[1.02] bg-gray-100 dark:bg-gray-800",
                   isSelected 
-                    ? "border-teal-500 shadow-md bg-teal-50 dark:bg-teal-900/20" 
-                    : "hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-lg hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                    ? "border-teal-500 shadow-md bg-white dark:bg-teal-900/20" 
+                    : "hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-lg hover:bg-gray-200 dark:hover:bg-gray-700 hover:shadow-teal-100 dark:hover:shadow-teal-900/20"
                 )}
               >
                 <div 
-                  className="p-3"
+                  className="pl-1.5 pr-2 py-1"
                   onClick={() => onSelectSection(section.id)}
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-start gap-2 flex-1">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start gap-3 flex-1">
                       <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-0.5">
                         {index + 1}.
                       </div>
@@ -97,12 +98,12 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                         e.stopPropagation();
                         onToggleExpanded(section.id);
                       }}
-                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200 hover:scale-110"
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors duration-200 hover:scale-110"
                     >
                       {isExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                       ) : (
-                        <ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                       )}
                     </button>
                   </div>
@@ -136,7 +137,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
                   {isExpanded && (
                     <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
                       <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-3 mb-2">
-                        {section.text.substring(0, 150)}...
+                        <MarkdownText text={section.text.substring(0, 150) + '...'} />
                       </p>
                       
                       {section.conceptIds && section.conceptIds.length > 0 && (
@@ -154,7 +155,7 @@ export const ThreadSectionsSidebar: React.FC<ThreadSectionsSidebarProps> = ({
         </div>
         
         {/* Summary Stats */}
-        <div className="mt-6 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 hover:shadow-md">
+        <div className="mt-6 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Thread Summary
           </h3>
