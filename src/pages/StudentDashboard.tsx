@@ -12,14 +12,15 @@ import { StreakDisplay } from '../components/molecules/StreakDisplay';
 import { InterestDetailCard } from '../components/molecules/InterestDetailCard';
 import { LearningPathSkeleton } from '../components/LoadingStates/LearningPathSkeleton';
 import { InterestDiscoveryModal } from '../components/InterestDiscoveryModal';
+import { CreateThreadModal } from '../components/CreateThreadModal';
 import { 
   BookOpen, 
   Trophy, 
   Target, 
   Clock, 
-  Zap,
-  Plus,
   Sparkles,
+  Plus,
+  Spool,
   MessageCircle,
 } from 'lucide-react';
 import type { LifeCategory } from '../types';
@@ -30,6 +31,7 @@ export const StudentDashboard: React.FC = () => {
   const { studentProfile, user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<LifeCategory | 'all'>('all');
   const [showInterestModal, setShowInterestModal] = useState(false);
+  const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
   
   // Fetch real data from API
   const { data: learningPaths, isLoading: pathsLoading } = useLearningPaths();
@@ -60,7 +62,7 @@ export const StudentDashboard: React.FC = () => {
         <Button
           variant="primary"
           size="lg"
-          onClick={() => navigate('/threads/new')}
+          onClick={() => setShowCreateThreadModal(true)}
           className="flex items-center gap-3 px-6 py-3"
         >
           <Plus className="h-5 w-5" />
@@ -290,10 +292,10 @@ export const StudentDashboard: React.FC = () => {
                 <p className="text-gray-600 dark:text-gray-400 mb-4">No learning paths in this category yet.</p>
                 <Button
                   variant="primary"
-                  onClick={() => setShowInterestModal(true)}
+                  onClick={() => setShowCreateThreadModal(true)}
                 >
-                  <Zap className="h-4 w-4 mr-2" />
-                  Follow a Thread...
+                  <Spool className="h-4 w-4 mr-2" />
+                  Create Thread
                 </Button>
               </Card>
             )}
@@ -310,6 +312,13 @@ export const StudentDashboard: React.FC = () => {
           console.log('Interests updated:', interests);
           // The interests will be automatically refetched by the useInterests hook
         }}
+      />
+
+      {/* Create Thread Modal */}
+      <CreateThreadModal
+        isOpen={showCreateThreadModal}
+        onClose={() => setShowCreateThreadModal(false)}
+        studentId={studentProfile.id}
       />
     </div>
   );
