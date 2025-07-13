@@ -5,7 +5,6 @@
  * and completion progress. Includes a play button for starting the topic.
  */
 
-import React from 'react'
 import { cn } from '../../utils/cn'
 
 interface TopicCardProps {

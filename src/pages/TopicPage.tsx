@@ -8,14 +8,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/atoms/Button';
-import { Card } from '../components/atoms/Card';
 import { 
   ArrowLeft, 
   BookOpen, 
   CheckCircle, 
   Circle,
   Clock,
-  Users
 } from 'lucide-react';
 
 interface Section {
