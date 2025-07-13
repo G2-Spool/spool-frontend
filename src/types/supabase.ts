@@ -14,601 +14,121 @@ export type Database = {
   }
   public: {
     Tables: {
-      learning_threads: {
+      concept_content: {
         Row: {
-          completed_at: string | null
-          completion_percentage: number | null
-          complexity_score: number | null
-          concepts_completed: number | null
-          concepts_total: number | null
-          created_at: string | null
-          current_concept_id: string | null
-          description: string | null
-          endorsement_count: number | null
-          estimated_completion_date: string | null
-          estimated_concepts: number | null
-          estimated_hours: number | null
-          goal: string
-          goal_confidence_score: number | null
-          goal_extracted_at: string
+          approach_formula: string | null
+          approach_steps: Json
+          approach_title: string | null
+          concept_id: string | null
+          concept_name: string | null
+          example_scenario: string
+          example_title: string | null
+          example_visual: string | null
+          hook_content: string
+          hook_title: string | null
           id: string
-          is_shared: boolean | null
-          last_accessed_at: string | null
-          primary_subject: string
-          remix_count: number | null
-          share_code: string | null
-          started_at: string | null
-          status: string | null
-          student_profile_id: string | null
-          subjects_involved: string[]
-          title: string
-          updated_at: string | null
-          visibility: string | null
+          nonexample_explanation: string
+          nonexample_scenario: string
+          nonexample_title: string | null
         }
         Insert: {
-          completed_at?: string | null
-          completion_percentage?: number | null
-          complexity_score?: number | null
-          concepts_completed?: number | null
-          concepts_total?: number | null
-          created_at?: string | null
-          current_concept_id?: string | null
-          description?: string | null
-          endorsement_count?: number | null
-          estimated_completion_date?: string | null
-          estimated_concepts?: number | null
-          estimated_hours?: number | null
-          goal: string
-          goal_confidence_score?: number | null
-          goal_extracted_at: string
+          approach_formula?: string | null
+          approach_steps: Json
+          approach_title?: string | null
+          concept_id?: string | null
+          concept_name?: string | null
+          example_scenario: string
+          example_title?: string | null
+          example_visual?: string | null
+          hook_content: string
+          hook_title?: string | null
           id?: string
-          is_shared?: boolean | null
-          last_accessed_at?: string | null
-          primary_subject: string
-          remix_count?: number | null
-          share_code?: string | null
-          started_at?: string | null
-          status?: string | null
-          student_profile_id?: string | null
-          subjects_involved: string[]
-          title: string
-          updated_at?: string | null
-          visibility?: string | null
+          nonexample_explanation: string
+          nonexample_scenario: string
+          nonexample_title?: string | null
         }
         Update: {
-          completed_at?: string | null
-          completion_percentage?: number | null
-          complexity_score?: number | null
-          concepts_completed?: number | null
-          concepts_total?: number | null
-          created_at?: string | null
-          current_concept_id?: string | null
-          description?: string | null
-          endorsement_count?: number | null
-          estimated_completion_date?: string | null
-          estimated_concepts?: number | null
-          estimated_hours?: number | null
-          goal?: string
-          goal_confidence_score?: number | null
-          goal_extracted_at?: string
+          approach_formula?: string | null
+          approach_steps?: Json
+          approach_title?: string | null
+          concept_id?: string | null
+          concept_name?: string | null
+          example_scenario?: string
+          example_title?: string | null
+          example_visual?: string | null
+          hook_content?: string
+          hook_title?: string | null
           id?: string
-          is_shared?: boolean | null
-          last_accessed_at?: string | null
-          primary_subject?: string
-          remix_count?: number | null
-          share_code?: string | null
-          started_at?: string | null
-          status?: string | null
-          student_profile_id?: string | null
-          subjects_involved?: string[]
-          title?: string
-          updated_at?: string | null
-          visibility?: string | null
+          nonexample_explanation?: string
+          nonexample_scenario?: string
+          nonexample_title?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "learning_threads_student_profile_id_fkey"
-            columns: ["student_profile_id"]
-            isOneToOne: false
-            referencedRelation: "student_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
-      student_profiles: {
+      exercise_attempts: {
         Row: {
-          active_threads_count: number | null
-          age: number | null
-          career_interests: string[] | null
-          completed_threads_count: number | null
-          created_at: string | null
-          detailed_interests: Json | null
-          first_name: string | null
-          grade_level: string | null
+          exercise_variation_id: string | null
           id: string
-          interests: Json | null
-          last_name: string | null
-          philanthropic_interests: string[] | null
-          thread_mastery_score: number | null
-          thread_preferences: Json | null
-          updated_at: string | null
+          is_complete: boolean | null
+          is_remediation_attempt: boolean | null
+          needs_remediation: boolean | null
+          parent_attempt_id: string | null
+          remediation_round: number | null
+          student_response: string
+          submitted_at: string | null
+          thread_id: string | null
           user_id: string | null
         }
         Insert: {
-          active_threads_count?: number | null
-          age?: number | null
-          career_interests?: string[] | null
-          completed_threads_count?: number | null
-          created_at?: string | null
-          detailed_interests?: Json | null
-          first_name?: string | null
-          grade_level?: string | null
+          exercise_variation_id?: string | null
           id?: string
-          interests?: Json | null
-          last_name?: string | null
-          philanthropic_interests?: string[] | null
-          thread_mastery_score?: number | null
-          thread_preferences?: Json | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          active_threads_count?: number | null
-          age?: number | null
-          career_interests?: string[] | null
-          completed_threads_count?: number | null
-          created_at?: string | null
-          detailed_interests?: Json | null
-          first_name?: string | null
-          grade_level?: string | null
-          id?: string
-          interests?: Json | null
-          last_name?: string | null
-          philanthropic_interests?: string[] | null
-          thread_mastery_score?: number | null
-          thread_preferences?: Json | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "student_profiles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      thread_assessments: {
-        Row: {
-          application_ability: number | null
-          assessment_type: string
-          concept_id: string
-          conceptual_understanding: number | null
-          created_at: string | null
-          cross_curricular_elements: Json | null
-          cross_curricular_integration_score: number | null
-          cross_subject_connections_made: Json | null
-          enables_thread_branching: boolean | null
-          evaluated_at: string | null
-          exercise_prompt: string
-          expected_steps: Json
-          id: string
-          integration_concepts: string[] | null
-          overall_mastery_score: number | null
-          qualifies_for_portfolio: boolean | null
-          real_world_application_required: boolean | null
-          requires_cross_subject_thinking: boolean | null
-          response_demonstrates_goal_connection: boolean | null
-          status: string | null
-          step_evaluations: Json
-          student_profile_id: string | null
-          student_response: string
-          submitted_at: string | null
-          thread_goal_alignment_score: number | null
-          thread_goal_integration: string
-          thread_id: string | null
-          thread_position_context: string | null
-          unlocks_next_concepts: boolean | null
-        }
-        Insert: {
-          application_ability?: number | null
-          assessment_type: string
-          concept_id: string
-          conceptual_understanding?: number | null
-          created_at?: string | null
-          cross_curricular_elements?: Json | null
-          cross_curricular_integration_score?: number | null
-          cross_subject_connections_made?: Json | null
-          enables_thread_branching?: boolean | null
-          evaluated_at?: string | null
-          exercise_prompt: string
-          expected_steps: Json
-          id?: string
-          integration_concepts?: string[] | null
-          overall_mastery_score?: number | null
-          qualifies_for_portfolio?: boolean | null
-          real_world_application_required?: boolean | null
-          requires_cross_subject_thinking?: boolean | null
-          response_demonstrates_goal_connection?: boolean | null
-          status?: string | null
-          step_evaluations: Json
-          student_profile_id?: string | null
+          is_complete?: boolean | null
+          is_remediation_attempt?: boolean | null
+          needs_remediation?: boolean | null
+          parent_attempt_id?: string | null
+          remediation_round?: number | null
           student_response: string
           submitted_at?: string | null
-          thread_goal_alignment_score?: number | null
-          thread_goal_integration: string
           thread_id?: string | null
-          thread_position_context?: string | null
-          unlocks_next_concepts?: boolean | null
+          user_id?: string | null
         }
         Update: {
-          application_ability?: number | null
-          assessment_type?: string
-          concept_id?: string
-          conceptual_understanding?: number | null
-          created_at?: string | null
-          cross_curricular_elements?: Json | null
-          cross_curricular_integration_score?: number | null
-          cross_subject_connections_made?: Json | null
-          enables_thread_branching?: boolean | null
-          evaluated_at?: string | null
-          exercise_prompt?: string
-          expected_steps?: Json
+          exercise_variation_id?: string | null
           id?: string
-          integration_concepts?: string[] | null
-          overall_mastery_score?: number | null
-          qualifies_for_portfolio?: boolean | null
-          real_world_application_required?: boolean | null
-          requires_cross_subject_thinking?: boolean | null
-          response_demonstrates_goal_connection?: boolean | null
-          status?: string | null
-          step_evaluations?: Json
-          student_profile_id?: string | null
+          is_complete?: boolean | null
+          is_remediation_attempt?: boolean | null
+          needs_remediation?: boolean | null
+          parent_attempt_id?: string | null
+          remediation_round?: number | null
           student_response?: string
           submitted_at?: string | null
-          thread_goal_alignment_score?: number | null
-          thread_goal_integration?: string
           thread_id?: string | null
-          thread_position_context?: string | null
-          unlocks_next_concepts?: boolean | null
+          user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "thread_assessments_student_profile_id_fkey"
-            columns: ["student_profile_id"]
+            foreignKeyName: "exercise_attempts_exercise_variation_id_fkey"
+            columns: ["exercise_variation_id"]
             isOneToOne: false
-            referencedRelation: "student_profiles"
+            referencedRelation: "exercise_variations"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "thread_assessments_thread_id_fkey"
+            foreignKeyName: "exercise_attempts_parent_attempt_id_fkey"
+            columns: ["parent_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_attempts_thread_id_fkey"
             columns: ["thread_id"]
             isOneToOne: false
-            referencedRelation: "learning_threads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      thread_branches: {
-        Row: {
-          branch_created_at: string | null
-          branch_reason: string
-          branch_trigger_concept_id: string | null
-          branch_type: string
-          child_thread_id: string | null
-          created_at: string | null
-          divergence_point: number | null
-          id: string
-          is_active: boolean | null
-          parent_thread_id: string | null
-          shared_concepts_count: number | null
-          unique_concepts_count: number | null
-        }
-        Insert: {
-          branch_created_at?: string | null
-          branch_reason: string
-          branch_trigger_concept_id?: string | null
-          branch_type: string
-          child_thread_id?: string | null
-          created_at?: string | null
-          divergence_point?: number | null
-          id?: string
-          is_active?: boolean | null
-          parent_thread_id?: string | null
-          shared_concepts_count?: number | null
-          unique_concepts_count?: number | null
-        }
-        Update: {
-          branch_created_at?: string | null
-          branch_reason?: string
-          branch_trigger_concept_id?: string | null
-          branch_type?: string
-          child_thread_id?: string | null
-          created_at?: string | null
-          divergence_point?: number | null
-          id?: string
-          is_active?: boolean | null
-          parent_thread_id?: string | null
-          shared_concepts_count?: number | null
-          unique_concepts_count?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "thread_branches_child_thread_id_fkey"
-            columns: ["child_thread_id"]
-            isOneToOne: false
-            referencedRelation: "learning_threads"
+            referencedRelation: "threads"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "thread_branches_parent_thread_id_fkey"
-            columns: ["parent_thread_id"]
-            isOneToOne: false
-            referencedRelation: "learning_threads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      thread_collaborations: {
-        Row: {
-          can_invite_others: boolean | null
-          can_modify_thread: boolean | null
-          collaboration_type: string
-          created_at: string | null
-          current_participants: number | null
-          id: string
-          max_participants: number | null
-          requires_approval: boolean | null
-          status: string | null
-          thread_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          can_invite_others?: boolean | null
-          can_modify_thread?: boolean | null
-          collaboration_type: string
-          created_at?: string | null
-          current_participants?: number | null
-          id?: string
-          max_participants?: number | null
-          requires_approval?: boolean | null
-          status?: string | null
-          thread_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          can_invite_others?: boolean | null
-          can_modify_thread?: boolean | null
-          collaboration_type?: string
-          created_at?: string | null
-          current_participants?: number | null
-          id?: string
-          max_participants?: number | null
-          requires_approval?: boolean | null
-          status?: string | null
-          thread_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "thread_collaborations_thread_id_fkey"
-            columns: ["thread_id"]
-            isOneToOne: false
-            referencedRelation: "learning_threads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      thread_community: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          difficulty_rating: string | null
-          endorsement_count: number | null
-          favorite_count: number | null
-          id: string
-          is_approved: boolean | null
-          is_featured: boolean | null
-          last_updated_at: string | null
-          moderation_notes: string | null
-          remix_count: number | null
-          share_description: string | null
-          share_title: string
-          share_type: string
-          shared_at: string | null
-          shared_by_user_id: string | null
-          tags: string[] | null
-          thread_id: string | null
-          view_count: number | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          difficulty_rating?: string | null
-          endorsement_count?: number | null
-          favorite_count?: number | null
-          id?: string
-          is_approved?: boolean | null
-          is_featured?: boolean | null
-          last_updated_at?: string | null
-          moderation_notes?: string | null
-          remix_count?: number | null
-          share_description?: string | null
-          share_title: string
-          share_type: string
-          shared_at?: string | null
-          shared_by_user_id?: string | null
-          tags?: string[] | null
-          thread_id?: string | null
-          view_count?: number | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          difficulty_rating?: string | null
-          endorsement_count?: number | null
-          favorite_count?: number | null
-          id?: string
-          is_approved?: boolean | null
-          is_featured?: boolean | null
-          last_updated_at?: string | null
-          moderation_notes?: string | null
-          remix_count?: number | null
-          share_description?: string | null
-          share_title?: string
-          share_type?: string
-          shared_at?: string | null
-          shared_by_user_id?: string | null
-          tags?: string[] | null
-          thread_id?: string | null
-          view_count?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "thread_community_shared_by_user_id_fkey"
-            columns: ["shared_by_user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "thread_community_thread_id_fkey"
-            columns: ["thread_id"]
-            isOneToOne: false
-            referencedRelation: "learning_threads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      thread_concepts: {
-        Row: {
-          attempts_count: number | null
-          bridge_explanation: string | null
-          bridge_from_concept_id: string | null
-          bridge_strength: number | null
-          completed_at: string | null
-          concept_id: string
-          concept_name: string
-          created_at: string | null
-          id: string
-          is_core_concept: boolean | null
-          mastery_level: number | null
-          prerequisite_concept_ids: string[] | null
-          relevance_explanation: string | null
-          relevance_score: number
-          sequence_order: number
-          started_at: string | null
-          status: string | null
-          subject: string
-          thread_id: string | null
-          time_spent_seconds: number | null
-          unlocked_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          attempts_count?: number | null
-          bridge_explanation?: string | null
-          bridge_from_concept_id?: string | null
-          bridge_strength?: number | null
-          completed_at?: string | null
-          concept_id: string
-          concept_name: string
-          created_at?: string | null
-          id?: string
-          is_core_concept?: boolean | null
-          mastery_level?: number | null
-          prerequisite_concept_ids?: string[] | null
-          relevance_explanation?: string | null
-          relevance_score: number
-          sequence_order: number
-          started_at?: string | null
-          status?: string | null
-          subject: string
-          thread_id?: string | null
-          time_spent_seconds?: number | null
-          unlocked_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          attempts_count?: number | null
-          bridge_explanation?: string | null
-          bridge_from_concept_id?: string | null
-          bridge_strength?: number | null
-          completed_at?: string | null
-          concept_id?: string
-          concept_name?: string
-          created_at?: string | null
-          id?: string
-          is_core_concept?: boolean | null
-          mastery_level?: number | null
-          prerequisite_concept_ids?: string[] | null
-          relevance_explanation?: string | null
-          relevance_score?: number
-          sequence_order?: number
-          started_at?: string | null
-          status?: string | null
-          subject?: string
-          thread_id?: string | null
-          time_spent_seconds?: number | null
-          unlocked_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "thread_concepts_thread_id_fkey"
-            columns: ["thread_id"]
-            isOneToOne: false
-            referencedRelation: "learning_threads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      thread_participants: {
-        Row: {
-          collaboration_id: string
-          individual_progress: Json | null
-          joined_at: string | null
-          left_at: string | null
-          permissions: Json | null
-          role: string
-          shared_contributions: Json | null
-          status: string | null
-          user_id: string
-        }
-        Insert: {
-          collaboration_id: string
-          individual_progress?: Json | null
-          joined_at?: string | null
-          left_at?: string | null
-          permissions?: Json | null
-          role: string
-          shared_contributions?: Json | null
-          status?: string | null
-          user_id: string
-        }
-        Update: {
-          collaboration_id?: string
-          individual_progress?: Json | null
-          joined_at?: string | null
-          left_at?: string | null
-          permissions?: Json | null
-          role?: string
-          shared_contributions?: Json | null
-          status?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "thread_participants_collaboration_id_fkey"
-            columns: ["collaboration_id"]
-            isOneToOne: false
-            referencedRelation: "thread_collaborations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "thread_participants_user_id_fkey"
+            foreignKeyName: "exercise_attempts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -616,182 +136,296 @@ export type Database = {
           },
         ]
       }
-      thread_portfolios: {
+      exercise_variations: {
         Row: {
-          concepts_demonstrated: string[]
+          context_variation: string
           created_at: string | null
-          creativity_score: number | null
-          cross_curricular_connections: string | null
-          educator_feedback: string | null
+          difficulty_level: string
+          exercise_id: string | null
+          expected_steps: Json
+          generated_hint: string
+          generated_scenario: string
           id: string
-          mastery_demonstration_score: number | null
-          overall_score: number | null
-          peer_reviews: Json | null
-          project_description: string
-          project_requirements: Json
-          project_title: string
-          project_type: string
-          reviewed_at: string | null
-          self_assessment: Json | null
-          status: string | null
-          student_profile_id: string | null
-          subjects_integrated: string[]
-          submission_files: Json | null
-          submission_format: string | null
-          submission_url: string | null
-          submitted_at: string | null
-          technical_execution_score: number | null
+          is_active: boolean | null
           thread_id: string | null
-          updated_at: string | null
+          user_id: string | null
+          voice_personality: string | null
         }
         Insert: {
-          concepts_demonstrated: string[]
+          context_variation: string
           created_at?: string | null
-          creativity_score?: number | null
-          cross_curricular_connections?: string | null
-          educator_feedback?: string | null
+          difficulty_level: string
+          exercise_id?: string | null
+          expected_steps: Json
+          generated_hint: string
+          generated_scenario: string
           id?: string
-          mastery_demonstration_score?: number | null
-          overall_score?: number | null
-          peer_reviews?: Json | null
-          project_description: string
-          project_requirements: Json
-          project_title: string
-          project_type: string
-          reviewed_at?: string | null
-          self_assessment?: Json | null
-          status?: string | null
-          student_profile_id?: string | null
-          subjects_integrated: string[]
-          submission_files?: Json | null
-          submission_format?: string | null
-          submission_url?: string | null
-          submitted_at?: string | null
-          technical_execution_score?: number | null
+          is_active?: boolean | null
           thread_id?: string | null
-          updated_at?: string | null
+          user_id?: string | null
+          voice_personality?: string | null
         }
         Update: {
-          concepts_demonstrated?: string[]
+          context_variation?: string
           created_at?: string | null
-          creativity_score?: number | null
-          cross_curricular_connections?: string | null
-          educator_feedback?: string | null
+          difficulty_level?: string
+          exercise_id?: string | null
+          expected_steps?: Json
+          generated_hint?: string
+          generated_scenario?: string
           id?: string
-          mastery_demonstration_score?: number | null
-          overall_score?: number | null
-          peer_reviews?: Json | null
-          project_description?: string
-          project_requirements?: Json
-          project_title?: string
-          project_type?: string
-          reviewed_at?: string | null
-          self_assessment?: Json | null
-          status?: string | null
-          student_profile_id?: string | null
-          subjects_integrated?: string[]
-          submission_files?: Json | null
-          submission_format?: string | null
-          submission_url?: string | null
-          submitted_at?: string | null
-          technical_execution_score?: number | null
+          is_active?: boolean | null
           thread_id?: string | null
-          updated_at?: string | null
+          user_id?: string | null
+          voice_personality?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "thread_portfolios_student_profile_id_fkey"
-            columns: ["student_profile_id"]
+            foreignKeyName: "exercise_variations_exercise_id_fkey"
+            columns: ["exercise_id"]
             isOneToOne: false
-            referencedRelation: "student_profiles"
+            referencedRelation: "exercises"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "thread_portfolios_thread_id_fkey"
+            foreignKeyName: "exercise_variations_thread_id_fkey"
             columns: ["thread_id"]
             isOneToOne: false
-            referencedRelation: "learning_threads"
+            referencedRelation: "threads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_variations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_variations_voice_personality_fkey"
+            columns: ["voice_personality"]
+            isOneToOne: false
+            referencedRelation: "personalities"
+            referencedColumns: ["name"]
+          },
+        ]
+      }
+      exercises: {
+        Row: {
+          base_context: string
+          base_hint_template: string
+          base_scenario_template: string
+          base_title: string
+          concept_id: string | null
+          exercise_number: number
+          expected_steps_by_difficulty: Json
+          id: string
+        }
+        Insert: {
+          base_context: string
+          base_hint_template: string
+          base_scenario_template: string
+          base_title: string
+          concept_id?: string | null
+          exercise_number: number
+          expected_steps_by_difficulty: Json
+          id?: string
+        }
+        Update: {
+          base_context?: string
+          base_hint_template?: string
+          base_scenario_template?: string
+          base_title?: string
+          concept_id?: string | null
+          exercise_number?: number
+          expected_steps_by_difficulty?: Json
+          id?: string
+        }
+        Relationships: []
+      }
+      personalities: {
+        Row: {
+          approach_to_learning: string
+          communication_style: string
+          feedback_style: string
+          id: string
+          name: string
+          personality_traits: string[]
+          problem_solving_approach: string
+          teaching_philosophy: string
+        }
+        Insert: {
+          approach_to_learning: string
+          communication_style: string
+          feedback_style: string
+          id?: string
+          name: string
+          personality_traits: string[]
+          problem_solving_approach: string
+          teaching_philosophy: string
+        }
+        Update: {
+          approach_to_learning?: string
+          communication_style?: string
+          feedback_style?: string
+          id?: string
+          name?: string
+          personality_traits?: string[]
+          problem_solving_approach?: string
+          teaching_philosophy?: string
+        }
+        Relationships: []
+      }
+      remediation_contexts: {
+        Row: {
+          common_mistake: string
+          created_at: string | null
+          how_it_fits: string
+          id: string
+          parent_attempt_id: string | null
+          step_explanation: string
+          target_step_id: string
+          voice_personality: string | null
+          why_it_matters: string
+        }
+        Insert: {
+          common_mistake: string
+          created_at?: string | null
+          how_it_fits: string
+          id?: string
+          parent_attempt_id?: string | null
+          step_explanation: string
+          target_step_id: string
+          voice_personality?: string | null
+          why_it_matters: string
+        }
+        Update: {
+          common_mistake?: string
+          created_at?: string | null
+          how_it_fits?: string
+          id?: string
+          parent_attempt_id?: string | null
+          step_explanation?: string
+          target_step_id?: string
+          voice_personality?: string | null
+          why_it_matters?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "remediation_contexts_parent_attempt_id_fkey"
+            columns: ["parent_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "remediation_contexts_voice_personality_fkey"
+            columns: ["voice_personality"]
+            isOneToOne: false
+            referencedRelation: "personalities"
+            referencedColumns: ["name"]
+          },
+        ]
+      }
+      step_evaluations: {
+        Row: {
+          attempt_id: string | null
+          id: string
+          is_correct: boolean
+          is_first_incorrect: boolean | null
+          needs_remediation: boolean | null
+          step_description: string
+          step_id: string
+          step_order: number
+          student_articulation: string | null
+          was_addressed: boolean
+        }
+        Insert: {
+          attempt_id?: string | null
+          id?: string
+          is_correct: boolean
+          is_first_incorrect?: boolean | null
+          needs_remediation?: boolean | null
+          step_description: string
+          step_id: string
+          step_order: number
+          student_articulation?: string | null
+          was_addressed: boolean
+        }
+        Update: {
+          attempt_id?: string | null
+          id?: string
+          is_correct?: boolean
+          is_first_incorrect?: boolean | null
+          needs_remediation?: boolean | null
+          step_description?: string
+          step_id?: string
+          step_order?: number
+          student_articulation?: string | null
+          was_addressed?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "step_evaluations_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_attempts"
             referencedColumns: ["id"]
           },
         ]
       }
-      thread_progress_snapshots: {
+      threads: {
         Row: {
-          active_time_minutes: number | null
-          at_risk_indicators: Json | null
-          average_mastery_score: number | null
-          collaboration_events: number | null
-          concepts_completed: number
-          concepts_total: number
+          completed_at: string | null
+          concepts: Json
+          concepts_completed: number | null
           created_at: string | null
-          curiosity_events: number | null
-          estimated_completion_date: string | null
-          help_seeking_events: number | null
+          current_concept_id: string | null
           id: string
-          predicted_final_score: number | null
-          session_count: number | null
-          snapshot_date: string
-          snapshot_type: string
-          student_profile_id: string | null
-          subjects_touched: string[]
-          thread_id: string | null
-          total_time_minutes: number | null
+          primary_skill_focus: Json | null
+          situation_description: string
+          situation_title: string
+          status: string | null
+          title: string
+          total_time_spent_seconds: number | null
+          user_id: string | null
         }
         Insert: {
-          active_time_minutes?: number | null
-          at_risk_indicators?: Json | null
-          average_mastery_score?: number | null
-          collaboration_events?: number | null
-          concepts_completed: number
-          concepts_total: number
+          completed_at?: string | null
+          concepts?: Json
+          concepts_completed?: number | null
           created_at?: string | null
-          curiosity_events?: number | null
-          estimated_completion_date?: string | null
-          help_seeking_events?: number | null
+          current_concept_id?: string | null
           id?: string
-          predicted_final_score?: number | null
-          session_count?: number | null
-          snapshot_date: string
-          snapshot_type: string
-          student_profile_id?: string | null
-          subjects_touched: string[]
-          thread_id?: string | null
-          total_time_minutes?: number | null
+          primary_skill_focus?: Json | null
+          situation_description: string
+          situation_title: string
+          status?: string | null
+          title: string
+          total_time_spent_seconds?: number | null
+          user_id?: string | null
         }
         Update: {
-          active_time_minutes?: number | null
-          at_risk_indicators?: Json | null
-          average_mastery_score?: number | null
-          collaboration_events?: number | null
-          concepts_completed?: number
-          concepts_total?: number
+          completed_at?: string | null
+          concepts?: Json
+          concepts_completed?: number | null
           created_at?: string | null
-          curiosity_events?: number | null
-          estimated_completion_date?: string | null
-          help_seeking_events?: number | null
+          current_concept_id?: string | null
           id?: string
-          predicted_final_score?: number | null
-          session_count?: number | null
-          snapshot_date?: string
-          snapshot_type?: string
-          student_profile_id?: string | null
-          subjects_touched?: string[]
-          thread_id?: string | null
-          total_time_minutes?: number | null
+          primary_skill_focus?: Json | null
+          situation_description?: string
+          situation_title?: string
+          status?: string | null
+          title?: string
+          total_time_spent_seconds?: number | null
+          user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "thread_progress_snapshots_student_profile_id_fkey"
-            columns: ["student_profile_id"]
+            foreignKeyName: "threads_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "student_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "thread_progress_snapshots_thread_id_fkey"
-            columns: ["thread_id"]
-            isOneToOne: false
-            referencedRelation: "learning_threads"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -799,30 +433,57 @@ export type Database = {
       users: {
         Row: {
           created_at: string | null
+          default_difficulty_level: string | null
           email: string
           id: string
-          updated_at: string | null
+          name: string
+          preferred_voice_personality: string | null
+          primary_interest: string | null
         }
         Insert: {
           created_at?: string | null
+          default_difficulty_level?: string | null
           email: string
           id?: string
-          updated_at?: string | null
+          name: string
+          preferred_voice_personality?: string | null
+          primary_interest?: string | null
         }
         Update: {
           created_at?: string | null
+          default_difficulty_level?: string | null
           email?: string
           id?: string
-          updated_at?: string | null
+          name?: string
+          preferred_voice_personality?: string | null
+          primary_interest?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_user_personality"
+            columns: ["preferred_voice_personality"]
+            isOneToOne: false
+            referencedRelation: "personalities"
+            referencedColumns: ["name"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_exercise_completion: {
+        Args: { attempt_id: string }
+        Returns: boolean
+      }
+      evaluate_exercise_attempt: {
+        Args: { attempt_id: string }
+        Returns: {
+          needs_remediation: boolean
+          first_incorrect_step: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
