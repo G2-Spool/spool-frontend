@@ -424,7 +424,37 @@ const difficultyLevels: DifficultyLevel[] = [
   }
 ]
 
-// Mock exercise data (removed - now using backend data)
+// Mock exercise data
+const mockExercises: Exercise[] = [
+  {
+    id: 'exercise-1',
+    title: 'Two-Step Linear Equations Practice',
+    status: 'active',
+    currentInput: '',
+    isLoading: false,
+    isTyping: false,
+    messages: [
+      {
+        id: 'msg-1',
+        type: 'system',
+        content: 'Let\'s practice solving two-step equations! In these problems, we\'ll work with a Variable (the unknown value we\'re solving for) and use PEMDAS to guide our solution steps.',
+        timestamp: new Date(),
+        exerciseId: 'exercise-1',
+        hasBeenTyped: false,
+        isCurrentlyTyping: false
+      },
+      {
+        id: 'msg-2',
+        type: 'system',
+        content: 'Problem: You want to join a gym. The gym charges a one-time \\$20 sign-up fee and then \\$15 per month. You have a total budget of \\$80 to spend. Write and solve an equation to find out how many months (m) you can be a member.\n\nThis gives us the equation: 15m + 20 = 80\n\nExplain each step of your thought process.',
+        timestamp: new Date(),
+        exerciseId: 'exercise-1',
+        hasBeenTyped: false,
+        isCurrentlyTyping: false
+      }
+    ]
+  }
+]
 
 // Mock feedback responses
 const mockFeedbackResponses = [

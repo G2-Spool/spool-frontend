@@ -265,23 +265,17 @@ export const ThreadsPage: React.FC = () => {
                   <CourseCardSkeleton key={index} />
                 ))
               ) : (
-                threads.map((thread) => {
-                  // Special handling for Mathematics: Probability Theory thread
-                  const isBlackjackThread = thread.threadId === 'blackjack-probability-guide' || 
-                                          thread.threadId === 'd6046803-eece-42ba-9cbb-ab2eebd9c683';
-                  
-                  return (
-                    <ThreadCard
-                      key={thread.threadId}
-                      threadId={thread.threadId}
-                      userInput={thread.userInput}
-                      analysis={thread.analysis}
-                      sectionCount={thread.sections.length}
-                      estimatedReadTime={isBlackjackThread ? 23 : thread.sections.reduce((sum, s) => sum + (s.estimatedMinutes || 0), 0)}
-                      completionPercentage={isBlackjackThread ? 0 : Math.floor(Math.random() * 100)}
-                    />
-                  );
-                })
+                threads.map((thread) => (
+                  <ThreadCard
+                    key={thread.threadId}
+                    threadId={thread.threadId}
+                    userInput={thread.userInput}
+                    analysis={thread.analysis}
+                    sectionCount={thread.sections.length}
+                    estimatedReadTime={thread.sections.reduce((sum, s) => sum + (s.estimatedMinutes || 0), 0)}
+                    completionPercentage={Math.floor(Math.random() * 100)}
+                  />
+                ))
               )}
             </div>
           </div>

@@ -469,11 +469,7 @@ export const StudentDashboard: React.FC = () => {
             </p>
             <Button
               variant="primary"
-              onClick={() => {
-                console.log('Opening interest modal with user:', user);
-                console.log('User ID:', user?.id);
-                setShowInterestModal(true);
-              }}
+              onClick={() => setShowInterestModal(true)}
               className="text-white !text-white"
             >
               <MessageCircle className="h-4 w-4 mr-2 text-white" />

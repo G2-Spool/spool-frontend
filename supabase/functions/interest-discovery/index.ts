@@ -24,25 +24,7 @@ serve(async (req) => {
   }
 
   try {
-    // More robust body parsing to handle different request structures
-    let body;
-    try {
-      const rawBody = await req.json()
-      // Handle both direct body and wrapped body scenarios
-      // When using supabase.functions.invoke(), the body might be wrapped
-      body = rawBody.body || rawBody
-      
-      console.log('Raw body received:', JSON.stringify(rawBody))
-      console.log('Extracted body:', JSON.stringify(body))
-    } catch (parseError) {
-      console.error('Failed to parse request body:', parseError)
-      throw new Error('Invalid request body')
-    }
-
-    const { action, studentId, text } = body
-    
-    // Add debugging to see what's being received
-    console.log('Parsed request:', { action, studentId, hasText: !!text })
+    const { action, studentId, text } = await req.json()
     
     if (action === 'extract_interests') {
       console.log('Extracting interests for user:', studentId, 'from text:', text)
@@ -190,9 +172,7 @@ serve(async (req) => {
       )
     }
     
-    // If we reach here, the action was not recognized
-    console.error('Unknown action received:', action, 'Type:', typeof action)
-    throw new Error(`Invalid action: "${action}"`)
+    throw new Error('Invalid action')
     
   } catch (error) {
     console.error('Interest discovery error:', error)

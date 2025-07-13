@@ -29,29 +29,13 @@ export function InterestDiscoveryModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Form submitted!', { inputValue, isLoading, studentId });
-    
-    if (!inputValue.trim() || isLoading) {
-      console.log('Submit blocked:', { hasInput: !!inputValue.trim(), isLoading });
-      return;
-    }
-
-    // Validate studentId
-    if (!studentId || studentId.trim() === '') {
-      console.error('No valid studentId provided');
-      toast.error('User session error. Please refresh and try again.');
-      return;
-    }
+    if (!inputValue.trim() || isLoading) return;
 
     setIsLoading(true);
     console.log('Submitting interests text:', inputValue);
 
     try {
-      console.log('Calling interest-discovery edge function...', {
-        studentId,
-        textLength: inputValue.trim().length
-      });
-      
+      console.log('Calling interest-discovery edge function...');
       const { data, error } = await supabase.functions.invoke('interest-discovery', {
         body: { 
           action: 'extract_interests', 
@@ -64,22 +48,10 @@ export function InterestDiscoveryModal({
 
       if (error) {
         console.error('Edge function error:', error);
-        
-        // Try to get the actual error message from the response
-        if (error.context && error.context.body) {
-          try {
-            const errorBody = await error.context.text();
-            console.error('Error response body:', errorBody);
-          } catch (e) {
-            console.error('Could not read error body:', e);
-          }
-        }
-        
         throw error;
       }
 
       if (!data || !data.success) {
-        console.error('Invalid response data:', data);
         throw new Error('Failed to extract interests');
       }
 
@@ -98,14 +70,8 @@ export function InterestDiscoveryModal({
         setExtractedInterests([]);
         onClose();
       }, 2000);
-    } catch (error: unknown) {
+    } catch (error) {
       console.error('Error processing interests:', error);
-      console.error('Error details:', {
-        message: (error as Error).message,
-        stack: (error as Error).stack,
-        studentId,
-        inputLength: inputValue.length
-      });
       toast.error('Failed to process your interests. Please try again.');
     } finally {
       setIsLoading(false);
