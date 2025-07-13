@@ -11,14 +11,12 @@ import {
   TrendingUp,
   Sparkles,
   Clock,
-  CheckCircle
 } from 'lucide-react';
 import { useThread } from '../hooks/useThread';
 import { ThreadSectionsSidebar } from '../components/organisms/ThreadSectionsSidebar';
 import { ChatExerciseInterface } from '../components/learning/ChatExerciseInterface';
 import { ConceptPresentation } from '../components/learning/ConceptPresentation';
 import { cn } from '../utils/cn';
-import { MarkdownText } from '../utils/markdown';
 
 
 export const ThreadPage: React.FC = () => {
@@ -28,7 +26,7 @@ export const ThreadPage: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [showExercise, setShowExercise] = useState(true);
   const [completedSections] = useState<Set<string>>(new Set());
-  const [sectionProgress, setSectionProgress] = useState<Record<string, 'reading' | 'exercising' | 'completed'>>({});
+  const [, setSectionProgress] = useState<Record<string, 'reading' | 'exercising' | 'completed'>>({});
   const [sidebarActiveTab, setSidebarActiveTab] = useState<'concepts' | 'glossary'>('concepts');
   const [newTerms, setNewTerms] = useState<string[]>([]);
   
