@@ -1,216 +1,163 @@
-import React, { useState, useEffect } from 'react';
-import { X, Sparkles, Loader2 } from 'lucide-react';
-import { Button } from '../atoms/Button';
-import { Card } from '../atoms/Card';
-import { Badge } from '../atoms/Badge';
-import api from '../../services/api';
-import { API_ENDPOINTS } from '../../config/api';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from 'react';
+import { X, Sparkles, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../config/supabase';
 import toast from 'react-hot-toast';
+import { Button } from '../atoms/Button';
 
 interface CreateThreadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onThreadCreated?: (threadId: string) => void;
-  initialQuestion?: string;
+  studentId: string;
 }
 
-interface Interest {
-  interest: string;
-  category: 'personal' | 'social' | 'career' | 'philanthropic';
-  strength: number;
-}
-
-export const CreateThreadModal: React.FC<CreateThreadModalProps> = ({
-  isOpen,
-  onClose,
-  onThreadCreated,
-  initialQuestion,
-}) => {
-  const { user, studentProfile } = useAuth();
+export function CreateThreadModal({ 
+  isOpen, 
+  onClose, 
+  studentId
+}: CreateThreadModalProps) {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [userInterests, setUserInterests] = useState<Interest[]>([]);
 
-  // Load user interests and initial question when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      if (studentProfile?.interests) {
-        setUserInterests(studentProfile.interests || []);
-      }
-      if (initialQuestion) {
-        setInputValue(initialQuestion);
-      }
-    }
-  }, [isOpen, studentProfile, initialQuestion]);
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (!inputValue.trim() || isLoading) return;
 
-    const question = inputValue.trim();
     setIsLoading(true);
+    console.log('Creating thread with curiosity:', inputValue);
 
     try {
-      console.log('🚀 Creating thread with AcademiaSearch:', question);
+      // First, create a simple proposal from the curiosity text
+      const proposal = {
+        goal: inputValue.trim(),
+        objectives: [inputValue.trim()], // Simple objective for now
+        depth_preference: 'moderate',
+        motivation: 'User expressed curiosity',
+        confidence_score: 0.9,
+        suggested_title: inputValue.length > 50 
+          ? inputValue.substring(0, 50) + '...' 
+          : inputValue
+      };
 
-      // Call AcademiaSearch lambda to create thread
-      const response = await api.post<{
-        threadId: string;
-        message: string;
-        topic?: string;
-        category?: string;
-      }>(API_ENDPOINTS.academiaSearch.createThread, {
-        question: question,
-        studentId: user?.id,
-        studentProfile: {
-          interests: userInterests,
-          firstName: studentProfile?.firstName,
-          grade: studentProfile?.grade,
-        },
+      console.log('Calling thread-generation edge function with proposal:', proposal);
+      const { data, error } = await supabase.functions.invoke('thread-generation', {
+        body: { 
+          proposal,
+          studentProfileId: studentId
+        }
       });
 
-      console.log('Thread created successfully:', response);
-      
-      if (response.threadId) {
-        toast.success('Learning thread created successfully!');
-        
-        // Call the callback if provided
-        onThreadCreated?.(response.threadId);
-        
-        // Navigate to thread page
-        setTimeout(() => {
-          navigate(`/thread/${response.threadId}`);
-          onClose();
-        }, 500);
+      console.log('Edge function response:', { data, error });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
       }
-    } catch (error: any) {
-      console.error('Failed to create thread:', error);
+
+      if (!data || !data.success) {
+        throw new Error('Failed to create thread');
+      }
+
+      toast.success('Thread created successfully!');
       
-      // Show user-friendly error message
-      const errorMessage = error.response?.data?.message || 'Failed to create thread. Please try again.';
-      toast.error(errorMessage);
+      // Navigate to the new thread
+      if (data.thread?.id) {
+        navigate(`/threads/${data.thread.id}`);
+      } else {
+        // Fallback to threads page if no ID returned
+        navigate('/threads');
+      }
+      
+      // Clear form and close
+      setInputValue('');
+      onClose();
+    } catch (error) {
+      console.error('Error creating thread:', error);
+      toast.error('Failed to create thread. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
-  const handleInterestClick = (interest: string) => {
-    // Add interest to the input
-    setInputValue(prev => {
-      const newValue = prev.trim();
-      if (newValue) {
-        return `${newValue} ${interest}`;
-      }
-      return `I want to learn about ${interest}`;
-    });
-  };
-
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <Card className="relative w-full max-w-2xl bg-white dark:bg-gray-900 shadow-2xl">
-        <div className="p-8">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-personal/10 rounded-lg">
-                <Sparkles className="h-6 w-6 text-personal" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-semibold text-obsidian dark:text-gray-100">
-                  What are you curious about learning today?
-                </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  Ask any question and explore topics across all subjects
-                </p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="rounded-full -mr-2 -mt-2"
-            >
-              <X className="h-5 w-5" />
-            </Button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-6 h-6 text-teal-500" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              What are you curious about?
+            </h2>
           </div>
-
-          {/* Input Area */}
-          <div className="space-y-4">
-            <textarea
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type your question here... For example: 'How do computers understand human language?' or 'What causes thunderstorms?'"
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-personal focus:border-transparent resize-none"
-              rows={3}
-              disabled={isLoading}
-              autoFocus
-            />
-
-            {/* Your Interests Section */}
-            {userInterests.length > 0 && (
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Your interests (click to explore):
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {userInterests.map((interest, index) => (
-                    <Badge
-                      key={index}
-                      variant="default"
-                      className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                      onClick={() => handleInterestClick(interest.interest)}
-                    >
-                      {interest.interest}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <div className="flex justify-end">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={handleSubmit}
-                disabled={!inputValue.trim() || isLoading}
-                className="min-w-[120px]"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Create Thread
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            <X className="w-5 h-5" />
+          </Button>
         </div>
-      </Card>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Tell us what you'd like to learn about. We'll create a personalized learning thread 
+            tailored to your curiosity and current knowledge level.
+          </p>
+
+          <textarea
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="I want to learn how to build a mobile app..."
+            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:text-white resize-none"
+            disabled={isLoading}
+            rows={4}
+            autoFocus
+          />
+
+          <div className="mt-4 space-y-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Example topics:</p>
+            <div className="flex flex-wrap gap-2">
+              {[
+                "How machine learning works",
+                "Building a web application",
+                "Understanding cryptocurrency",
+                "Creative writing techniques",
+                "Music theory basics"
+              ].map((example) => (
+                <Button
+                  key={example}
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  onClick={() => setInputValue(example)}
+                  className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                >
+                  {example}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={!inputValue.trim() || isLoading}
+            isLoading={isLoading}
+            rightIcon={!isLoading ? <ArrowRight className="w-4 h-4" /> : undefined}
+            className="mt-6 w-full"
+          >
+            {isLoading ? 'Creating Your Thread...' : 'Start Learning'}
+          </Button>
+        </form>
+      </div>
     </div>
   );
-};
+} 

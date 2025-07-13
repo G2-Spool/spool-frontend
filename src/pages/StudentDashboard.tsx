@@ -12,7 +12,7 @@ import { StreakDisplay } from '../components/molecules/StreakDisplay';
 import { InterestDetailCard } from '../components/molecules/InterestDetailCard';
 import { LearningPathSkeleton } from '../components/LoadingStates/LearningPathSkeleton';
 import { InterestDiscoveryModal } from '../components/InterestDiscoveryModal';
-import { CreateThreadModal } from '../components/CreateThreadModal';
+import { CreateThreadModal } from '../components/organisms/CreateThreadModal';
 import { 
   BookOpen, 
   Trophy, 

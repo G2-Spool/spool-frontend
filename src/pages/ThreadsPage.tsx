@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useUserThreads } from '../hooks/useThread';
 import { ThreadCard } from '../components/molecules/ThreadCard';
-import { InterviewModal } from '../components/organisms/InterviewModal';
+import { CreateThreadModal } from '../components/organisms/CreateThreadModal';
 import { SubjectCarousel } from '../components/organisms/SubjectCarousel';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -33,10 +33,10 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 export const ThreadsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
-  const [showInterviewModal, setShowInterviewModal] = useState(false);
+  const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
   
   // Get current user
-  const { user } = useAuth();
+  const { user, studentProfile } = useAuth();
   const userId = user?.id || 'anonymous';
   const navigate = useNavigate();
   
@@ -207,8 +207,8 @@ export const ThreadsPage: React.FC = () => {
             <Button
               size="sm"
               onClick={() => {
-                console.log('🎯 CREATE THREAD BUTTON CLICKED - Opening interview modal');
-                setShowInterviewModal(true);
+                console.log('🎯 CREATE THREAD BUTTON CLICKED - Opening thread creation modal');
+                setShowCreateThreadModal(true);
               }}
               className="rounded-md"
             >
@@ -249,8 +249,8 @@ export const ThreadsPage: React.FC = () => {
             <Button
               size="sm"
               onClick={() => {
-              console.log('🎯 CREATE THREAD BUTTON CLICKED - Opening interview modal');
-              setShowInterviewModal(true);
+              console.log('🎯 CREATE THREAD BUTTON CLICKED - Opening thread creation modal');
+              setShowCreateThreadModal(true);
             }}
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -287,18 +287,11 @@ export const ThreadsPage: React.FC = () => {
 
       </section>
       
-      {/* Interview Modal */}
-      <InterviewModal
-        isOpen={showInterviewModal}
-        onClose={() => setShowInterviewModal(false)}
-        mode="thread" // Use thread mode for creating learning threads
-        onThreadCreated={(threadId) => {
-          console.log('Thread created from courses page:', threadId);
-          // The modal will automatically navigate to the thread page
-        }}
-        onInterestsExtracted={(interests) => {
-          console.log('Interests extracted from courses page:', interests);
-        }}
+      {/* Create Thread Modal */}
+      <CreateThreadModal
+        isOpen={showCreateThreadModal}
+        onClose={() => setShowCreateThreadModal(false)}
+        studentId={studentProfile?.id || user?.id || 'anonymous'}
       />
     </div>
   );
