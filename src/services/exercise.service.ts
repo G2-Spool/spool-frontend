@@ -1,3 +1,5 @@
+import { supabase } from '../config/supabase'
+import type { ExerciseData } from '../types'
 
 export interface ExerciseGenerationRequest {
   conceptId: string;
@@ -141,6 +143,83 @@ class ExerciseService {
     } catch (error) {
       console.error('Error getting exercise history:', error);
       throw error;
+    }
+  }
+
+  async getExercisesForConcept(conceptId: string): Promise<ExerciseData[]> {
+    try {
+      console.log('ExerciseService - fetching exercises for conceptId:', conceptId)
+      
+      const { data, error } = await supabase
+        .from('exercises')
+        .select('*')
+        .eq('concept_id', conceptId)
+        .order('exercise_number', { ascending: true })
+
+      console.log('ExerciseService - Supabase response:', { data, error })
+
+      if (error) {
+        console.error('Error fetching exercises:', error)
+        throw error
+      }
+
+      return (data || []).map(exercise => ({
+        ...exercise,
+        expected_steps_by_difficulty: exercise.expected_steps_by_difficulty as ExerciseData['expected_steps_by_difficulty']
+      }))
+    } catch (error) {
+      console.error('Error in getExercisesForConcept:', error)
+      return []
+    }
+  }
+
+  async getExerciseById(exerciseId: string): Promise<ExerciseData | null> {
+    try {
+      const { data, error } = await supabase
+        .from('exercises')
+        .select('*')
+        .eq('id', exerciseId)
+        .single()
+
+      if (error) {
+        console.error('Error fetching exercise:', error)
+        return null
+      }
+
+      return data ? {
+        ...data,
+        expected_steps_by_difficulty: data.expected_steps_by_difficulty as ExerciseData['expected_steps_by_difficulty']
+      } : null
+    } catch (error) {
+      console.error('Error in getExerciseById:', error)
+      return null
+    }
+  }
+
+  async getAllExercises(): Promise<ExerciseData[]> {
+    try {
+      console.log('ExerciseService - fetching all exercises')
+      
+      const { data, error } = await supabase
+        .from('exercises')
+        .select('*')
+        .order('concept_id', { ascending: true })
+        .order('exercise_number', { ascending: true })
+
+      console.log('ExerciseService - All exercises:', { data, error })
+
+      if (error) {
+        console.error('Error fetching all exercises:', error)
+        throw error
+      }
+
+      return (data || []).map(exercise => ({
+        ...exercise,
+        expected_steps_by_difficulty: exercise.expected_steps_by_difficulty as ExerciseData['expected_steps_by_difficulty']
+      }))
+    } catch (error) {
+      console.error('Error in getAllExercises:', error)
+      return []
     }
   }
 }

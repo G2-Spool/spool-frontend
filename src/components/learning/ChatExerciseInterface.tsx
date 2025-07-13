@@ -7,6 +7,7 @@ import { Button } from '@/components/atoms/Button'
 import { Textarea } from '@/components/atoms/Textarea'
 import { TypingMessage } from './TypingMessage'
 import { cn } from '@/utils/cn'
+import { useExercisesForConcept } from '@/hooks/useExercises'
 import { 
   ChevronDown, 
   ChevronUp, 
@@ -146,6 +147,15 @@ interface ResponseHighlight {
   type: 'vague' | 'incorrect'
   text: string
   tooltip: string
+}
+
+interface DifficultyLevel {
+  id: number
+  name: string
+  color: string
+  bgColor: string
+  hoverColor: string
+  description: string
 }
 
 interface ChatMessage {
@@ -366,6 +376,50 @@ const vocabularyTerms: VocabularyTerm[] = [
   { term: '2x + 5 = 15', definition: 'A two-step linear equation where x is multiplied by 2, then 5 is added, equaling 15.', type: 'equation' },
   { term: '15m + 20 = 80', definition: 'A two-step linear equation representing the gym membership problem.', type: 'equation' },
   { term: '10x + 4 = 24', definition: 'A practice two-step linear equation for the sub-exercise.', type: 'equation' }
+]
+
+// Difficulty levels configuration
+const difficultyLevels: DifficultyLevel[] = [
+  {
+    id: 1,
+    name: 'Novice',
+    color: '#10b981', // emerald-500
+    bgColor: 'rgba(16, 185, 129, 0.1)',
+    hoverColor: 'rgba(16, 185, 129, 0.2)',
+    description: 'Basic problems with simple steps'
+  },
+  {
+    id: 2,
+    name: 'Beginner',
+    color: '#3b82f6', // blue-500
+    bgColor: 'rgba(59, 130, 246, 0.1)',
+    hoverColor: 'rgba(59, 130, 246, 0.2)',
+    description: 'Straightforward problems with clear guidance'
+  },
+  {
+    id: 3,
+    name: 'Intermediate',
+    color: '#f59e0b', // amber-500
+    bgColor: 'rgba(245, 158, 11, 0.1)',
+    hoverColor: 'rgba(245, 158, 11, 0.2)',
+    description: 'Moderate complexity with multiple steps'
+  },
+  {
+    id: 4,
+    name: 'Advanced',
+    color: '#ef4444', // red-500
+    bgColor: 'rgba(239, 68, 68, 0.1)',
+    hoverColor: 'rgba(239, 68, 68, 0.2)',
+    description: 'Complex problems requiring deep thinking'
+  },
+  {
+    id: 5,
+    name: 'Expert',
+    color: '#8b5cf6', // violet-500
+    bgColor: 'rgba(139, 92, 246, 0.1)',
+    hoverColor: 'rgba(139, 92, 246, 0.2)',
+    description: 'Challenging problems for mastery'
+  }
 ]
 
 // Mock exercise data
@@ -688,10 +742,61 @@ const getTermCounts = () => {
 }
 
 // Main component
-export function ChatExerciseInterface({ onSwitchToGlossary, onNewTerm }: ChatExerciseInterfaceProps) {
-  const [exercises, setExercises] = useState<Exercise[]>(
-    mockExercises.map(ex => ({ ...ex, isExpanded: true }))
-  )
+export function ChatExerciseInterface({ conceptId, onSwitchToGlossary, onNewTerm }: ChatExerciseInterfaceProps) {
+  const { data: exercisesData, isLoading: isLoadingExercises, error } = useExercisesForConcept(conceptId)
+  
+  // Fallback to 'probability' exercises if no exercises found for the current concept
+  const { data: probabilityExercises } = useExercisesForConcept('probability')
+  
+  // Use the exercises for the concept if available, otherwise use probability exercises as demo
+  const exercisesToUse = (exercisesData && exercisesData.length > 0) ? exercisesData : probabilityExercises
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('ChatExerciseInterface - conceptId:', conceptId)
+    console.log('ChatExerciseInterface - exercisesData:', exercisesData)
+    console.log('ChatExerciseInterface - probabilityExercises:', probabilityExercises)
+    console.log('ChatExerciseInterface - exercisesToUse:', exercisesToUse)
+    console.log('ChatExerciseInterface - isLoading:', isLoadingExercises)
+    console.log('ChatExerciseInterface - error:', error)
+  }, [conceptId, exercisesData, probabilityExercises, exercisesToUse, isLoadingExercises, error])
+  
+  // Transform backend exercises to component format
+  const transformExercisesToComponentFormat = (exercises: typeof exercisesToUse): Exercise[] => {
+    if (!exercises || exercises.length === 0) return []
+    
+    return exercises.map(exercise => ({
+      id: exercise.id,
+      title: exercise.base_title,
+      status: 'active' as const,
+      currentInput: '',
+      isLoading: false,
+      isTyping: false,
+      isExpanded: true,
+      messages: [
+        {
+          id: `msg-intro-${exercise.id}`,
+          type: 'system' as const,
+          content: `Let's practice with "${exercise.base_title}"! This exercise focuses on ${exercise.base_context}.`,
+          timestamp: new Date(),
+          exerciseId: exercise.id,
+          hasBeenTyped: false,
+          isCurrentlyTyping: false
+        },
+        {
+          id: `msg-scenario-${exercise.id}`,
+          type: 'system' as const,
+          content: exercise.base_scenario_template,
+          timestamp: new Date(),
+          exerciseId: exercise.id,
+          hasBeenTyped: false,
+          isCurrentlyTyping: false
+        }
+      ]
+    }))
+  }
+  
+  const [exercises, setExercises] = useState<Exercise[]>([])
   const [, setNewTerms] = useState<string[]>([])
   const [showHintTooltip, setShowHintTooltip] = useState(false)
   const [hintTooltipTimer, setHintTooltipTimer] = useState<NodeJS.Timeout | null>(null)
@@ -706,10 +811,24 @@ export function ChatExerciseInterface({ onSwitchToGlossary, onNewTerm }: ChatExe
     equations: NodeJS.Timeout | null
     concepts: NodeJS.Timeout | null
   }>({ vocab: null, equations: null, concepts: null })
+  const [currentDifficulty, setCurrentDifficulty] = useState<DifficultyLevel>(difficultyLevels[0]) // Start with Novice
+  const [showDifficultyTooltip, setShowDifficultyTooltip] = useState(false)
+  const [difficultyTooltipTimer, setDifficultyTooltipTimer] = useState<NodeJS.Timeout | null>(null)
   
   const chatContainerRef = useRef<HTMLDivElement>(null)
   const inputRefs = useRef<{ [key: string]: HTMLTextAreaElement | null }>({})
   const { vocabularyCount, equationCount, conceptCount } = getTermCounts()
+
+  // Initialize exercises when data loads
+  useEffect(() => {
+    if (exercisesToUse && exercisesToUse.length > 0) {
+      const transformedExercises = transformExercisesToComponentFormat(exercisesToUse)
+      setExercises(transformedExercises.map((ex, index) => ({
+        ...ex,
+        status: index === 0 ? 'active' : 'collapsed'
+      })))
+    }
+  }, [exercisesToUse])
 
   // Scroll to bottom helper
   const scrollToBottom = () => {
@@ -731,6 +850,32 @@ export function ChatExerciseInterface({ onSwitchToGlossary, onNewTerm }: ChatExe
       }
       setButtonTooltips(prev => ({ ...prev, [type]: false }))
       setButtonTooltipTimers(prev => ({ ...prev, [type]: null }))
+    }
+  }
+
+  // Difficulty control handlers
+  const handleDifficultyChange = (direction: 'increase' | 'decrease') => {
+    const currentIndex = difficultyLevels.findIndex(level => level.id === currentDifficulty.id)
+    
+    if (direction === 'increase' && currentIndex < difficultyLevels.length - 1) {
+      setCurrentDifficulty(difficultyLevels[currentIndex + 1])
+    } else if (direction === 'decrease' && currentIndex > 0) {
+      setCurrentDifficulty(difficultyLevels[currentIndex - 1])
+    }
+  }
+
+  const handleDifficultyTooltip = (show: boolean) => {
+    if (show) {
+      const timer = setTimeout(() => {
+        setShowDifficultyTooltip(true)
+      }, 500)
+      setDifficultyTooltipTimer(timer)
+    } else {
+      if (difficultyTooltipTimer) {
+        clearTimeout(difficultyTooltipTimer)
+      }
+      setShowDifficultyTooltip(false)
+      setDifficultyTooltipTimer(null)
     }
   }
 
@@ -762,6 +907,16 @@ export function ChatExerciseInterface({ onSwitchToGlossary, onNewTerm }: ChatExe
       ))
     }
   }, [exercises])
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (difficultyTooltipTimer) clearTimeout(difficultyTooltipTimer)
+      Object.values(buttonTooltipTimers).forEach(timer => {
+        if (timer) clearTimeout(timer)
+      })
+    }
+  }, [difficultyTooltipTimer, buttonTooltipTimers])
 
 
 
@@ -1019,10 +1174,14 @@ export function ChatExerciseInterface({ onSwitchToGlossary, onNewTerm }: ChatExe
 
   // Handle hint
   const handleHint = (exerciseId: string) => {
+    const exerciseData = exercisesToUse?.find(ex => ex.id === exerciseId)
+    const hintContent = exerciseData?.base_hint_template || 
+      'Think about what we said earlier about the reverse order of operations. What comes first when you\'re "undoing" operations?'
+    
     const hintMessage: ChatMessage = {
       id: `hint-${Date.now()}`,
       type: 'system',
-      content: 'Think about what we said earlier about the reverse order of operations. What comes first when you\'re "undoing" operations?',
+      content: hintContent,
       timestamp: new Date(),
       exerciseId: exerciseId,
       hasBeenTyped: false,
@@ -1051,6 +1210,35 @@ export function ChatExerciseInterface({ onSwitchToGlossary, onNewTerm }: ChatExe
     setExercises(prev => prev.map(ex => 
       ex.id === exerciseId ? { ...ex, currentInput: value } : ex
     ))
+  }
+
+  // Add loading state
+  if (isLoadingExercises) {
+    return (
+      <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#2d3748' }}>
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-muted-foreground" />
+          <p className="text-muted-foreground">Loading exercises...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Handle no exercises case
+  if (!exercisesToUse || exercisesToUse.length === 0) {
+    return (
+      <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#2d3748' }}>
+        <div className="text-center">
+          <p className="text-muted-foreground">No exercises available for this concept.</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Concept ID requested: {conceptId}
+          </p>
+          <a href="/debug-exercises" className="text-primary hover:underline mt-2 inline-block">
+            View all available exercises
+          </a>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -1322,6 +1510,8 @@ export function ChatExerciseInterface({ onSwitchToGlossary, onNewTerm }: ChatExe
                           </div>
                         )}
 
+
+
                         {/* Input Area */}
                         {exercise.status === 'active' && (
                           <div className="mt-4 pt-4">
@@ -1385,9 +1575,59 @@ export function ChatExerciseInterface({ onSwitchToGlossary, onNewTerm }: ChatExe
                               </Button>
                             </div>
                             
-                            <p className="text-xs text-muted-foreground mt-2">
-                              Press Enter to send, Shift+Enter for new line
-                            </p>
+                            <div className="flex items-center justify-between mt-2">
+                              <p className="text-xs text-muted-foreground">
+                                Press Enter to send, Shift+Enter for new line
+                              </p>
+                              
+                              {/* Compact Difficulty Control */}
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDifficultyChange('decrease')}
+                                  disabled={currentDifficulty.id === 1}
+                                  className="h-6 w-6 p-0 hover:bg-muted"
+                                >
+                                  <ChevronDown className="w-3 h-3" />
+                                </Button>
+                                
+                                <div className="relative">
+                                  <div
+                                    className="px-2 py-1 rounded text-xs font-medium cursor-pointer transition-all duration-200 min-w-[60px] text-center"
+                                    style={{
+                                      backgroundColor: currentDifficulty.bgColor,
+                                      borderColor: currentDifficulty.color,
+                                      color: currentDifficulty.color,
+                                      border: `1px solid ${currentDifficulty.color}`
+                                    }}
+                                    onMouseEnter={() => handleDifficultyTooltip(true)}
+                                    onMouseLeave={() => handleDifficultyTooltip(false)}
+                                  >
+                                    {currentDifficulty.name}
+                                  </div>
+                                  
+                                  {showDifficultyTooltip && (
+                                    <div className="absolute bottom-full right-0 mb-2 px-2 py-1 rounded text-xs text-white whitespace-nowrap z-20" style={{ backgroundColor: '#5a6478', border: '1px solid #374151' }}>
+                                      {currentDifficulty.description}
+                                      <div className="absolute top-full right-2">
+                                        <div className="w-1.5 h-1.5 rotate-45" style={{ backgroundColor: '#5a6478', borderRight: '1px solid #374151', borderBottom: '1px solid #374151' }}></div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDifficultyChange('increase')}
+                                  disabled={currentDifficulty.id === difficultyLevels.length}
+                                  className="h-6 w-6 p-0 hover:bg-muted"
+                                >
+                                  <ChevronUp className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
                           </div>
                         )}
                       </div>

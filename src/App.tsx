@@ -18,6 +18,7 @@ import { ProgressPage } from './pages/ProgressPage';
 import { ThreadPage } from './pages/ThreadPage';
 import { TopicPage } from './pages/TopicPage';
 import { TestThreadCreation } from './pages/TestThreadCreation';
+import { DebugExercises } from './pages/DebugExercises';
 
 // Layouts
 import { AuthLayout } from './components/layouts/AuthLayout';
@@ -71,6 +72,7 @@ function App() {
                 <Route path="/topic/:topicId" element={<TopicPage />} />
                 <Route path="/thread/:threadId" element={<ThreadPage />} />
                 <Route path="/test-thread" element={<TestThreadCreation />} />
+                <Route path="/debug-exercises" element={<DebugExercises />} />
               </Route>
 
               {/* Fallback */}

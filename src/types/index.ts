@@ -418,3 +418,29 @@ export interface PaginatedResponse<T> {
   pageSize: number;
   hasMore: boolean;
 }
+
+// Add these types for the exercise system
+export interface ExerciseStep {
+  id: string
+  description: string
+  key_concept: string
+}
+
+export interface ExerciseStepsByDifficulty {
+  Expert?: ExerciseStep[]
+  Advanced?: ExerciseStep[]
+  Capable?: ExerciseStep[]
+  Beginner?: ExerciseStep[]
+  Novice?: ExerciseStep[]
+}
+
+export interface ExerciseData {
+  id: string
+  concept_id: string | null
+  exercise_number: number
+  base_title: string
+  base_context: string
+  base_scenario_template: string
+  base_hint_template: string
+  expected_steps_by_difficulty: ExerciseStepsByDifficulty
+}
