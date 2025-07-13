@@ -12,7 +12,6 @@ interface ClassBadgeProps {
 
 export function ClassBadge({ 
   className, 
-  subject, 
   color = "#667eea", 
   size = "large",
   onClick 

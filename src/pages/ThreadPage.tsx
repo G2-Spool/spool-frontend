@@ -17,12 +17,14 @@ import {
   CheckCircle,
   BarChart3,
   Zap,
-  Award
+  Award,
+  X
 } from 'lucide-react';
 import { useThread } from '../hooks/useThread';
 import { ThreadSectionsSidebar } from '../components/organisms/ThreadSectionsSidebar';
 import { TwoStageExercise } from '../components/organisms/TwoStageExercise';
 import { cn } from '../utils/cn';
+import { MarkdownText } from '../utils/markdown';
 
 // Mock student profile - in production this would come from user context
 const mockStudentProfile = {
@@ -40,6 +42,7 @@ export const ThreadPage: React.FC = () => {
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [sectionProgress, setSectionProgress] = useState<Record<string, 'reading' | 'exercising' | 'completed'>>({});
   const [showFloatingCTA, setShowFloatingCTA] = useState(false);
+  const [showLearningTip, setShowLearningTip] = useState(true);
   
   // Fetch thread data
   const { data: thread, isLoading, error } = useThread(threadId || '');
@@ -57,6 +60,18 @@ export const ThreadPage: React.FC = () => {
         return 'text-gray-700 dark:text-gray-400 bg-gray-100 dark:bg-gray-900/30';
     }
   };
+
+  // Get relevance color based on score
+  const getRelevanceColor = (score: number) => {
+    const percentage = Math.round(score * 100);
+    if (percentage < 30) {
+      return 'text-red-600 dark:text-red-400';
+    } else if (percentage <= 70) {
+      return 'text-yellow-600 dark:text-yellow-400';
+    } else {
+      return 'text-green-600 dark:text-green-400';
+    }
+  };
   
   // Set initial selected section
   useEffect(() => {
@@ -65,17 +80,11 @@ export const ThreadPage: React.FC = () => {
     }
   }, [thread, selectedSection]);
 
-  // Handle scroll for floating CTA
+  // Handle scroll for floating CTA - Disabled for dual scroll layout
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      const shouldShow = scrollPosition > 800 && !showExercise && selectedSection && sectionProgress[selectedSection] !== 'completed';
-      setShowFloatingCTA(!!shouldShow);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [showExercise, selectedSection, sectionProgress]);
+    // Floating CTA disabled when using dual scroll layout
+    setShowFloatingCTA(false);
+  }, []);
   
   const toggleSectionExpanded = (sectionId: string) => {
     const newExpanded = new Set(expandedSections);
@@ -119,7 +128,7 @@ export const ThreadPage: React.FC = () => {
   
   if (isLoading) {
     return (
-      <div className="flex h-screen">
+      <div className="flex h-full">
         {/* Loading skeleton */}
         <div className="flex-1 p-8">
           <div className="animate-pulse">
@@ -144,7 +153,7 @@ export const ThreadPage: React.FC = () => {
   
   if (error || !thread) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-full">
         <Card className="max-w-md text-center p-8">
           <h2 className="text-xl font-semibold text-error mb-2">Thread Not Found</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -163,9 +172,9 @@ export const ThreadPage: React.FC = () => {
   const currentSectionStatus = selectedSection ? sectionProgress[selectedSection] || 'reading' : 'reading';
   
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex h-full bg-gray-50 dark:bg-gray-900">
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto" id="main-content">
         <div className="w-full">
           {/* Header */}
           <div className="mb-8 px-8 pt-8">
@@ -268,8 +277,8 @@ export const ThreadPage: React.FC = () => {
               <div className="flex items-start gap-3">
                 <Brain className="h-8 w-8 text-teal-600 dark:text-teal-400 mt-1" />
                 <div>
-                  <h3 className="text-lg font-semibold text-teal-900 dark:text-teal-200 mb-1">Your Learning Focus</h3>
-                  <p className="text-teal-800 dark:text-teal-300 text-base">{thread.analysis.summary}</p>
+                  <h3 className="text-lg font-semibold text-teal-950 dark:text-teal-300 mb-1">Your Learning Focus</h3>
+                  <p className="text-white text-base">{thread.analysis.summary}</p>
                   <div className="flex flex-wrap gap-2 mt-3">
                     {thread.analysis.subjects.map((subject: string, idx: number) => (
                       <Badge key={idx} variant="primary" size="sm">
@@ -320,8 +329,10 @@ export const ThreadPage: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-4 text-base text-gray-600">
                           <div className="flex items-center gap-1">
-                            <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(currentSection.relevanceScore * 100)}% relevant</span>
+                            <TrendingUp className={cn("h-4 w-4", getRelevanceColor(currentSection.relevanceScore))} />
+                            <span className={getRelevanceColor(currentSection.relevanceScore)}>
+                              {Math.round(currentSection.relevanceScore * 100)}% relevant
+                            </span>
                           </div>
                           {currentSection.estimatedMinutes && (
                             <div className="flex items-center gap-1">
@@ -344,42 +355,51 @@ export const ThreadPage: React.FC = () => {
                     {/* Section Text Content */}
                     <div className="prose prose-gray max-w-none">
                       <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                        {currentSection.text}
+                        <MarkdownText text={currentSection.text} />
                       </p>
                     </div>
                     
                     {/* Learning Tips */}
-                    <div className="mt-6 p-4 bg-yellow-200 dark:bg-yellow-900/20 border border-yellow-400 dark:border-yellow-600 rounded-lg">
-                      <div className="flex items-start gap-2">
-                        <Lightbulb className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
-                        <div>
-                          <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-1">Learning Tip</h4>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">
-                            This section connects to key concepts in {thread.analysis.subjects.join(' and ')}. 
-                            Try to relate this material to what you already know about these subjects.
-                          </p>
+                    {showLearningTip && (
+                      <div className="mt-6 p-4 bg-yellow-200 dark:bg-yellow-900/20 border border-yellow-400 dark:border-yellow-600 rounded-lg relative">
+                        <button
+                          onClick={() => setShowLearningTip(false)}
+                          className="absolute top-3 right-3 p-1 hover:bg-yellow-300 dark:hover:bg-yellow-800/50 rounded-full transition-colors duration-200"
+                        >
+                          <X className="h-4 w-4 text-gray-400" />
+                        </button>
+                        <div className="flex items-start gap-2 pr-8">
+                          <Lightbulb className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+                          <div>
+                            <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-1">Learning Tip</h4>
+                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                              This section connects to key concepts in {thread.analysis.subjects.join(' and ')}. 
+                              Try to relate this material to what you already know about these subjects.
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                     
                     {/* Related Concepts */}
                     {currentSection.conceptIds && currentSection.conceptIds.length > 0 && (
                       <div className="mt-6">
-                        <h3 className="text-lg font-semibold text-obsidian dark:text-gray-100 mb-3">
+                        <h3 className="text-lg font-semibold text-obsidian dark:text-gray-100 mb-4">
                           Related Concepts
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {currentSection.conceptIds.slice(0, 4).map((conceptId) => (
-                            <div key={conceptId} className="cursor-pointer hover:scale-[1.02] transition-transform">
-                              <Card className="p-4 hover:shadow-md transition-shadow">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-3">
-                                    <BookOpen className="h-5 w-5 text-teal-600 dark:text-teal-400" />
-                                    <span className="font-medium">Concept {conceptId.slice(-4)}</span>
-                                  </div>
-                                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                        <div className="space-y-0">
+                          {['Machine Learning Fundamentals', 'Data Processing Techniques', 'Pattern Recognition', 'Algorithm Optimization'].map((conceptName, index) => (
+                            <div key={index}>
+                              <div className="group flex items-center justify-between py-3 px-2 -mx-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 hover:shadow-sm hover:scale-[1.02] transition-all duration-200 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                  <BookOpen className="h-4 w-4 text-teal-600 dark:text-teal-400 transition-colors duration-200 group-hover:text-teal-700 dark:group-hover:text-teal-300" />
+                                  <span className="text-gray-900 dark:text-gray-100 font-medium transition-colors duration-200">{conceptName}</span>
                                 </div>
-                              </Card>
+                                <ChevronRight className="h-4 w-4 text-gray-400 transition-all duration-200 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-0.5" />
+                              </div>
+                              {index < 3 && (
+                                <div className="border-b border-gray-200 dark:border-gray-700" />
+                              )}
                             </div>
                           ))}
                         </div>
@@ -405,7 +425,7 @@ export const ThreadPage: React.FC = () => {
                             <h3 className="text-xl font-bold text-obsidian dark:text-gray-100">
                               Ready to Master This Concept?
                             </h3>
-                            <Badge variant="success" size="sm" className="animate-pulse">
+                            <Badge variant="success" size="sm" className="animate-pulse bg-gradient-to-b from-green-600 to-green-700 text-white dark:from-green-700 dark:to-green-800 dark:text-green-100 px-2 py-1.25">
                               <Sparkles className="h-3 w-3 mr-1" />
                               Interactive
                             </Badge>
@@ -519,31 +539,7 @@ export const ThreadPage: React.FC = () => {
         onToggleExpanded={toggleSectionExpanded}
       />
 
-      {/* Floating Exercise CTA */}
-      {showFloatingCTA && (
-        <div className="fixed bottom-8 right-8 z-40 animate-slide-up">
-          <div className="relative">
-            {/* Pulsing background effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full blur-xl opacity-75 animate-pulse" />
-            
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={handleStartExercise}
-              className="relative bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-200 text-white font-semibold px-6 py-4 rounded-full flex items-center gap-3"
-            >
-              <div className="p-2 bg-white/20 rounded-full">
-                <Zap className="h-6 w-6" />
-              </div>
-              <div className="text-left">
-                <div className="text-sm opacity-90">Ready to practice?</div>
-                <div className="text-base font-bold">Start Exercise</div>
-              </div>
-              <PlayCircle className="h-8 w-8 ml-2" />
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* Floating Exercise CTA - Removed */}
     </div>
   );
 };

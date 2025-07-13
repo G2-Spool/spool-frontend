@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useThreadGraphD3 } from '../../hooks/useThreadGraph';
-import type { ThreadGraphData } from '../../hooks/useThreadGraph';
 
 interface ThreadGraphNode {
   id: string;

@@ -8,7 +8,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/atoms/Button';
-import { Card } from '../components/atoms/Card';
 import { ConceptList } from '../components/organisms/ConceptList';
 import { 
   ArrowLeft, 
@@ -16,7 +15,6 @@ import {
   CheckCircle, 
   Circle,
   Clock,
-  Users
 } from 'lucide-react';
 
 interface Concept {

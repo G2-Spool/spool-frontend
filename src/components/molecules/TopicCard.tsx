@@ -5,8 +5,6 @@
  * and completion progress. Includes a play button for starting the topic.
  */
 
-import React from 'react'
-import { Card } from '../atoms/Card'
 import { cn } from '../../utils/cn'
 
 interface TopicCardProps {

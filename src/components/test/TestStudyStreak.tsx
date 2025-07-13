@@ -5,7 +5,6 @@
  * This is a placeholder component used in the dashboard for testing purposes.
  */
 
-import React from 'react'
 import { Card } from '@/components/atoms/Card'
 import { Button } from '@/components/atoms/Button'
 import { useStudyStreak } from '@/hooks/useStudyStreak'

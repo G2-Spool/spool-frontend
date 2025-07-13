@@ -1,9 +1,8 @@
-# Spool - Functional Requirements Document (FRD)
+# Functional Requirements - Thread-Based Learning Platform
 
-**Version:** 2.0  
-**Date:** January 2025  
-**Author:** Systems Analysis Team
-**Update:** Thread-Based Learning Architecture & AWS Infrastructure
+**Version:** 3.0  
+**Last Updated:** 2024  
+**Update:** Thread-Based Learning Architecture
 
 ## 1. Introduction
 
@@ -220,7 +219,7 @@ This Functional Requirements Document (FRD) translates the high-level business n
 
 ### 3.1 Infrastructure Components
 
-**Edge Functions (Replacing Lambda & ECS Services):**
+**Edge Functions:**
 - **Thread Discovery Function**: Learning goal extraction from text chat interviews
 - **Thread Generation Function**: LLM-powered concept mapping and Thread assembly
 - **Content Assembly Function**: Vector search and content curation

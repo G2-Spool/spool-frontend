@@ -5,7 +5,6 @@
  * Used in the dashboard to show learning milestones and progress.
  */
 
-import React from 'react'
 import { Card } from '@/components/atoms/Card'
 import { Badge } from '@/components/atoms/Badge'
 import { cn } from '@/utils/cn'
