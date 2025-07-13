@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../components/atoms/Card';
 import { Button } from '../components/atoms/Button';
 import { 
   Plus,
   MessageSquare,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { useUserThreads } from '../hooks/useThread';
 import { ThreadCard } from '../components/molecules/ThreadCard';
@@ -37,13 +39,64 @@ export const ThreadsPage: React.FC = () => {
   const userId = user?.id || 'anonymous';
   const navigate = useNavigate();
   
+  // Carousel functionality for thread cards
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
-  
   // Fetch user threads
   const { 
     data: threads, 
     isLoading: isLoadingThreads 
   } = useUserThreads(userId, 5);
+
+  // Update scroll state
+  const updateScrollState = () => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const scrollLeft = container.scrollLeft;
+      const scrollWidth = container.scrollWidth;
+      const clientWidth = container.clientWidth;
+      
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+    }
+  };
+
+  // Scroll functions
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      const newPosition = Math.max(0, scrollPosition - 320);
+      scrollContainerRef.current.scrollTo({
+        left: newPosition,
+        behavior: 'smooth'
+      });
+      setScrollPosition(newPosition);
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      const newPosition = scrollPosition + 320;
+      scrollContainerRef.current.scrollTo({
+        left: newPosition,
+        behavior: 'smooth'
+      });
+      setScrollPosition(newPosition);
+    }
+  };
+
+  // Update scroll state on mount and when threads change
+  useEffect(() => {
+    updateScrollState();
+    const handleScroll = () => updateScrollState();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, [threads]);
   
   // Loading skeleton component
   const CourseCardSkeleton = () => (
@@ -166,6 +219,28 @@ export const ThreadsPage: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-obsidian">Your Learning Threads</h2>
           <div className="flex items-center gap-2">
+            {threads && threads.length > 3 && (
+              <div className="flex space-x-2 mr-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={scrollLeft}
+                  disabled={!canScrollLeft}
+                  className="h-8 w-8 p-0 bg-transparent"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={scrollRight}
+                  disabled={!canScrollRight}
+                  className="h-8 w-8 p-0 bg-transparent"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -190,25 +265,35 @@ export const ThreadsPage: React.FC = () => {
         </div>
         
         {threads && threads.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {isLoadingThreads ? (
-              // Loading skeletons
-              Array.from({ length: 3 }).map((_, index) => (
-                <CourseCardSkeleton key={index} />
-              ))
-            ) : (
-              threads.map((thread) => (
-                <ThreadCard
-                  key={thread.threadId}
-                  threadId={thread.threadId}
-                  userInput={thread.userInput}
-                  analysis={thread.analysis}
-                  sectionCount={thread.sections.length}
-                  createdAt={thread.createdAt}
-                  estimatedReadTime={thread.sections.reduce((sum, s) => sum + (s.estimatedMinutes || 0), 0)}
-                />
-              ))
-            )}
+          <div className="relative overflow-hidden">
+            <div
+              ref={scrollContainerRef}
+              className="flex space-x-4 overflow-x-auto [&::-webkit-scrollbar]:hidden"
+              style={{ 
+                scrollbarWidth: 'none', 
+                msOverflowStyle: 'none'
+              }}
+            >
+              {isLoadingThreads ? (
+                // Loading skeletons
+                Array.from({ length: 3 }).map((_, index) => (
+                  <CourseCardSkeleton key={index} />
+                ))
+              ) : (
+                threads.map((thread) => (
+                  <ThreadCard
+                    key={thread.threadId}
+                    threadId={thread.threadId}
+                    userInput={thread.userInput}
+                    analysis={thread.analysis}
+                    sectionCount={thread.sections.length}
+                    createdAt={thread.createdAt}
+                    estimatedReadTime={thread.sections.reduce((sum, s) => sum + (s.estimatedMinutes || 0), 0)}
+                    completionPercentage={Math.floor(Math.random() * 100)}
+                  />
+                ))
+              )}
+            </div>
           </div>
         ) : (
           <Card className="p-8 text-center bg-purple-50 border-purple-200">

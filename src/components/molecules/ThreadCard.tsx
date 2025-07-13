@@ -3,10 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card } from '../atoms/Card';
 import { Badge } from '../atoms/Badge';
 import { 
-  MessageSquare, 
-  Brain, 
   Clock,
-  ArrowRight,
   Sparkles
 } from 'lucide-react';
 import ThreadGraph from './ThreadGraph';
@@ -23,6 +20,7 @@ interface ThreadCardProps {
   sectionCount: number;
   createdAt: string;
   estimatedReadTime?: number;
+  completionPercentage?: number;
 }
 
 export const ThreadCard: React.FC<ThreadCardProps> = ({
@@ -31,23 +29,35 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   analysis,
   sectionCount,
   createdAt,
-  estimatedReadTime = 15
+  estimatedReadTime = 15,
+  completionPercentage = 0
 }) => {
   const [isGraphVisible, setIsGraphVisible] = useState(false);
   const [graphPosition, setGraphPosition] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+  // Generate a short, meaningful title based on the thread content
+  const generateTitle = () => {
+    const primarySubject = analysis.subjects[0];
+    const primaryTopic = analysis.topics[0];
     
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
-    return date.toLocaleDateString();
+    // Create title based on subject and topic
+    if (primarySubject && primaryTopic) {
+      return `${primarySubject}: ${primaryTopic}`;
+    } else if (primarySubject) {
+      return `${primarySubject} Study`;
+    } else if (primaryTopic) {
+      return primaryTopic;
+    }
+    
+    // Fallback to first few words if no analysis available
+    const words = userInput.split(' ');
+    if (words.length <= 3) return userInput;
+    return `${words.slice(0, 3).join(' ')} Guide`;
   };
+
+
 
   const handleMouseEnter = () => {
     // Clear any existing timeout
@@ -86,7 +96,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   };
 
   // Thread color gradient
-  const threadColor = "linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)";
+  const threadColor = "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)";
   
   return (
     <>
@@ -116,15 +126,11 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
               <div className="absolute inset-0 bg-black/20 group-hover:bg-white/15 transition-colors duration-200" />
               
               <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-2">
-                  <MessageSquare className="h-5 w-5 text-white" />
-                  <span className="text-sm font-medium text-white opacity-90">{formatTimeAgo(createdAt)}</span>
-                </div>
-                <h3 className="font-semibold text-xl leading-tight mb-2">
-                  Learning Thread
+                <h3 className="font-semibold text-2xl leading-tight mb-2">
+                  {generateTitle()}
                 </h3>
-                <p className="text-base opacity-90 line-clamp-2 italic">
-                  "{userInput}"
+                <p className="text-base opacity-90 line-clamp-2">
+                  {analysis.summary.length > 80 ? `${analysis.summary.substring(0, 80)}...` : analysis.summary}
                 </p>
               </div>
             </div>
@@ -133,18 +139,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
             <div className="relative transition-colors duration-200" style={{ backgroundColor: '#1a202c' }}>
               <div className="absolute inset-0 bg-transparent group-hover:bg-white/[0.075] transition-colors duration-200" />
               <div className="relative z-10 px-3 py-4 space-y-4">
-                
-                {/* AI Analysis Summary */}
-                <div className="p-3 bg-teal-900/40 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <Brain className="h-4 w-4 text-teal-400 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-xs text-teal-300 line-clamp-2">
-                        {analysis.summary}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+
                 
                 {/* Subject Tags */}
                 <div className="flex flex-wrap gap-1.5">
@@ -172,7 +167,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                       {sectionCount}
                     </div>
                     <div className="text-gray-300 text-sm">
-                      Sections
+                      Concepts
                     </div>
                   </div>
                   
@@ -186,11 +181,11 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                   </div>
                   
                   <div className="text-center">
-                    <div className="font-bold text-white text-2xl flex items-center justify-center">
-                      <ArrowRight className="h-6 w-6 text-white" />
+                    <div className="font-bold text-white text-2xl">
+                      {completionPercentage}%
                     </div>
                     <div className="text-gray-300 text-sm">
-                      Continue
+                      Complete
                     </div>
                   </div>
                 </div>
