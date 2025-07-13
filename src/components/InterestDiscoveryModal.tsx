@@ -30,7 +30,7 @@ export function InterestDiscoveryModal({
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId, setSessionId] = useState<string>('');
+  const [, setSessionId] = useState<string>('');
   const [extractedInterests, setExtractedInterests] = useState<InterestWithDetails[]>([]);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 

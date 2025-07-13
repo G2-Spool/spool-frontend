@@ -6,7 +6,6 @@
  */
 
 import React from 'react'
-import { Card } from '../atoms/Card'
 import { ProgressCircle } from '../atoms/ProgressCircle'
 import { cn } from '../../utils/cn'
 

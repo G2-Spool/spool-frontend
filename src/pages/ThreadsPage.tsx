@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '../components/atoms/Card';
-import { ProgressBar } from '../components/molecules/ProgressBar';
 import { Button } from '../components/atoms/Button';
 import { 
-  Clock, 
-  Trophy, 
-  ArrowRight,
   Search,
   Plus,
   MessageSquare,
@@ -45,7 +41,7 @@ export const ThreadsPage: React.FC = () => {
   const navigate = useNavigate();
   
   // Debounce search query
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  useDebounce(searchQuery, 300);
   
   // Fetch user threads
   const { 

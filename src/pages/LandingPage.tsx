@@ -4,7 +4,6 @@ import { Button } from '../components/atoms/Button';
 import { Card } from '../components/atoms/Card';
 import { Badge } from '../components/atoms/Badge';
 import HeroGeometric from '../components/ui/hero-geometric';
-import { SpoolPlayer } from '../components/remotion/SpoolPlayer';
 import { 
   ArrowRight, 
   BookOpen, 
@@ -142,20 +141,22 @@ export const LandingPage: React.FC = () => {
           </div>
 
           <div className="max-w-5xl mx-auto">
-            <SpoolPlayer className="mb-8" />
-            
-            {/* Brief explanation below the demo */}
-            <div className="text-center mt-8 space-y-4">
-              <p className="text-gray-600 dark:text-gray-400 max-w-4xl mx-auto text-lg leading-relaxed">
-                Traditional education treats learning as a straight line from start to finish. 
-                But real life is messy and interconnected. Spool organizes this complexity 
-                into clear, personalized academic lessons that connect to what matters most to each student.
-              </p>
-              
-              <div className="flex flex-wrap justify-center gap-3 pt-4">
-                <Badge variant="teal">🎯 Personalized</Badge>
-                <Badge variant="success">🔗 Connected</Badge>
-                <Badge variant="primary">✨ Engaging</Badge>
+            <div className="bg-gradient-to-br from-white to-teal-50/50 dark:from-gray-800 dark:to-teal-900/20 rounded-2xl p-12 shadow-xl">
+              <div className="text-center space-y-8">
+                <div className="text-6xl font-bold text-gradient bg-gradient-to-r from-teal-500 to-purple-500 bg-clip-text text-transparent">
+                  Coming Soon
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 max-w-4xl mx-auto text-lg leading-relaxed">
+                  Traditional education treats learning as a straight line from start to finish. 
+                  But real life is messy and interconnected. Spool organizes this complexity 
+                  into clear, personalized academic lessons that connect to what matters most to each student.
+                </p>
+                
+                <div className="flex flex-wrap justify-center gap-3 pt-4">
+                  <Badge variant="teal">🎯 Personalized</Badge>
+                  <Badge variant="success">🔗 Connected</Badge>
+                  <Badge variant="primary">✨ Engaging</Badge>
+                </div>
               </div>
             </div>
           </div>

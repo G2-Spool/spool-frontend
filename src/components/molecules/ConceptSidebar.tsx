@@ -5,7 +5,6 @@
  * Displays concept list with completion status, progress indicators, and navigation.
  */
 
-import React from 'react'
 import { Card } from '@/components/atoms/Card'
 import { Button } from '@/components/atoms/Button'
 import { cn } from '@/utils/cn'

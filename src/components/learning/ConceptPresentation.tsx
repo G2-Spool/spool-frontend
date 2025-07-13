@@ -15,7 +15,6 @@
  * - Step-by-step workflow instructions
  */
 
-import React from 'react'
 import { Card } from '@/components/atoms/Card'
 import { ExerciseSection } from './ExerciseSection'
 import { cn } from '@/utils/cn'

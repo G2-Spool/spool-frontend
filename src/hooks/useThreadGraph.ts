@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { threadGraphService } from '@/services/threadGraph.service';
+import { threadGraphService } from '../services/threadGraph.service';
 
 interface ThreadGraphNode {
   id: string;

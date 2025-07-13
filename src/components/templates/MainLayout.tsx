@@ -24,7 +24,7 @@ interface MainLayoutProps {
   className?: string
 }
 
-export function MainLayout({ children, title, allowOverflow = false, className }: MainLayoutProps) {
+export function MainLayout({ children, allowOverflow = false, className }: MainLayoutProps) {
   const { user, studentProfile } = useAuth()
   const { studyStreak } = useStudyStreak()
 

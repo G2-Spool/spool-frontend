@@ -5,11 +5,11 @@
  * Includes navigation buttons and smooth scrolling behavior.
  */
 
-import React, { useState } from 'react'
 import { Button } from '../atoms/Button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { TopicCard } from '../molecules/TopicCard'
 import { cn } from '../../utils/cn'
+import { useState } from 'react'
 
 interface Topic {
   id: string

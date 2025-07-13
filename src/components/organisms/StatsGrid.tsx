@@ -1,6 +1,6 @@
 import { StatCard } from "../atoms/StatCard"
 import { ProgressBar } from "../molecules/ProgressBar"
-import { Calendar, Clock, Target, TrendingUp, Flame } from "lucide-react"
+import { Calendar, Clock, Flame } from "lucide-react"
 
 interface StatsGridProps {
   studyStreak: number
@@ -10,7 +10,7 @@ interface StatsGridProps {
   todayCompletions: number
 }
 
-export function StatsGrid({ studyStreak, weeklyConsistency, learningPace, streakStatus, todayCompletions }: StatsGridProps) {
+export function StatsGrid({ studyStreak, streakStatus, todayCompletions }: StatsGridProps) {
   const dailyGoal = 5 // Default daily goal of 5 concepts
   const dailyProgress = Math.min(100, Math.round((todayCompletions / dailyGoal) * 100))
 
