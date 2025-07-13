@@ -8,43 +8,58 @@ interface InterestWithDetails {
   discovered_at: string;
 }
 
-export function useInterests(studentId: string | undefined) {
+interface InterestWithDescription {
+  interest: string;
+  description: string;
+}
+
+export function useInterests(userId: string | undefined) {
   const queryClient = useQueryClient();
 
   const { data: interests = [], isLoading, error } = useQuery({
-    queryKey: ['interests', studentId],
+    queryKey: ['interests', userId],
     queryFn: async () => {
-      if (!studentId) return [];
+      if (!userId) return [];
       
       const { data, error } = await supabase
-        .from('student_profiles')
-        .select('detailed_interests')
-        .eq('id', studentId)
+        .from('users')
+        .select('interests')
+        .eq('id', userId)
         .single();
 
       if (error) throw error;
-      return ((data?.detailed_interests as unknown) || []) as InterestWithDetails[];
+      
+      // Convert stored interests format to display format
+      const storedInterests = (data?.interests as InterestWithDescription[]) || [];
+      return storedInterests.map((interest: InterestWithDescription) => ({
+        interest: interest.interest,
+        details: interest.description,
+        discovered_at: new Date().toISOString() // We don't store timestamps in the new format
+      })) as InterestWithDetails[];
     },
-    enabled: !!studentId,
+    enabled: !!userId,
   });
 
   const updateInterests = useMutation({
     mutationFn: async (newInterests: InterestWithDetails[]) => {
-      if (!studentId) throw new Error('No student ID');
+      if (!userId) throw new Error('No user ID');
+      
+      // Convert display format back to storage format
+      const interestsToStore = newInterests.map((interest: InterestWithDetails) => ({
+        interest: interest.interest,
+        description: interest.details
+      }));
       
       const { error } = await supabase
-        .from('student_profiles')
-        .update({ 
-          detailed_interests: JSON.parse(JSON.stringify(newInterests)),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', studentId);
+        .from('users')
+        .update({ interests: interestsToStore })
+        .eq('id', userId);
 
       if (error) throw error;
       return newInterests;
     },
     onSuccess: (newInterests) => {
-      queryClient.setQueryData(['interests', studentId], newInterests);
+      queryClient.setQueryData(['interests', userId], newInterests);
       toast.success('Interests updated successfully!');
     },
     onError: (error) => {
@@ -55,17 +70,17 @@ export function useInterests(studentId: string | undefined) {
 
   const fetchInterestsFromEdgeFunction = useMutation({
     mutationFn: async () => {
-      if (!studentId) throw new Error('No student ID');
+      if (!userId) throw new Error('No user ID');
       
       const { data, error } = await supabase.functions.invoke('interest-discovery', {
-        body: { action: 'get_interests', studentId }
+        body: { action: 'get_interests', studentId: userId }
       });
 
       if (error) throw error;
       return data.interests as InterestWithDetails[];
     },
     onSuccess: (interests) => {
-      queryClient.setQueryData(['interests', studentId], interests);
+      queryClient.setQueryData(['interests', userId], interests);
     },
     onError: (error) => {
       console.error('Error fetching interests:', error);
