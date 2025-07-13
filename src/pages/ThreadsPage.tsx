@@ -131,16 +131,16 @@ export const ThreadsPage: React.FC = () => {
           id: "biology",
           title: "Biology",
           description: "Study living organisms and their interactions with the environment",
-          sections: 10,
-          concepts: 45,
+          sections: 47,
+          concepts: 208,
           progress: 0
         },
         {
           id: "anatomy",
           title: "Anatomy and Physiology",
           description: "Learn about the structure and organization of the human body",
-          sections: 12,
-          concepts: 58,
+          sections: 28,
+          concepts: 169,
           progress: 0
         }
       ]
