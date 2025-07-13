@@ -33,12 +33,7 @@ const mockStudentProfile: StudentProfile = {
   userId: '123',
   firstName: 'Alex',
   lastName: 'Johnson',
-  interests: [
-    { interest: 'gaming', category: 'personal', strength: 0.9 },
-    { interest: 'coding', category: 'career', strength: 0.85 },
-    { interest: 'environmental conservation', category: 'philanthropic', strength: 0.8 },
-    { interest: 'team sports', category: 'social', strength: 0.75 },
-  ],
+  interests: ['gaming', 'coding', 'environmental conservation', 'team sports'],
   careerInterests: ['technology', 'game development'],
   philanthropicInterests: ['environment', 'education'],
   learningStyleIndicators: { visual: 0.8, kinesthetic: 0.6 },

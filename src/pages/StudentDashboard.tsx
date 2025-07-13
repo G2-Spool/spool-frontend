@@ -21,7 +21,6 @@ import {
   Lightbulb,
   MessageCircle,
 } from 'lucide-react';
-import type { LifeCategory } from '../types';
 
 
 export const StudentDashboard: React.FC = () => {
@@ -41,7 +40,7 @@ export const StudentDashboard: React.FC = () => {
   const { data: activePath, isLoading: activePathLoading } = useActiveLearningPath();
   const { data: stats, isLoading: statsLoading } = useStudentStats();
   const { interests, isLoading: interestsLoading } = useInterests(studentProfile?.id);
-  const { data: threads, isLoading: threadsLoading } = useUserThreads(user?.id || 'anonymous', 10);
+  const { isLoading: threadsLoading } = useUserThreads(user?.id || 'anonymous', 10);
 
   // Sample threads for demonstration
   const sampleThreads = [
@@ -367,7 +366,7 @@ export const StudentDashboard: React.FC = () => {
                 return (
                   <div
                     key={thread.threadId}
-                    onClick={(e) => {
+                    onClick={() => {
                       if (!isDragging) {
                         navigate(`/thread/${thread.threadId}`);
                       }
@@ -400,7 +399,7 @@ export const StudentDashboard: React.FC = () => {
               
               {/* Add Thread Button Card */}
               <div
-                onClick={(e) => {
+                onClick={() => {
                   if (!isDragging) {
                     setShowCreateThreadModal(true);
                   }

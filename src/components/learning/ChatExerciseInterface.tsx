@@ -871,9 +871,7 @@ const getTermCounts = () => {
 }
 
 // Main component
-export function ChatExerciseInterface({ 
-  className 
-}: ChatExerciseInterfaceProps) {
+export function ChatExerciseInterface({}: ChatExerciseInterfaceProps) {
   const [exercises, setExercises] = useState<Exercise[]>(
     mockExercises.map(ex => ({ ...ex, isExpanded: true }))
   )

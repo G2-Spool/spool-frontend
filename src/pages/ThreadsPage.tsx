@@ -15,21 +15,21 @@ import { SubjectCarousel } from '../components/organisms/SubjectCarousel';
 import { useAuth } from '../contexts/AuthContext';
 
 // Create custom hook for debouncing
-const useDebounce = <T,>(value: T, delay: number): T => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-  
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-  
-  return debouncedValue;
-};
+// const useDebounce = <T,>(value: T, delay: number): T => {
+//   const [debouncedValue, setDebouncedValue] = useState(value);
+//   
+//   useEffect(() => {
+//     const handler = setTimeout(() => {
+//       setDebouncedValue(value);
+//     }, delay);
+//     
+//     return () => {
+//       clearTimeout(handler);
+//     };
+//   }, [value, delay]);
+//   
+//   return debouncedValue;
+// };
 
 export const ThreadsPage: React.FC = () => {
   const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);

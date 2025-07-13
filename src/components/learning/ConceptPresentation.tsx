@@ -136,7 +136,7 @@ const EnhancedEquationRenderer: React.FC<{
   )
 }
 
-export function ConceptPresentation({ conceptId, conceptTitle, topicId, className }: ConceptPresentationProps) {
+export function ConceptPresentation({ className }: ConceptPresentationProps) {
   // Mock data - in real implementation, this would come from API based on conceptId
   const conceptData = {
     title: "Solving Two-Step Linear Equations",

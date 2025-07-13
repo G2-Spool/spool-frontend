@@ -12,23 +12,18 @@ import {
   Target, 
   BookOpen, 
   Star,
-  Heart,
-  Users,
-  Briefcase,
-  Globe,
   Award,
   TrendingUp,
   Clock,
   Zap
 } from 'lucide-react';
-import type { LifeCategory } from '../types';
 
-const lifeCategories: { key: LifeCategory; label: string; icon: React.ReactNode; color: string }[] = [
-  { key: 'personal', label: 'Personal', icon: <Heart className="h-5 w-5" />, color: 'text-personal' },
-  { key: 'social', label: 'Social', icon: <Users className="h-5 w-5" />, color: 'text-social' },
-  { key: 'career', label: 'Career', icon: <Briefcase className="h-5 w-5" />, color: 'text-career' },
-  { key: 'philanthropic', label: 'Philanthropic', icon: <Globe className="h-5 w-5" />, color: 'text-philanthropic' },
-];
+// const lifeCategories: { key: LifeCategory; label: string; icon: React.ReactNode; color: string }[] = [
+//   { key: 'personal', label: 'Personal', icon: <Heart className="h-5 w-5" />, color: 'text-personal' },
+//   { key: 'social', label: 'Social', icon: <Users className="h-5 w-5" />, color: 'text-social' },
+//   { key: 'career', label: 'Career', icon: <Briefcase className="h-5 w-5" />, color: 'text-career' },
+//   { key: 'philanthropic', label: 'Philanthropic', icon: <Globe className="h-5 w-5" />, color: 'text-philanthropic' },
+// ];
 
 export const ProfilePage: React.FC = () => {
   const { studentProfile } = useAuth();

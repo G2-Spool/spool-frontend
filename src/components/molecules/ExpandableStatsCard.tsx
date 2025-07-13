@@ -17,12 +17,6 @@ export interface ExpandableStatsCardProps {
   variant?: 'default' | 'primary' | 'success' | 'warning';
 }
 
-const variantStyles = {
-  default: 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400',
-  primary: 'bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400',
-  success: 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400',
-  warning: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
-};
 
 export const ExpandableStatsCard: React.FC<ExpandableStatsCardProps> = ({
   title,
@@ -31,7 +25,6 @@ export const ExpandableStatsCard: React.FC<ExpandableStatsCardProps> = ({
   icon: Icon,
   iconColor = 'text-gray-400 dark:text-gray-500',
   trend,
-  variant = 'default',
 }) => {
   return (
     <div className="relative">
