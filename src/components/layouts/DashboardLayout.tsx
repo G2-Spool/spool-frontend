@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-  LogOut,
   Menu,
   X,
 } from 'lucide-react';
@@ -94,7 +93,7 @@ export const DashboardLayout: React.FC = () => {
                   variant="ghost"
                   size="sm"
                   onClick={handleLogout}
-                  className="dark:hover:bg-gray-800 rounded flex items-center gap-2 hover:!text-red-500 dark:hover:!text-red-500"
+                  className="dark:hover:bg-gray-800 rounded hover:!text-red-500 dark:hover:!text-red-500"
                   style={{
                     '--hover-color': '#ef4444'
                   } as React.CSSProperties}
@@ -105,7 +104,6 @@ export const DashboardLayout: React.FC = () => {
                     e.currentTarget.style.color = '';
                   }}
                 >
-                  <LogOut className="h-4 w-4" />
                   Logout
                 </Button>
               </div>

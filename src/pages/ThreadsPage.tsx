@@ -117,8 +117,8 @@ export const ThreadsPage: React.FC = () => {
   // Subjects data for core subjects section
   const subjectsData = [
     {
-      title: "Mathematics",
-      color: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      title: "STEM",
+      color: "linear-gradient(135deg, #667eea 0%, #43e97b 100%)",
       topics: [
         {
           id: "college-algebra",
@@ -134,6 +134,22 @@ export const ThreadsPage: React.FC = () => {
           description: "Learn statistical analysis and data interpretation",
           sections: 13,
           concepts: 80,
+          progress: 0
+        },
+        {
+          id: "biology",
+          title: "Biology",
+          description: "Study living organisms and their interactions with the environment",
+          sections: 47,
+          concepts: 208,
+          progress: 0
+        },
+        {
+          id: "anatomy",
+          title: "Anatomy and Physiology",
+          description: "Learn about the structure and organization of the human body",
+          sections: 28,
+          concepts: 169,
           progress: 0
         }
       ]
@@ -164,28 +180,6 @@ export const ThreadsPage: React.FC = () => {
           description: "Journey through major events and civilizations",
           sections: 15,
           concepts: 60,
-          progress: 0
-        }
-      ]
-    },
-    {
-      title: "Science",
-      color: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-      topics: [
-        {
-          id: "biology",
-          title: "Biology",
-          description: "Study living organisms and their interactions with the environment",
-          sections: 47,
-          concepts: 208,
-          progress: 0
-        },
-        {
-          id: "anatomy",
-          title: "Anatomy and Physiology",
-          description: "Learn about the structure and organization of the human body",
-          sections: 28,
-          concepts: 169,
           progress: 0
         }
       ]
