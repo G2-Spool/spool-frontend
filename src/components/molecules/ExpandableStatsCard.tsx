@@ -17,7 +17,6 @@ export interface ExpandableStatsCardProps {
   variant?: 'default' | 'primary' | 'success' | 'warning';
 }
 
-
 export const ExpandableStatsCard: React.FC<ExpandableStatsCardProps> = ({
   title,
   value,
@@ -29,33 +28,36 @@ export const ExpandableStatsCard: React.FC<ExpandableStatsCardProps> = ({
   return (
     <div className="relative">
       <Card 
-        className="relative overflow-hidden transition-all duration-300 min-h-[120px] p-6"
+        className="relative overflow-hidden transition-all duration-300 h-24 p-4"
       >
-        <div className="relative h-full">
-          <div className="absolute top-0 left-0">
-            <Icon className={`h-8 w-8 ${iconColor}`} />
-          </div>
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="space-y-3">
-              <p className="text-lg font-semibold text-gray-500 dark:text-gray-400">{title}</p>
-              <p className="text-4xl font-bold text-obsidian dark:text-gray-100">{value}</p>
+        <div className="flex items-center justify-between h-full">
+          {/* Left side - Icon and Title */}
+          <div className="flex items-center space-x-3">
+            <div className="flex-shrink-0">
+              <Icon className={`h-8 w-8 ${iconColor}`} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
               {subtitle && (
-                <p className="text-sm text-gray-400 dark:text-gray-500">{subtitle}</p>
-              )}
-              {trend && (
-                <div className={cn(
-                  'text-sm font-medium flex items-center justify-center gap-1',
-                  trend.isPositive ? 'text-success' : 'text-error'
-                )}>
-                  {trend.isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                  <span>{Math.abs(trend.value)}%</span>
-                </div>
+                <p className="text-xs text-gray-400 dark:text-gray-500">{subtitle}</p>
               )}
             </div>
           </div>
+          
+          {/* Right side - Value and Trend */}
+          <div className="text-right">
+            <p className="text-2xl font-bold text-obsidian dark:text-gray-100">{value}</p>
+            {trend && (
+              <div className={cn(
+                'text-xs font-medium flex items-center justify-end gap-1 mt-1',
+                trend.isPositive ? 'text-green-500' : 'text-red-500'
+              )}>
+                {trend.isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                <span>{Math.abs(trend.value)}%</span>
+              </div>
+            )}
+          </div>
         </div>
-
-
       </Card>
     </div>
   );
