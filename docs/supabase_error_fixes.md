@@ -148,4 +148,42 @@ npx supabase functions logs interest-discovery
 4. Submit the form
 5. Check the browser console and Supabase logs for any errors
 
-If the error persists, check the logs to see what values are being received for the `action` parameter. 
+If the error persists, check the logs to see what values are being received for the `action` parameter.
+
+## Interest Discovery Edge Function - Failed to get user data
+
+### Error Details
+**Date**: July 13, 2025  
+**Function**: `interest-discovery`  
+**Error Message**: `{"error":"Failed to get user data"}`  
+**HTTP Status**: 400 Bad Request
+
+### Error Context
+After fixing the initial "Invalid action" error, the edge function now runs but returns a "Failed to get user data" error. This occurs when the function tries to fetch the user from the users table but can't find them.
+
+### Root Cause
+1. The studentId being passed might be empty or invalid
+2. The user might not exist in the users table
+3. The edge function is using the service role key and should be able to access all users
+
+### Solutions Applied
+
+1. **Added validation in InterestDiscoveryModal**:
+   - Check that studentId is not empty before calling the edge function
+   - Show user-friendly error message if studentId is missing
+
+2. **Added better error logging**:
+   - Log the actual error response body from the edge function
+   - Log all parameters being sent to help with debugging
+
+3. **Verified the edge function is working**:
+   - Created test script that confirms the function is deployed and responding
+   - The function correctly returns "Failed to get user data" for non-existent users
+
+### Next Steps
+
+If users still can't submit interests:
+1. Check that the user is properly authenticated
+2. Verify the user exists in the users table
+3. Check the browser console for the logged user object and ID
+4. Ensure the users table has the correct schema with an interests column (jsonb type) 
