@@ -1,210 +1,221 @@
 // @ts-ignore - Deno imports for Supabase Edge Functions
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 // @ts-ignore - Deno imports for Supabase Edge Functions
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // @ts-ignore - Deno imports for Supabase Edge Functions
-import OpenAI from 'https://esm.sh/openai@4.28.0'
-import { corsHeaders } from '../_shared/cors.ts'
+import OpenAI from 'https://esm.sh/openai@4.28.0';
+import { corsHeaders } from '../_shared/cors.ts';
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const openaiKey = Deno.env.get('OPENAI_API_KEY')!
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
-const openai = new OpenAI({ apiKey: openaiKey })
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+const openaiKey = Deno.env.get('OPENAI_API_KEY');
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const openai = new OpenAI({
+  apiKey: openaiKey
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', {
+      headers: corsHeaders
+    });
   }
 
   try {
-    const { conceptId, threadId, studentId } = await req.json()
-    
-    // Get thread context and concept details
-    const [threadResult, conceptResult, profileResult] = await Promise.all([
-      supabase.from('learning_threads').select('*').eq('id', threadId).single(),
-      supabase.from('thread_concepts').select('*').eq('thread_id', threadId).eq('concept_id', conceptId).single(),
-      supabase.from('student_profiles').select('*').eq('id', studentId).single()
-    ])
-    
-    if (threadResult.error || conceptResult.error || profileResult.error) {
-      throw new Error('Failed to fetch required data')
+    const { conceptId, conceptName, threadId, userId } = await req.json();
+
+    // Get thread and user data for context
+    const [threadResult, userResult] = await Promise.all([
+      supabase.from('threads').select('*').eq('id', threadId).single(),
+      supabase.from('users').select('*').eq('id', userId).single()
+    ]);
+
+    if (threadResult.error || userResult.error) {
+      throw new Error('Failed to fetch required data');
     }
-    
-    const thread = threadResult.data
-    const threadConcept = conceptResult.data
-    const profile = profileResult.data
-    
-    // Generate bridge explanation if crossing subjects
-    let bridgeContent = null
-    if (threadConcept.bridge_from_concept_id) {
-      const bridgeCompletion = await openai.chat.completions.create({
-        model: 'gpt-4',
-        messages: [
-          {
-            role: 'system' as const,
-            content: `You are an expert at explaining connections between concepts from different subjects. Create a clear, engaging bridge that shows how the previous concept connects to the new one in the context of the learning goal.`
-          },
-          {
-            role: 'user' as const,
-            content: `Thread Goal: ${thread.goal}\nPrevious Concept: ${threadConcept.bridge_from_concept_id}\nNew Concept: ${threadConcept.concept_name} (${threadConcept.subject})\n\nExplain the connection in 2-3 sentences.`
-          }
-        ],
-        max_tokens: 150
-      })
-      bridgeContent = bridgeCompletion.choices[0].message?.content
+
+    const thread = threadResult.data;
+    const user = userResult.data;
+
+    // Check if concept content already exists
+    const { data: existingContent } = await supabase
+      .from('concept_content')
+      .select('*')
+      .eq('concept_id', conceptId)
+      .single();
+
+    if (existingContent) {
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'Content already exists',
+        content: existingContent
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200
+      });
     }
-    
-    // Generate personalized hooks based on interests
-    const hooksCompletion = await openai.chat.completions.create({
+
+    // Extract primary interest from user's interests array
+    const userInterests = user.interests || [];
+    const primaryInterest = userInterests.length > 0 ? userInterests[0].interest : 'learning';
+    const interestsDescription = userInterests.map((i: any) => i.interest).join(', ');
+
+    // Generate complete concept content
+    const contentGeneration = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
         {
-          role: 'system' as const,
-          content: `Generate four engaging hooks that connect the concept to different life areas. Each hook should be 2-3 sentences and show immediate value.`
+          role: 'system',
+          content: `You are an expert educational content creator. Generate comprehensive concept content that connects academic concepts to real-world situations and personal interests. The content should be engaging, clear, and pedagogically sound.`
         },
         {
-          role: 'user' as const,
-          content: `Concept: ${threadConcept.concept_name}\nThread Goal: ${thread.goal}\nStudent Interests: ${JSON.stringify(profile.interests)}\nCareer Interests: ${profile.career_interests.join(', ')}\nPhilanthropic Interests: ${profile.philanthropic_interests.join(', ')}`
+          role: 'user',
+          content: `Create educational content for the concept "${conceptName}" in the context of "${thread.situation_description}". The user's interests are: ${interestsDescription}. Their primary interest is ${primaryInterest}. Generate all required components for a complete lesson.`
         }
       ],
       tools: [
         {
-          type: 'function' as const,
+          type: 'function',
           function: {
-            name: 'generate_hooks',
-            description: 'Generate personalized hooks for the concept',
+            name: 'generate_concept_content',
+            description: 'Generate complete concept content for the concept_content table',
             parameters: {
               type: 'object',
               properties: {
-                personal_hook: { type: 'string' },
-                social_hook: { type: 'string' },
-                career_hook: { type: 'string' },
-                philanthropic_hook: { type: 'string' }
-              }
-            }
-          }
-        }
-      ],
-      tool_choice: { type: 'function' as const, function: { name: 'generate_hooks' } }
-    })
-    
-    const hooks = JSON.parse(hooksCompletion.choices[0].message?.tool_calls?.[0]?.function.arguments || '{}')
-    
-    // Generate interest-based examples
-    const interests = profile.interests || []
-    const examplesCompletion = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [
-        {
-          role: 'system' as const,
-          content: `Create 3-4 examples that make the concept concrete using the student's specific interests. Each example should clearly demonstrate the concept in action.`
-        },
-        {
-          role: 'user' as const,
-          content: `Concept: ${threadConcept.concept_name}\nStudent Interests: ${interests.join(', ')}\nThread Context: Learning to ${thread.goal}`
-        }
-      ],
-      tools: [
-        {
-          type: 'function' as const,
-          function: {
-            name: 'generate_examples',
-            description: 'Generate interest-based examples',
-            parameters: {
-              type: 'object',
-              properties: {
-                examples: {
+                hook_title: {
+                  type: 'string',
+                  description: 'Engaging title that connects the concept to the situation'
+                },
+                hook_content: {
+                  type: 'string',
+                  description: '2-3 paragraphs explaining why this concept matters in the given situation, making connections to all life areas'
+                },
+                example_title: {
+                  type: 'string',
+                  description: 'Title connecting the concept to the user\'s primary interest'
+                },
+                example_scenario: {
+                  type: 'string',
+                  description: 'Detailed scenario using the user\'s interest to demonstrate the concept'
+                },
+                example_visual: {
+                  type: 'string',
+                  description: 'Visual representation or comparison using emojis and simple notation'
+                },
+                approach_title: {
+                  type: 'string',
+                  description: 'Academic/formal title for the systematic approach'
+                },
+                approach_steps: {
                   type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      interest_tag: { type: 'string' },
-                      example_text: { type: 'string' },
-                      visual_hint: { type: 'string' }
-                    }
-                  }
+                  items: { type: 'string' },
+                  description: 'Step-by-step process for applying the concept'
+                },
+                approach_formula: {
+                  type: 'string',
+                  description: 'Mathematical or logical formula if applicable'
+                },
+                nonexample_title: {
+                  type: 'string',
+                  description: 'Title for common mistake or misconception'
+                },
+                nonexample_scenario: {
+                  type: 'string',
+                  description: 'Scenario showing incorrect application using the user\'s interest'
+                },
+                nonexample_explanation: {
+                  type: 'string',
+                  description: 'Explanation of why this approach is wrong and what the correct approach would be'
                 }
-              }
+              },
+              required: ['hook_title', 'hook_content', 'example_title', 'example_scenario', 'example_visual', 'approach_title', 'approach_steps', 'approach_formula', 'nonexample_title', 'nonexample_scenario', 'nonexample_explanation']
             }
           }
         }
       ],
-      tool_choice: { type: 'function' as const, function: { name: 'generate_examples' } }
-    })
-    
-    const examples = JSON.parse(examplesCompletion.choices[0].message?.tool_calls?.[0]?.function.arguments || '{}')
-    
-    // In production, you would fetch the actual content from Pinecone
-    // For now, we'll generate placeholder core content
-    const coreContent = {
-      vocabulary: [
-        { term: 'Key Term 1', definition: 'Definition of the first key term' },
-        { term: 'Key Term 2', definition: 'Definition of the second key term' }
-      ],
-      mental_model: {
-        title: 'Core Mental Model',
-        description: 'A powerful way to think about this concept',
-        visual_type: 'diagram'
-      },
-      principles: [
-        'Fundamental principle that always applies',
-        'Common pattern you\'ll see',
-        'Important edge case to remember'
-      ],
-      process_steps: [
-        { step: 1, title: 'Initialize', description: 'Set up the initial state' },
-        { step: 2, title: 'Process', description: 'Apply the concept' },
-        { step: 3, title: 'Validate', description: 'Check your work' }
-      ]
-    }
-    
-    // Assemble complete content package
-    const assembledContent = {
-      concept: {
-        id: conceptId,
-        name: threadConcept.concept_name,
-        subject: threadConcept.subject,
-        relevance_score: threadConcept.relevance_score,
-        relevance_explanation: threadConcept.relevance_explanation
-      },
-      thread_context: {
-        goal: thread.goal,
-        position: threadConcept.sequence_order,
-        total_concepts: thread.concepts_total,
-        bridge_content: bridgeContent
-      },
-      personalized_content: {
-        hooks: hooks,
-        examples: examples.examples,
-        core_content: coreContent
-      },
-      metadata: {
-        generated_at: new Date().toISOString(),
-        personalization_factors: {
-          interests_used: interests,
-          career_focus: profile.career_interests[0],
-          philanthropic_focus: profile.philanthropic_interests[0]
+      tool_choice: {
+        type: 'function',
+        function: {
+          name: 'generate_concept_content'
         }
       }
-    }
+    });
+
+    const toolCall = contentGeneration.choices[0].message?.tool_calls?.[0];
+    if (!toolCall) throw new Error('Failed to generate concept content');
     
-    return new Response(
-      JSON.stringify({ success: true, content: assembledContent }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    )
+    const generatedContent = JSON.parse(toolCall.function.arguments);
+
+    // Insert the generated content into concept_content table
+    const { data: insertedContent, error: insertError } = await supabase
+      .from('concept_content')
+      .insert({
+        concept_id: conceptId,
+        concept_name: conceptName,
+        hook_title: generatedContent.hook_title,
+        hook_content: generatedContent.hook_content,
+        example_title: generatedContent.example_title,
+        example_scenario: generatedContent.example_scenario,
+        example_visual: generatedContent.example_visual,
+        approach_title: generatedContent.approach_title,
+        approach_steps: generatedContent.approach_steps,
+        approach_formula: generatedContent.approach_formula,
+        nonexample_title: generatedContent.nonexample_title,
+        nonexample_scenario: generatedContent.nonexample_scenario,
+        nonexample_explanation: generatedContent.nonexample_explanation
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('Insert error:', insertError);
+      throw new Error('Failed to insert concept content');
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      content: insertedContent
+    }), {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      },
+      status: 200
+    });
+
   } catch (error) {
-    console.error('Content assembly error:', error)
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      }
-    )
+    console.error('Content assembly error:', error);
+    return new Response(JSON.stringify({
+      error: error.message
+    }), {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      },
+      status: 400
+    });
   }
-}) 
+});
+
+// Example of how to call this function for each concept in a thread:
+/*
+// After thread generation, for each concept in the thread:
+const thread = await getThread(threadId);
+const concepts = thread.concepts; // Array of concept objects
+
+for (const concept of concepts) {
+  await fetch('your-edge-function-url/content-assembly', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      conceptId: concept.id,
+      conceptName: concept.name,
+      threadId: thread.id,
+      userId: thread.user_id
+    })
+  });
+}
+*/ 
