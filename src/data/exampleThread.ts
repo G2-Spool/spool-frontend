@@ -118,7 +118,3 @@ Each application uses specialized architectures tailored to the problem domain.`
   status: 'active'
 };
 
-// Helper function to check if a thread ID is an example thread
-export const isExampleThread = (threadId: string): boolean => {
-  return threadId.startsWith('example-thread-');
-};

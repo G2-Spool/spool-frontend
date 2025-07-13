@@ -20,6 +20,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
+import { useExerciseContent } from '../../hooks/useExerciseContent'
 
 // Add custom styles for inline math
 if (typeof document !== 'undefined') {
@@ -136,35 +137,86 @@ const EnhancedEquationRenderer: React.FC<{
   )
 }
 
-export function ConceptPresentation({ className }: ConceptPresentationProps) {
-  // Mock data - in real implementation, this would come from API based on conceptId
+export function ConceptPresentation({ conceptId, className }: ConceptPresentationProps) {
+  // Fetch exercise content from database
+  const { data: exerciseData, isLoading, error } = useExerciseContent(conceptId);
+  
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className={cn("w-full", className)}>
+        <div className="rounded-lg" style={{ backgroundColor: '#2d3748' }}>
+          <div className="space-y-12 p-8">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-600 rounded w-1/3 mb-4"></div>
+              <div className="h-4 bg-gray-600 rounded w-2/3 mb-8"></div>
+              <div className="space-y-4">
+                <div className="h-32 bg-gray-600 rounded"></div>
+                <div className="h-32 bg-gray-600 rounded"></div>
+                <div className="h-32 bg-gray-600 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className={cn("w-full", className)}>
+        <div className="rounded-lg" style={{ backgroundColor: '#2d3748' }}>
+          <div className="space-y-12 p-8">
+            <div className="text-center text-red-400">
+              <p>Unable to load exercise content. Please try again later.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show fallback content if no data found
+  if (!exerciseData) {
+    return (
+      <div className={cn("w-full", className)}>
+        <div className="rounded-lg" style={{ backgroundColor: '#2d3748' }}>
+          <div className="space-y-12 p-8">
+            <div className="text-center text-yellow-400">
+              <p className="text-lg font-semibold mb-2">No Content Available</p>
+              <p className="text-sm text-gray-400">
+                No exercise content found for section ID: <code className="bg-gray-700 px-2 py-1 rounded">{conceptId}</code>
+              </p>
+              <p className="text-sm text-gray-400 mt-2">
+                Please ensure the section exists in your database with matching id.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Transform database data to match the component's expected structure
   const conceptData = {
-    title: "Solving Two-Step Linear Equations",
-    subtitle: "e.g., $$2x + 5 = 15$$",
+    title: exerciseData?.concept_name || "Concept",
+    subtitle: "", // Not directly mapped from database
     hooks: {
-      personal: `You have a $100 gift card and want to buy a new pair of jeans for $40. You also want to buy a few books that all cost the same price. You can use a two-step equation to figure out exactly how many books you can afford with the remaining balance.`,
-      social: `You and your friends are planning a movie night. You spend $12 on snacks and drinks. Tickets cost $9 each. With a total budget set, you can use an equation to determine how many friends you can invite to stay within that budget.`,
-      career: `As an event planner, you might have a client's total budget of $5000. If your fixed fee for planning is $500, and the cost per guest is $75, you would use a two-step equation to calculate the maximum number of guests the event can have.`,
-      service: `You are organizing a fundraiser to build a community garden. The project requires $1000 for tools and lumber. Your goal is to raise $4000 total. If you raise money by getting $50 sponsorships for each garden bed, an equation tells you exactly how many sponsorships you need to secure.`
+      personal: exerciseData?.hook_content || "",
+      social: exerciseData?.hook_content || "",
+      career: exerciseData?.hook_content || "",
+      service: exerciseData?.hook_content || ""
     },
     examples: [
       {
-        interest: "Gaming Interest",
-        scenario: `You want to buy some in-game items that cost $4 each. You also buy a one-time character skin for $7. Your total spending is $27. How many items (x) did you buy?`,
-        equation: `$$4x + 7 = 27$$`
-      },
-      {
-        interest: "Music Interest", 
-        scenario: `You are saving for a $350 guitar. You already have $50 saved. If you save $25 per week (w), how many weeks will it take to afford the guitar?`,
-        equation: `$$25w + 50 = 350$$`
-      },
-      {
-        interest: "Sports Interest",
-        scenario: `Your soccer team is raising money. They earned $100 from a car wash. They are also selling candy bars that make a $2 profit each (c). Their goal is to raise a total of $500. How many candy bars do they need to sell?`,
-        equation: `$$2c + 100 = 500$$`
+        interest: exerciseData?.example_title || "Example",
+        scenario: exerciseData?.example_scenario || "",
+        equation: exerciseData?.example_visual || ""
       }
     ],
     vocabulary: [
+      // Keep existing vocabulary for now - could be extended to pull from database
       {
         term: "Variable",
         definition: "The letter representing the unknown value you're looking for (like $$x$$)."
@@ -188,30 +240,16 @@ export function ConceptPresentation({ className }: ConceptPresentationProps) {
       description: "An equation is like a balanced scale. Whatever you do to one side of the equals sign ($$=$$), you must do to the other side to keep it balanced."
     },
     workflow: {
-      title: "How to Solve $$2x + 5 = 15$$",
-      steps: [
-        {
-          step: "Goal",
-          description: "Get $$x$$ by itself."
-        },
-        {
-          step: "Undo Addition/Subtraction",
-          description: "The equation has \"$$+ 5$$\". Do the opposite by subtracting $$5$$ from both sides.",
-          math: ["$$2x + 5 - 5 = 15 - 5$$", "$$2x = 10$$"]
-        },
-        {
-          step: "Undo Multiplication/Division", 
-          description: "The variable $$x$$ is multiplied by $$2$$. Do the opposite by dividing both sides by $$2$$.",
-          math: ["$$\\frac{2x}{2} = \\frac{10}{2}$$"]
-        },
-        {
-          step: "Solve",
-          description: "",
-          math: ["$$x = 5$$"]
-        }
-      ]
+      title: exerciseData?.approach_title || "Approach",
+      steps: (exerciseData?.approach_steps || []).map((step, index) => ({
+        step: `Step ${index + 1}`,
+        description: step,
+        math: [] // Formula would be added separately if needed
+      }))
     }
   }
+
+  // Keep formula separate - don't add to steps
 
   return (
     <div className={cn("w-full", className)}>
@@ -348,7 +386,7 @@ export function ConceptPresentation({ className }: ConceptPresentationProps) {
                   {conceptData.workflow.steps.map((step, index) => (
                     <div key={index} className="space-y-2">
                       <div className="flex items-start gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
+                        <span className="flex-shrink-0 w-6 h-6 bg-teal-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
                           {index + 1}
                         </span>
                         <div className="space-y-2">
@@ -375,10 +413,53 @@ export function ConceptPresentation({ className }: ConceptPresentationProps) {
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Formula section - displayed separately without step number */}
+                  {exerciseData?.approach_formula && (
+                    <div className="mt-6 p-4 bg-teal-900/20 border border-teal-500/30 rounded-lg">
+                      <h4 className="font-bold text-teal-400 mb-2">Formula:</h4>
+                      <div className="text-foreground leading-relaxed">
+                        <EnhancedEquationRenderer 
+                          content="$$\text{Optimal Decision} = \max\left(\sum(\text{Probability} \times \text{Outcome Value})\right)$$"
+                          className="text-foreground"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </section>
+
+          {/* Section Separator */}
+          <div className="w-full h-px bg-border opacity-50"></div>
+
+          {/* Section 4: Non-Example (What NOT to Do) */}
+          {exerciseData?.nonexample_scenario && (
+            <section className="space-y-6">
+                              <div className="space-y-2">
+                  <h2 className="text-xl font-bold text-foreground">
+                    {exerciseData?.nonexample_title || "What NOT to Do"}
+                  </h2>
+                  <p className="text-muted-foreground font-bold">Common mistakes to avoid</p>
+                  <div className="w-full h-px bg-border"></div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-red-400 mb-3">Scenario:</h3>
+                    <p className="text-foreground leading-relaxed mb-4">
+                      {exerciseData?.nonexample_scenario}
+                    </p>
+                    
+                    <h3 className="text-lg font-semibold text-red-400 mb-3">Why This Fails:</h3>
+                    <p className="text-foreground leading-relaxed">
+                      {exerciseData?.nonexample_explanation}
+                    </p>
+                  </div>
+                </div>
+            </section>
+          )}
         </div>
       </div>
     </div>

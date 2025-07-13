@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ThreadService } from '../services/thread.service';
 import type { Thread, CreateThreadRequest } from '../types/thread.types';
-import { EXAMPLE_THREAD, isExampleThread } from '../data/exampleThread';
-import { EXAMPLE_THREAD_002 } from '../data/exampleThread002';
+import { EXAMPLE_THREAD } from '../data/exampleThread';
+import { EXAMPLE_THREAD_002, isExampleThread } from '../data/exampleThread002';
 
 // Query keys
 export const threadKeys = {
@@ -23,7 +23,7 @@ export const useThread = (threadId: string) => {
         if (threadId === 'example-thread-001') {
           return Promise.resolve(EXAMPLE_THREAD);
         }
-        if (threadId === 'blackjack-probability-guide') {
+        if (threadId === 'blackjack-probability-guide' || threadId === 'd6046803-eece-42ba-9cbb-ab2eebd9c683') {
           return Promise.resolve(EXAMPLE_THREAD_002);
         }
         // Default to first example thread for unknown example IDs
@@ -37,7 +37,7 @@ export const useThread = (threadId: string) => {
           console.warn('Failed to fetch from API, using local example thread');
           return EXAMPLE_THREAD;
         }
-        if (threadId === 'blackjack-probability-guide') {
+        if (threadId === 'blackjack-probability-guide' || threadId === 'd6046803-eece-42ba-9cbb-ab2eebd9c683') {
           console.warn('Failed to fetch from API, using local blackjack probability guide');
           return EXAMPLE_THREAD_002;
         }

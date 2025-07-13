@@ -2,7 +2,7 @@ import type { Thread } from '../types/thread.types';
 
 // Example thread with comprehensive educational content
 export const EXAMPLE_THREAD_002: Thread = {
-  threadId: 'blackjack-probability-guide',
+  threadId: 'd6046803-eece-42ba-9cbb-ab2eebd9c683',
   userId: 'example',
   userInput: 'What are the probabilities of winning at blackjack?',
   analysis: {
@@ -13,7 +13,7 @@ export const EXAMPLE_THREAD_002: Thread = {
   },
   sections: [
     {
-      id: 'section-1',
+      id: 'd8d3d4b7-0b4c-4a4c-a69c-6b16028aa60f',
       title: 'Basic Probability Theory',
       text: `Understanding blackjack probabilities starts with fundamental probability concepts:
 
@@ -119,5 +119,7 @@ Understanding confidence intervals helps evaluate the reliability of any probabi
 
 // Helper function to check if a thread ID is an example thread
 export const isExampleThread = (threadId: string): boolean => {
-  return threadId.startsWith('example-thread-');
+  return threadId.startsWith('example-thread-') || 
+         threadId === 'blackjack-probability-guide' || 
+         threadId === 'd6046803-eece-42ba-9cbb-ab2eebd9c683';
 }; 
