@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { Card } from '@/components/atoms/Card'
+
 import { Button } from '@/components/atoms/Button'
 import { Textarea } from '@/components/atoms/Textarea'
 import { TypingMessage } from './TypingMessage'
@@ -256,10 +256,10 @@ const ResponseHighlight: React.FC<{
             opacity: showTooltip ? 1 : 0
           }}
         >
-          <div className="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg shadow-lg whitespace-nowrap">
+          <div className="px-3 py-2 rounded-lg shadow-lg whitespace-nowrap" style={{ backgroundColor: '#4a5568', border: '1px solid #374151' }}>
             <p className="text-sm text-white">{tooltip}</p>
             <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-              <div className="w-2 h-2 bg-gray-800 border-r border-b border-gray-600 rotate-45"></div>
+              <div className="w-2 h-2 rotate-45" style={{ backgroundColor: '#4a5568', borderRight: '1px solid #374151', borderBottom: '1px solid #374151' }}></div>
             </div>
           </div>
         </div>,
@@ -584,7 +584,7 @@ const VocabularyHighlight: React.FC<{
             opacity: showTooltip ? 1 : 0
           }}
         >
-          <div className="relative bg-gray-800 border border-gray-600 rounded-lg shadow-xl px-4 py-3 max-w-sm w-64">
+                      <div className="relative rounded-lg shadow-xl px-4 py-3 max-w-sm w-64" style={{ backgroundColor: '#4a5568', border: '1px solid #374151' }}>
             <div className="flex items-center gap-2 mb-2">
               <div className={cn(
                 "w-2 h-2 rounded-full",
@@ -601,8 +601,8 @@ const VocabularyHighlight: React.FC<{
             <p className="text-xs text-gray-500 mt-2 italic">Click to view in context</p>
             
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-px">
-              <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-gray-800"></div>
-              <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-gray-600 -mt-[7px]"></div>
+              <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]" style={{ borderTopColor: '#4a5568' }}></div>
+              <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] -mt-[7px]" style={{ borderTopColor: '#374151' }}></div>
             </div>
           </div>
         </div>,
@@ -720,7 +720,8 @@ const VocabularyDrawer: React.FC<{
       {/* Drawer Tab */}
       {!isOpen && (
         <div 
-          className="fixed top-1/2 right-0 transform -translate-y-1/2 z-40 transition-all duration-300"
+          className="fixed right-0 z-40 transition-all duration-300"
+          style={{ bottom: '15%', transform: 'translateY(50%)' }}
         >
           <Button
             variant="ghost"
@@ -741,9 +742,10 @@ const VocabularyDrawer: React.FC<{
       <div 
         ref={drawerRef}
         className={cn(
-          "fixed top-0 right-0 h-full w-[30%] bg-card border-l border-border z-30 transition-transform duration-300 overflow-y-auto",
+          "fixed top-0 right-0 h-full w-[30%] z-30 transition-transform duration-300 overflow-y-auto",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
+        style={{ backgroundColor: '#1e2430', borderLeft: '1px solid #374151' }}
       >
         <div className="p-4">
           <div className="flex items-center justify-between mb-6">
@@ -780,7 +782,7 @@ const VocabularyDrawer: React.FC<{
                       </div>
                     </div>
                     {index < arr.length - 1 && (
-                      <div className="border-b border-border mx-3"></div>
+                      <div className="mx-3" style={{ borderBottom: '1px solid #2d3748' }}></div>
                     )}
                   </div>
                 ))}
@@ -813,7 +815,7 @@ const VocabularyDrawer: React.FC<{
                       </div>
                     </div>
                     {index < arr.length - 1 && (
-                      <div className="border-b border-border mx-3"></div>
+                      <div className="mx-3" style={{ borderBottom: '1px solid #2d3748' }}></div>
                     )}
                   </div>
                 ))}
@@ -846,7 +848,7 @@ const VocabularyDrawer: React.FC<{
                       </div>
                     </div>
                     {index < arr.length - 1 && (
-                      <div className="border-b border-border mx-3"></div>
+                      <div className="mx-3" style={{ borderBottom: '1px solid #2d3748' }}></div>
                     )}
                   </div>
                 ))}
@@ -1264,55 +1266,61 @@ export function ChatExerciseInterface({
   }
 
   return (
-    <div className="chat-exercise-container">
-      <div className={cn("w-full mt-8 space-y-4 relative", className)}>
-        
-        {/* Jump to Exercise Button */}
-        {jumpToExerciseVisible && (
-          <div className="fixed bottom-4 right-4 z-20">
-            <Button
-              onClick={jumpToLatestExercise}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
-            >
-              <ChevronDown className="w-4 h-4 mr-2" />
-              Jump to Exercise
-            </Button>
-          </div>
-        )}
+    <>
+      {/* Jump to Exercise Button */}
+      {jumpToExerciseVisible && (
+        <div className="fixed bottom-4 right-4 z-20">
+          <Button
+            onClick={jumpToLatestExercise}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
+          >
+            <ChevronDown className="w-4 h-4 mr-2" />
+            Jump to Exercise
+          </Button>
+        </div>
+      )}
 
-        {/* Vocabulary Drawer */}
-        <VocabularyDrawer
-          isOpen={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          newTerms={newTerms}
-          onClearNewTerms={() => {
-            setNewTerms([])
-            setDrawerOpen(true)
-          }}
-          setDrawerOpen={setDrawerOpen}
-        />
+      {/* Vocabulary Drawer */}
+      <VocabularyDrawer
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        newTerms={newTerms}
+        onClearNewTerms={() => {
+          setNewTerms([])
+          setDrawerOpen(true)
+        }}
+        setDrawerOpen={setDrawerOpen}
+      />
 
-        {/* Render all exercises */}
-        {exercises.map((exercise) => (
-          <div key={exercise.id} className="relative">
-            <Card className="bg-card border-border overflow-visible">
-              <div className="p-0">
+      {/* Render all exercises */}
+      {exercises.map((exercise, index) => (
+        <div key={exercise.id} className={cn(
+          "bg-card rounded-lg overflow-visible",
+          index === 0 && "mt-8",
+          index > 0 && "mt-4"
+        )}>
                 {/* Header */}
                 <div 
                   className={cn(
                     "flex items-center justify-between p-6 cursor-pointer z-20",
-                    "bg-gradient-to-r from-card to-card/95 hover:from-card/95 hover:to-card/90 transition-all duration-200",
                     "border-l-4",
-                    exercise.isExpanded ? "rounded-t-lg border-b border-border sticky top-0" : "rounded-lg",
+                    exercise.isExpanded ? "rounded-t-lg sticky top-0" : "rounded-lg",
                     exercise.status === 'active' && "border-l-blue-500",
                     exercise.status === 'completed' && "border-l-green-500",
                     exercise.status === 'collapsed' && "border-l-green-500"
                   )}
                   style={{
+                    backgroundColor: '#182e35',
+                    transition: 'all 0.2s ease',
                     ...(exercise.isExpanded && {
-                      backgroundColor: 'hsl(var(--card))',
                       boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
                     })
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1f3440'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#182e35'
                   }}
                   onClick={() => toggleExerciseExpansion(exercise.id)}
                 >
@@ -1329,15 +1337,15 @@ export function ChatExerciseInterface({
                           }}
                           onMouseEnter={() => handleButtonTooltip('vocab', true)}
                           onMouseLeave={() => handleButtonTooltip('vocab', false)}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-transparent hover:bg-accent border border-transparent hover:border-border transition-all duration-200 group"
+                          className="flex items-center gap-4 px-3 py-2 rounded-lg bg-transparent hover:bg-accent border border-transparent hover:border-border transition-all duration-200 group"
                         >
-                          <span className="text-sm font-medium text-[#4FD1C5] group-hover:text-[#5FE1D5]">
+                          <span className="text-base font-medium text-[#4FD1C5] group-hover:text-[#5FE1D5]">
                             {vocabularyCount}
                           </span>
-                          <BookOpen className="w-5 h-5 text-muted-foreground group-hover:text-foreground" />
+                          <BookOpen className="w-5 h-5 text-muted-foreground group-hover:text-foreground ml-3" />
                         </Button>
                         {buttonTooltips.vocab && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-popover border border-border rounded text-sm text-popover-foreground whitespace-nowrap">
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-sm text-popover-foreground whitespace-nowrap" style={{ backgroundColor: '#4a5568', border: '1px solid #374151' }}>
                             Vocab
                           </div>
                         )}
@@ -1353,15 +1361,15 @@ export function ChatExerciseInterface({
                           }}
                           onMouseEnter={() => handleButtonTooltip('equations', true)}
                           onMouseLeave={() => handleButtonTooltip('equations', false)}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-transparent hover:bg-accent border border-transparent hover:border-border transition-all duration-200 group"
+                          className="flex items-center gap-4 px-3 py-2 rounded-lg bg-transparent hover:bg-accent border border-transparent hover:border-border transition-all duration-200 group"
                         >
-                          <span className="text-sm font-medium text-[#805AD5] group-hover:text-[#9F7AEA]">
+                          <span className="text-base font-medium text-[#805AD5] group-hover:text-[#9F7AEA]">
                             {equationCount}
                           </span>
-                          <Sigma className="w-5 h-5 text-muted-foreground group-hover:text-foreground" />
+                          <Sigma className="w-5 h-5 text-muted-foreground group-hover:text-foreground ml-3" />
                         </Button>
                         {buttonTooltips.equations && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-popover border border-border rounded text-sm text-popover-foreground whitespace-nowrap">
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-sm text-popover-foreground whitespace-nowrap" style={{ backgroundColor: '#4a5568', border: '1px solid #374151' }}>
                             Formulas
                           </div>
                         )}
@@ -1377,15 +1385,15 @@ export function ChatExerciseInterface({
                           }}
                           onMouseEnter={() => handleButtonTooltip('concepts', true)}
                           onMouseLeave={() => handleButtonTooltip('concepts', false)}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-transparent hover:bg-accent border border-transparent hover:border-border transition-all duration-200 group"
+                          className="flex items-center gap-4 px-3 py-2 rounded-lg bg-transparent hover:bg-accent border border-transparent hover:border-border transition-all duration-200 group"
                         >
-                          <span className="text-sm font-medium text-[#ED64A6] group-hover:text-[#F687B3]">
+                          <span className="text-base font-medium text-[#ED64A6] group-hover:text-[#F687B3]">
                             {conceptCount}
                           </span>
-                          <Brain className="w-5 h-5 text-muted-foreground group-hover:text-foreground" />
+                          <Brain className="w-5 h-5 text-muted-foreground group-hover:text-foreground ml-3" />
                         </Button>
                         {buttonTooltips.concepts && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-popover border border-border rounded text-sm text-popover-foreground whitespace-nowrap">
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 rounded text-sm text-popover-foreground whitespace-nowrap" style={{ backgroundColor: '#4a5568', border: '1px solid #374151' }}>
                             Concepts
                           </div>
                         )}
@@ -1394,7 +1402,13 @@ export function ChatExerciseInterface({
                   </div>
                   
                   {/* Chevron Icon */}
-                  <div className="ml-4 p-2 rounded-full hover:bg-accent/50 transition-colors duration-200">
+                  <div className="ml-4 p-2 rounded-full transition-colors duration-200" style={{ 
+                    backgroundColor: 'transparent' 
+                  }} onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                  }} onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                  }}>
                     {exercise.isExpanded ? (
                       <ChevronUp className="w-5 h-5 text-muted-foreground" />
                     ) : (
@@ -1405,7 +1419,7 @@ export function ChatExerciseInterface({
 
                 {/* Content */}
                 {exercise.isExpanded && (
-                  <div className="border-t border-border">
+                  <div>
                     {/* Collapsed Exercise Summary */}
                     {exercise.status === 'collapsed' && (
                       <div className="p-6 text-muted-foreground">
@@ -1429,7 +1443,8 @@ export function ChatExerciseInterface({
                     {(exercise.status === 'active' || exercise.status === 'completed') && (
                       <div 
                         ref={exercise.status === 'active' ? chatContainerRef : null}
-                        className="p-6 space-y-4"
+                        className="p-6 space-y-4 rounded-b-lg"
+                        style={{ backgroundColor: '#1e2430' }}
                       >
                                                  {exercise.messages.map((message, index) => {
                            const isSubExercise = message.isSubExercise
@@ -1469,13 +1484,14 @@ export function ChatExerciseInterface({
                                 
                                 {/* Message content */}
                                 {(message.type === 'student' || message.isCurrentlyTyping || message.hasBeenTyped) && (
-                                  <div className={cn(
-                                    "rounded-lg px-4 py-3 relative",
-                                    message.type === 'student' 
-                                      ? "bg-primary text-primary-foreground ml-auto min-w-[60%] max-w-[85%]" 
-                                      : "bg-muted text-foreground max-w-[95%]",
-                                    isSubExercise && "ml-6"
-                                  )}>
+                                                                  <div className={cn(
+                                  "rounded-lg px-4 py-3 relative",
+                                  message.type === 'student' 
+                                    ? "text-primary-foreground ml-auto min-w-[60%] max-w-[85%]" 
+                                    : "bg-muted text-foreground max-w-[95%]",
+                                  isSubExercise && "ml-6"
+                                )}
+                                style={message.type === 'student' ? { backgroundColor: '#2d3748' } : {}}>
                                     <div className={cn(
                                       "leading-relaxed",
                                       message.type === 'student' && "whitespace-pre-wrap"
@@ -1557,7 +1573,7 @@ export function ChatExerciseInterface({
                                   onClick={() => handleHint(exercise.id)}
                                   variant="ghost"
                                   size="sm"
-                                  className="h-8 w-8 p-0 text-muted-foreground hover:text-yellow-500"
+                                  className="h-8 w-8 p-0 text-muted-foreground hover:text-yellow-500 rounded-lg"
                                   onMouseEnter={() => {
                                     const timer = setTimeout(() => {
                                       setShowHintTooltip(true)
@@ -1575,7 +1591,7 @@ export function ChatExerciseInterface({
                                 </Button>
                                 
                                 {showHintTooltip && (
-                                  <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-popover border border-border rounded text-sm text-popover-foreground whitespace-nowrap">
+                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 rounded text-sm text-popover-foreground whitespace-nowrap" style={{ backgroundColor: '#4a5568', border: '1px solid #374151' }}>
                                     Need help?
                                   </div>
                                 )}
@@ -1604,11 +1620,8 @@ export function ChatExerciseInterface({
                     )}
                   </div>
                 )}
-              </div>
-            </Card>
-          </div>
+            </div>
         ))}
-      </div>
-    </div>
+    </>
   )
 } 

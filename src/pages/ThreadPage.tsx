@@ -379,6 +379,21 @@ export const ThreadPage: React.FC = () => {
                           )}
                         </div>
                       </div>
+                      
+                      {/* Start Exercise Button */}
+                      {currentSectionStatus !== 'completed' && (
+                        <div className="flex-shrink-0 ml-6">
+                          <Button
+                            variant="primary"
+                            size="md"
+                            onClick={handleStartExercise}
+                            className="bg-teal-600 hover:bg-teal-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 !text-white font-semibold px-4 py-2 rounded-lg flex items-center"
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            Start Exercise
+                          </Button>
+                        </div>
+                      )}
                     </div>
                     
                     {/* Section Text Content */}
