@@ -242,15 +242,6 @@ export const ThreadsPage: React.FC = () => {
               </div>
             )}
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/thread/example-thread-001')}
-              className="rounded-md bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-300 hover:text-gray-100 transition-colors"
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              View Sample Thread
-            </Button>
-            <Button
               size="sm"
               onClick={() => {
                 console.log('🎯 CREATE THREAD BUTTON CLICKED - Opening thread creation modal');
@@ -287,7 +278,6 @@ export const ThreadsPage: React.FC = () => {
                     userInput={thread.userInput}
                     analysis={thread.analysis}
                     sectionCount={thread.sections.length}
-                    createdAt={thread.createdAt}
                     estimatedReadTime={thread.sections.reduce((sum, s) => sum + (s.estimatedMinutes || 0), 0)}
                     completionPercentage={Math.floor(Math.random() * 100)}
                   />

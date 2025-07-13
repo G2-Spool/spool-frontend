@@ -56,7 +56,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
         className={cn(
           "w-80 flex-shrink-0 cursor-pointer group relative",
           "transition-all duration-200 ease-out",
-          "hover:shadow-lg hover:shadow-black/5",
+          "hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5",
           "active:scale-98",
           "rounded-2xl overflow-hidden",
           "border border-gray-300 dark:border-gray-700",
@@ -71,18 +71,18 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
             <div className="absolute inset-0 bg-black/20 group-hover:bg-white/15 transition-colors duration-200" />
             
             <div className="relative z-10">
-              <h3 className="font-semibold text-2xl leading-tight mb-2">
+              <h3 className="font-semibold text-2xl leading-tight mb-2 text-white">
                 {generateTitle()}
               </h3>
-              <p className="text-base opacity-90 line-clamp-2">
+              <p className="text-base opacity-90 line-clamp-2 text-white">
                 {analysis.summary.length > 80 ? `${analysis.summary.substring(0, 80)}...` : analysis.summary}
               </p>
             </div>
           </div>
           
           {/* Stats section with enhanced background */}
-          <div className="relative transition-colors duration-200" style={{ backgroundColor: '#1a202c' }}>
-            <div className="absolute inset-0 bg-transparent group-hover:bg-white/[0.075] transition-colors duration-200" />
+          <div className="relative transition-colors duration-200 bg-gray-200 dark:bg-gray-900">
+            <div className="absolute inset-0 bg-transparent group-hover:bg-white/50 dark:group-hover:bg-white/[0.075] transition-colors duration-200" />
             <div className="relative z-10 px-3 py-4 space-y-4">
 
               
@@ -108,28 +108,28 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
               {/* Stats section */}
               <div className="flex justify-around items-center text-base pt-2">
                 <div className="text-center">
-                  <div className="font-bold text-white text-2xl">
+                  <div className="font-bold text-gray-900 dark:text-white text-2xl">
                     {sectionCount}
                   </div>
-                  <div className="text-gray-300 text-sm">
+                  <div className="text-gray-600 dark:text-gray-300 text-sm">
                     Concepts
                   </div>
                 </div>
                 
                 <div className="text-center">
-                  <div className="font-bold text-white text-2xl">
+                  <div className="font-bold text-gray-900 dark:text-white text-2xl">
                     {estimatedReadTime}
                   </div>
-                  <div className="text-gray-300 text-sm">
+                  <div className="text-gray-600 dark:text-gray-300 text-sm">
                     Minutes
                   </div>
                 </div>
                 
                 <div className="text-center">
-                  <div className="font-bold text-white text-2xl">
+                  <div className="font-bold text-gray-900 dark:text-white text-2xl">
                     {completionPercentage}%
                   </div>
-                  <div className="text-gray-300 text-sm">
+                  <div className="text-gray-600 dark:text-gray-300 text-sm">
                     Complete
                   </div>
                 </div>
