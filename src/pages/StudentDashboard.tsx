@@ -46,7 +46,7 @@ export const StudentDashboard: React.FC = () => {
   // Sample threads for demonstration
   const sampleThreads = [
     {
-      threadId: 'sample-1',
+      threadId: 'example-thread-001',
       userInput: 'How do neural networks learn and make predictions?',
       analysis: 'A comprehensive study of neural network fundamentals',
       sections: [
@@ -221,7 +221,7 @@ export const StudentDashboard: React.FC = () => {
           variant="primary"
           size="lg"
           onClick={() => setShowCreateThreadModal(true)}
-          className="flex items-center gap-3 px-6 py-3 rounded-lg !text-white"
+          className="flex items-center gap-3 px-6 py-3 rounded-lg !text-white hover:!translate-y-0"
           style={{ color: 'white !important' }}
         >
           <Lightbulb className="h-5 w-5 text-white" />
@@ -230,14 +230,14 @@ export const StudentDashboard: React.FC = () => {
       </div>
 
       {/* Streak Display */}
-      <Card className="mb-8 bg-gradient-to-r from-teal-50 to-teal-100/50 dark:from-teal-900/20 dark:to-teal-800/10">
+      <Card className="mb-8 bg-[#1a202c]">
         <div className="flex items-center justify-between">
           <StreakDisplay
             currentStreak={studentProfile.currentStreakDays}
             longestStreak={studentProfile.longestStreakDays}
           />
           <div className="text-right">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Level {studentProfile.level}</p>
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-1">Level {studentProfile.level}</p>
             <p className="text-2xl font-bold text-obsidian dark:text-gray-100">{studentProfile.totalPoints} pts</p>
           </div>
         </div>
@@ -328,7 +328,7 @@ export const StudentDashboard: React.FC = () => {
           {threadsLoading ? (
             <div className="flex gap-4 overflow-x-auto scrollbar-hide">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex-shrink-0 w-48 h-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg" />
+                <div key={i} className="flex-shrink-0 w-64 h-48 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg" />
               ))}
             </div>
           ) : (
@@ -374,7 +374,7 @@ export const StudentDashboard: React.FC = () => {
                       }
                     }}
                     onMouseDown={(e) => e.stopPropagation()}
-                    className={`flex-shrink-0 w-48 h-32 bg-gradient-to-br ${colorClass} rounded-lg p-4 cursor-pointer transition-all duration-200 select-none`}
+                    className={`flex-shrink-0 w-64 h-48 bg-gradient-to-br ${colorClass} rounded-lg p-6 cursor-pointer transition-all duration-200 select-none`}
                   >
                     <div className="h-full flex flex-col justify-between pointer-events-none">
                       <div>
@@ -403,7 +403,7 @@ export const StudentDashboard: React.FC = () => {
                   }
                 }}
                 onMouseDown={(e) => e.stopPropagation()}
-                className="flex-shrink-0 w-48 h-32 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-lg p-4 cursor-pointer hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-700 transition-all duration-200 border-2 border-dashed border-gray-300 dark:border-gray-600 select-none"
+                className="flex-shrink-0 w-64 h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-lg p-6 cursor-pointer hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-700 transition-all duration-200 border-2 border-dashed border-gray-300 dark:border-gray-600 select-none"
               >
                 <div className="h-full flex flex-col items-center justify-center pointer-events-none">
                   <Plus className="h-8 w-8 text-gray-400 dark:text-gray-500 mb-2" />
