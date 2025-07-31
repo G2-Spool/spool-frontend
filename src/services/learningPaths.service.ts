@@ -38,9 +38,10 @@ class LearningPathsService {
    */
   async getLearningPaths(): Promise<LearningPath[]> {
     try {
-      // Use progress service endpoint that connects to RDS
-      const response = await api.get<LearningPath[]>('/api/progress/learning-paths');
-      return response;
+      // For now, return empty array as there's no direct endpoint for this
+      // TODO: Implement proper learning paths retrieval from Supabase
+      console.warn('Learning paths endpoint not implemented');
+      return [];
     } catch (error) {
       console.error('Error fetching learning paths:', error);
       return [];
@@ -111,9 +112,22 @@ class LearningPathsService {
    */
   async getStudentStats(): Promise<StudentStats> {
     try {
-      // Use progress service analytics endpoint that queries RDS
-      const response = await api.get<StudentStats>('/api/progress/analytics/stats');
-      return response;
+      // For now, return default values as there's no direct endpoint for this
+      // TODO: Implement proper stats retrieval from Supabase
+      console.warn('Student stats endpoint not implemented');
+      return {
+        totalPoints: 150,
+        exercisesThisMonth: 12,
+        learningTimeThisWeek: 180,
+        dailyGoalMinutes: 30,
+        currentStreak: 5,
+        weeklyData: {
+          points: [20, 25, 15, 30, 20, 25, 15],
+          exercises: [2, 3, 1, 4, 2, 3, 2],
+          timeMinutes: [25, 30, 20, 35, 25, 30, 15],
+          goalMinutes: [30, 30, 30, 30, 30, 30, 30],
+        }
+      };
     } catch (error) {
       console.error('Error fetching student stats:', error);
       // Return default values if API fails
@@ -138,7 +152,9 @@ class LearningPathsService {
    */
   async setActivePath(pathId: string): Promise<void> {
     try {
-      await api.post(`/api/learning-paths/${pathId}/activate`);
+      // TODO: Implement proper activation using Supabase
+      console.warn('Learning path activation not implemented');
+      // await api.post(`/progress-tracking/learning-paths/${pathId}/activate`);
     } catch (error) {
       console.error('Error setting active path:', error);
       throw error;

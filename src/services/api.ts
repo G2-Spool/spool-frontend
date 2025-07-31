@@ -64,6 +64,31 @@ class ApiService {
   }
 
   async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    // Check if this is a Supabase edge function call
+    const edgeFunctions = [
+      'interest-discovery',
+      'thread-discovery',
+      'thread-generation',
+      'content-assembly',
+      'exercise-generation',
+      'progress-tracking'
+    ];
+    
+    const functionName = url.replace('/', '');
+    if (edgeFunctions.includes(functionName)) {
+      // Use Supabase edge function invocation
+      const { data: result, error } = await supabase.functions.invoke(functionName, {
+        body: data
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      return result as T;
+    }
+    
+    // Regular HTTP POST
     const response: AxiosResponse<T> = await this.axiosInstance.post(url, data, config);
     return response.data;
   }
