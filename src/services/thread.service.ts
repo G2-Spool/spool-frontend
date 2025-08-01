@@ -268,29 +268,4 @@ export class ThreadService {
       status: thread.status || 'active'
     };
   }
-  
-  // Helper method to transform learning_paths data to Thread format
-  private static transformLearningPathToThread(learningPath: any): Thread {
-    return {
-      threadId: learningPath.id,
-      userId: learningPath.studentProfileId,
-      userInput: learningPath.userInput || `Learning ${learningPath.subject}`,
-      analysis: {
-        subjects: [learningPath.subject],
-        topics: learningPath.currentTopicId ? [learningPath.currentTopicId] : [],
-        concepts: learningPath.availableConcepts || [],
-        summary: `Learning path for ${learningPath.subject}`
-      },
-      sections: (learningPath.availableConcepts || []).map((conceptId: string, index: number) => ({
-        id: conceptId,
-        title: `Section ${index + 1}`,
-        text: `Content for ${conceptId}`,
-        relevanceScore: 0.8,
-        estimatedMinutes: 10
-      })),
-      createdAt: learningPath.startedAt || new Date().toISOString(),
-      updatedAt: learningPath.lastAccessedAt || new Date().toISOString(),
-      status: learningPath.status || 'active'
-    };
-  }
 }
